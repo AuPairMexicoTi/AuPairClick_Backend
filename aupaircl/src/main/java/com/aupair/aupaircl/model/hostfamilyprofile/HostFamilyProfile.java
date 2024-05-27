@@ -1,5 +1,6 @@
 package com.aupair.aupaircl.model.hostfamilyprofile;
 
+import com.aupair.aupaircl.model.lada.Lada;
 import com.aupair.aupaircl.model.locationtype.LocationTypes;
 import com.aupair.aupaircl.model.user.User;
 import jakarta.persistence.Entity;
@@ -10,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -53,7 +55,9 @@ public class HostFamilyProfile {
     private String hostingExperience;
     @Column(name = "smoke")
     private Boolean smokes;
-
+    @OneToOne
+    @JoinColumn(name = "fk_lada")
+    private Lada lada;
     @PrePersist
     private void generateUUID(){
         if(this.hostFamilyProfileId==null){

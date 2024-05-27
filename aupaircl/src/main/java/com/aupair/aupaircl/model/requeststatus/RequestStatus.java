@@ -15,7 +15,7 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "status")
+@Table(name = "apc_request_status")
 @Entity
 public class RequestStatus {
     @Id
