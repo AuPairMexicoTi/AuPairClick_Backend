@@ -55,6 +55,10 @@ public class User {
     private Date resetTokenExpires;
     @PrePersist
     private void generateUUID(){
+        this.lastLogin=new Date();
+        if(this.createdAt==null){
+            this.createdAt = new Date();
+        }
         if (this.userId==null){
             this.userId = UUID.randomUUID();
         }

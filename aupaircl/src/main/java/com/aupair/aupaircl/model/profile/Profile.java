@@ -44,10 +44,7 @@ public class Profile {
 
     @Column(name = "age",nullable = false)
     private Integer age;
-    @Column(name = "nationality",nullable = false)
-    private String nationality;
-    @Column(name = "country_of_residence",nullable = false)
-    private String countryOfResidence;
+
     @Column(name = "languages_spoken",nullable = false)
     private String languagesSpoken;
     @Column(name = "about_me",nullable = false)

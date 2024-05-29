@@ -17,7 +17,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "apc_location_types")
-public class    LocationTypes {
+public class LocationTypes {
 
 
     @Id

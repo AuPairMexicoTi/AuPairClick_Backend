@@ -9,10 +9,15 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.PrePersist;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.UUID;
-
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 @Entity
 @Table(name = "apc_au_pair_profiles")
 public class AuPairProfile {
