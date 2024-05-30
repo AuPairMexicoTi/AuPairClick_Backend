@@ -1,4 +1,4 @@
-package com.aupair.aupaircl.controller.usercontroller.userDTO;
+package com.aupair.aupaircl.controller.usercontroller.userdto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;

@@ -1,7 +1,6 @@
 package com.aupair.aupaircl.controller.usercontroller;
 
-import com.aupair.aupaircl.controller.usercontroller.userDTO.UserDTO;
-import com.aupair.aupaircl.service.mailservice.MailService;
+import com.aupair.aupaircl.controller.usercontroller.userdto.UserDTO;
 import com.aupair.aupaircl.service.userservice.UserService;
 import com.aupair.aupaircl.utils.CustomResponse;
 import jakarta.validation.Valid;
