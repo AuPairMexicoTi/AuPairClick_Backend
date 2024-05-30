@@ -1,6 +1,8 @@
 package com.aupair.aupaircl.service.mailservice;
 
 import com.aupair.aupaircl.controller.mailcontroller.maildto.MailDTO;
+import com.aupair.aupaircl.model.emailverification.EmailVerification;
+import com.aupair.aupaircl.model.emailverification.EmailVerificationRepository;
 import com.aupair.aupaircl.model.rol.RolRepository;
 import com.aupair.aupaircl.model.user.User;
 import com.aupair.aupaircl.model.user.UserRepository;
@@ -18,11 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 @Slf4j
@@ -30,29 +28,36 @@ import java.util.concurrent.TimeUnit;
 @Transactional
 public class MailService {
     private final UserRepository userRepository;
+    private final EmailVerificationRepository emailVerificationRepository;
     private Map<String, String> recoveryCodes = new ConcurrentHashMap<>();
-    private Map<String, Instant> lastRecoveryRequest = new HashMap<>();
     private String errorMessage = "Usuario invalido";
     private final RolRepository roleRepository;
     private final JavaMailSender javaMailSender;
     private Environment env;
     SecureRandom random = new SecureRandom();
     @Autowired
-    public MailService(UserRepository userRepository,Environment env, RolRepository roleRepository,JavaMailSender javaMailSender) {
+    public MailService(UserRepository userRepository,Environment env,EmailVerificationRepository emailVerificationRepository, RolRepository roleRepository,JavaMailSender javaMailSender) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.javaMailSender = javaMailSender;
+        this.emailVerificationRepository = emailVerificationRepository;
         this.env = env;
     }
 
     @Transactional
     public ResponseEntity<CustomResponse> validateCodeEmail(MailDTO mailDTO) {
         try {
-            String storeCode = recoveryCodes.get(mailDTO.getEmail());
-            if (storeCode != null && storeCode.equals(mailDTO.getCode())) {
-                recoveryCodes.remove(mailDTO.getEmail());
+            Optional<EmailVerification> verification = this.emailVerificationRepository.findByUser_Email(mailDTO.getEmail());
+            if (mailDTO.getCode().equals( verification.get().getVerificationToken())) {
+                Optional<User> user = this.userRepository.findByEmail(mailDTO.getEmail());
+                user.get().setEmailVerified(true);
+                verification.get().setExpiresAt(new Date());
+                verification.get().setVerificationToken("");
+                this.userRepository.save(user.get());
+                this.emailVerificationRepository.save(verification.get());
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.OK.value(), "Codigo validado"));
             }else{
+                log.info("Codigo expirado");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.BAD_REQUEST.value(), "Codigo invalido"));
             }
         }catch (Exception e){
@@ -64,12 +69,15 @@ public class MailService {
     @Transactional
     public ResponseEntity<CustomResponse> verifyAccount(String email){
         String code = genereteRandomCode();
-
-        Instant lastRequestTime = lastRecoveryRequest.get(email);
-        Instant currentTime = Instant.now();
-        if (lastRequestTime != null && currentTime.minus(1, ChronoUnit.MINUTES).isBefore(lastRequestTime)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CustomResponse(false, HttpStatus.BAD_REQUEST.value(), "Espera al menos 1 minuto antes de solicitar otro código de recuperación."));
+        Optional<User> userSaved = this.userRepository.findByEmail(email);
+        if(userSaved.isPresent()) {
+            EmailVerification emailVerificationSaved = new EmailVerification();
+            emailVerificationSaved.setUser(userSaved.get());
+            emailVerificationSaved.setVerificationToken(code);
+            emailVerificationSaved.setExpiresAt(new Date());
+            this.emailVerificationRepository.save(emailVerificationSaved);
         }
+
         User user = userRepository.findByEmail(email).get();
         String username = user != null ? user.getUsername() : "Querid@ usuario";
 
@@ -127,10 +135,6 @@ public class MailService {
                     border-radius: 16px;
                     letter-spacing: 50px;
                     padding-left: 50px;
-                }
-                a:hover{
-                    background-color: #ed8003cc;
-                    border-color: #ed8003cc;
                 }
                 .container-code {
                     text-align: center;

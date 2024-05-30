@@ -1,6 +1,6 @@
 package com.aupair.aupaircl.controller.profilecontroller;
 
-import com.aupair.aupaircl.controller.profilecontroller.profileDTO.ProfileDTO;
+import com.aupair.aupaircl.controller.profilecontroller.profiledto.ProfileDTO;
 import com.aupair.aupaircl.service.profileservice.ProfileService;
 import com.aupair.aupaircl.utils.CustomResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ private final ProfileService profileService;
 public ProfileController(ProfileService profileService) {
     this.profileService = profileService;
 }
-    @PostMapping(value = "/validateCode", produces = "application/json")
+    @PostMapping(value = "/registerProfile", produces = "application/json")
     public ResponseEntity<CustomResponse> registerProfile(ProfileDTO profileDTO){
     try {
         return this.profileService.registerProfile(profileDTO);

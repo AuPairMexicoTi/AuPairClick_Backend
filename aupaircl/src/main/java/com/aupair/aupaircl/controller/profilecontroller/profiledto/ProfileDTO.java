@@ -1,6 +1,7 @@
-package com.aupair.aupaircl.controller.profilecontroller.profileDTO;
+package com.aupair.aupaircl.controller.profilecontroller.profiledto;
 
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -19,11 +20,11 @@ public class ProfileDTO {
     private String country_of_residence;
     private String gender;
     private String about_me;
-    private String Image;
     private Integer min_stay_months;
     private Integer max_stay_months;
-
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date available_from;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date available_to;
     private String child_care_experience;
     private String motivation;
@@ -34,12 +35,17 @@ public class ProfileDTO {
     private String hostin_experience;
     private String house_description;
     private Integer number_of_children;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date search_from;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date search_to;
     private String location_type;
     private Boolean smokes;
 
 
     private String isType;
+
+    private ImageDTO[] images;
+    private CountryDTO[] countriesPreferences;
 
 }
