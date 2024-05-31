@@ -40,6 +40,8 @@ public class AuPairProfile {
     private String childcareExperience;
     @Column(name = "motivation",nullable = false)
     private String motivation;
+    @Column(name = "isApproved")
+    private Boolean isApproved = false;
     @Column(name = "smoke")
     private Boolean smokes;
     @PrePersist
