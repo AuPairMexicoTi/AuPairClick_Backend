@@ -53,6 +53,8 @@ public class Profile {
     private Integer minStayMonths;
     @Column(name = "max_stay_months",nullable = false)
     private Integer maxStayMonths;
+    @Column(name = "isApproved")
+    private Boolean isApproved = false;
     @ManyToOne
     @JoinColumn(name = "fk_country", nullable = false)
     private Country country;

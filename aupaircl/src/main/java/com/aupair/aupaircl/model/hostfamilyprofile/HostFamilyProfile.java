@@ -55,6 +55,8 @@ public class HostFamilyProfile {
     private String hostingExperience;
     @Column(name = "smoke")
     private Boolean smokes;
+    @Column(name = "isApproved")
+    private Boolean isApproved = false;
     @OneToOne
     @JoinColumn(name = "fk_lada")
     private Lada lada;
