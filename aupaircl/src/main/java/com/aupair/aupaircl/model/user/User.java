@@ -1,14 +1,11 @@
 package com.aupair.aupaircl.model.user;
 
+import com.aupair.aupaircl.model.aupairprofile.AuPairProfile;
+import com.aupair.aupaircl.model.hostfamilyprofile.HostFamilyProfile;
+import com.aupair.aupaircl.model.profile.Profile;
 import com.aupair.aupaircl.model.rol.Rol;
-import jakarta.persistence.Id;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Column;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -41,8 +38,10 @@ public class User {
     private Rol role;
     @Column(name = "email_verified")
     private Boolean emailVerified = false;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @Column(name = "created_at",nullable = false)
     private Date createdAt;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @Column(name = "last_login")
     private Date lastLogin;
     @Column(name="failed_attempts")
@@ -51,8 +50,15 @@ public class User {
     private Boolean isLocked = false;
     @Column(name = "reset_token")
     private String resetToken;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @Column(name = "reset_token_expires")
     private Date resetTokenExpires;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Profile profile;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch =FetchType.LAZY)
+    private AuPairProfile auPairProfile;
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL, fetch =FetchType.LAZY)
+    private HostFamilyProfile hostFamilyProfile;
     @PrePersist
     private void generateUUID(){
         this.lastLogin=new Date();

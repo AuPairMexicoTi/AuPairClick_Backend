@@ -1,12 +1,15 @@
 package com.aupair.aupaircl.service.userservice;
 
+import com.aupair.aupaircl.controller.profilecontroller.profiledto.CountryDTO;
 import com.aupair.aupaircl.controller.usercontroller.userdto.UserDTO;
-import com.aupair.aupaircl.model.emailverification.EmailVerificationRepository;
+import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountry;
+import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountryRepository;
 import com.aupair.aupaircl.model.rol.Rol;
 import com.aupair.aupaircl.model.rol.RolRepository;
 import com.aupair.aupaircl.model.user.User;
 import com.aupair.aupaircl.model.user.UserRepository;
 import com.aupair.aupaircl.service.mailservice.MailService;
+import com.aupair.aupaircl.service.userservice.mapperuser.MapperUser;
 import com.aupair.aupaircl.utils.CustomResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,28 +19,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @Transactional
 @Slf4j
 public class UserService {
 private final UserRepository userRepository;
-private final EmailVerificationRepository emailVerificationRepository;
 private final RolRepository rolesRepository;
 private static final String AuPairType= "aupair";
     private static final String FamilyType = "family";
     private final MailService mailService;
+    private final AuPairPreferredCountryRepository auPairPreferredCountryRepository;
 
 @Autowired
-public UserService(UserRepository userRepository,EmailVerificationRepository emailVerificationRepository,
-                   RolRepository rolesRepository, MailService mailService){
+public UserService(UserRepository userRepository,
+                   RolRepository rolesRepository, MailService mailService,AuPairPreferredCountryRepository auPairPreferredCountryRepository){
     this.userRepository = userRepository;
-    this.emailVerificationRepository = emailVerificationRepository;
     this.rolesRepository = rolesRepository;
     this.mailService = mailService;
+    this.auPairPreferredCountryRepository = auPairPreferredCountryRepository;
 }
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> registerUser(UserDTO userDTO){
@@ -83,4 +84,15 @@ public UserService(UserRepository userRepository,EmailVerificationRepository ema
         return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse( false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio en el servidor"));
     }
     }
+    @Transactional(readOnly = true)
+    public ResponseEntity<CustomResponse> getPreferencesByUser(String email){
+        List<AuPairPreferredCountry> auPairPreferredCountry = this.auPairPreferredCountryRepository.findByAuPairProfile_User_Email(email);
+        List<CountryDTO> countryDTOS = MapperUser.mapAuPairPreferredCountry(auPairPreferredCountry);
+        if(!auPairPreferredCountry.isEmpty()){
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Ciudades de preferencia",200,false,countryDTOS));
+        }else{
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Sin registros",200,false,null));
+        }
+    }
+
 }

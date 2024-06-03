@@ -3,6 +3,7 @@ package com.aupair.aupaircl.model.hostfamilyprofile;
 import com.aupair.aupaircl.model.lada.Lada;
 import com.aupair.aupaircl.model.locationtype.LocationTypes;
 import com.aupair.aupaircl.model.user.User;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
@@ -30,8 +31,7 @@ public class HostFamilyProfile {
     @Column(name = "id_profile_host_family",nullable = false)
     @GeneratedValue(generator = "UUID")
     private UUID hostFamilyProfileId;
-
-    @ManyToOne
+    @OneToOne(targetEntity = User.class)
     @JoinColumn(name = "fk_user", nullable = false)
     private User user;
 
@@ -45,9 +45,11 @@ public class HostFamilyProfile {
     @ManyToOne
     @JoinColumn(name = "fk_location_type", nullable = false)
     private LocationTypes locationType;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
 
     @Column(name = "search_from",nullable = false)
     private Date searchFrom;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
 
     @Column(name = "search_to",nullable = false)
     private Date searchTo;

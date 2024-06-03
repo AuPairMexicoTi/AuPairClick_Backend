@@ -26,13 +26,11 @@ public class AuPairPreferredCountry {
     @Column(name = "id_aupair_preferred_countries")
     @GeneratedValue(generator = "UUID")
     private UUID idAuPairPreferredCountries;
-
     @ManyToOne
-    @JoinColumn(name = "fk_au_pair_profile", nullable = false)
+    @JoinColumn(name = "fk_au_pair_profile")
     private AuPairProfile auPairProfile;
-
     @ManyToOne
-    @JoinColumn(name = "fk_country", nullable = false)
+    @JoinColumn(name = "fk_country")
     private Country country;
     @PrePersist
     private void generateUUID(){

@@ -92,7 +92,7 @@ public class ProfileService {
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido"));
             }
 
-            if (!userSaved.get().getEmailVerified()) {
+            if (Boolean.FALSE.equals(userSaved.get().getEmailVerified())) {
                 log.error("Email isnt verified");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario no verificado"));
             }
@@ -202,6 +202,7 @@ public class ProfileService {
         }
         return null;
     }
+
 
     public boolean isProfileCompletelyApproved(UUID userId) {
         Optional<Profile> profile = profileRepository.findById(userId);

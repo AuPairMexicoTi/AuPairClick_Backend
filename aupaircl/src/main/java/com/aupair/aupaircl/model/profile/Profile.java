@@ -3,17 +3,11 @@ package com.aupair.aupaircl.model.profile;
 import com.aupair.aupaircl.model.country.Country;
 import com.aupair.aupaircl.model.gender.Gender;
 import com.aupair.aupaircl.model.user.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Column;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import jakarta.persistence.PrePersist;
+
 import java.util.UUID;
 
 @Data
@@ -28,7 +22,8 @@ public class Profile {
     @GeneratedValue(generator = "UUID")
     private UUID profileId;
 
-    @ManyToOne
+
+    @OneToOne
     @JoinColumn(name = "fk_user", nullable = false)
     private User user;
 

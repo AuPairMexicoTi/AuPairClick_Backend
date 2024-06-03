@@ -1,14 +1,8 @@
 package com.aupair.aupaircl.model.aupairprofile;
 
 import com.aupair.aupaircl.model.user.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.PrePersist;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,12 +21,14 @@ public class AuPairProfile {
     @GeneratedValue(generator = "UUID")
     private UUID auPairProfileId;
 
-    @ManyToOne
+    @OneToOne(targetEntity = User.class)
     @JoinColumn(name = "fk_user", nullable = false)
     private User user;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
 
     @Column(name = "available_from",nullable = false)
     private Date availableFrom;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
 
     @Column(name = "available_to",nullable = false)
     private Date availableTo;
