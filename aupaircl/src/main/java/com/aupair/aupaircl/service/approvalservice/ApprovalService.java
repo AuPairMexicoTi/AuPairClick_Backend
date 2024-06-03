@@ -6,10 +6,12 @@ import com.aupair.aupaircl.model.hostfamilyprofile.HostFamilyProfile;
 import com.aupair.aupaircl.model.hostfamilyprofile.HostFamilyProfileRepository;
 import com.aupair.aupaircl.model.profile.Profile;
 import com.aupair.aupaircl.model.profile.ProfileRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
-
+@Slf4j
 @Service
 public class ApprovalService {
 
@@ -23,21 +25,23 @@ public class ApprovalService {
         this.hostFamilyProfileRepository = hostFamilyProfileRepository;
     }
 
-    public void approveProfileSection(UUID profileId) {
-        Profile profile = profileRepository.findById(profileId).get();
-        profile.setIsApproved(true);
-        profileRepository.save(profile);
+    public void approveProfileSection(UUID profileId, boolean isApproved) {
+        Optional<Profile> profile = profileRepository.findById(profileId);
+        if (profile.isPresent()) {
+            profile.get().setIsApproved(isApproved);
+            profileRepository.save(profile.get());
+        }
     }
 
-    public void approveAuPairProfileSection(UUID auPairProfileId) {
+    public void approveAuPairProfileSection(UUID auPairProfileId,boolean isApproved) {
         AuPairProfile auPairProfile = auPairProfileRepository.findById(auPairProfileId).get();
-        auPairProfile.setIsApproved(true);
+        auPairProfile.setIsApproved(isApproved);
         auPairProfileRepository.save(auPairProfile);
     }
 
-    public void approveHostFamilyProfileSection(UUID hostFamilyProfileId) {
+    public void approveHostFamilyProfileSection(UUID hostFamilyProfileId,boolean isApproved) {
         HostFamilyProfile hostFamilyProfile = hostFamilyProfileRepository.findById(hostFamilyProfileId).get();
-        hostFamilyProfile.setIsApproved(true);
+        hostFamilyProfile.setIsApproved(isApproved);
         hostFamilyProfileRepository.save(hostFamilyProfile);
     }
 }

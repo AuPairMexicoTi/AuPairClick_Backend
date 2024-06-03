@@ -172,7 +172,7 @@ public class MailService {
 
         recoveryCodes.put(email, code);
         scheduleCodeRemoval(email, 20, TimeUnit.MINUTES);
-        return sendEmail(email, "Bienvenido! Verifica tu cuenta ", messageFormat);
+        return sendEmail(email, "Bienvenid@! Verifica tu cuenta ", messageFormat);
     }
     public ResponseEntity<CustomResponse> sendEmail(String email, String title, String html) {
         MimeMessage message = javaMailSender.createMimeMessage();
