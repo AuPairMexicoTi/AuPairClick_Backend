@@ -7,5 +7,4 @@ import java.util.UUID;
 
 public interface HostFamilyProfileRepository extends JpaRepository<HostFamilyProfile, UUID> {
     Optional<HostFamilyProfile> findByUser_Email(String email);
-
 }

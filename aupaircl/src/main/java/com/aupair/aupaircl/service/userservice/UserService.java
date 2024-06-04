@@ -1,6 +1,7 @@
 package com.aupair.aupaircl.service.userservice;
 
 import com.aupair.aupaircl.controller.profilecontroller.profiledto.CountryDTO;
+import com.aupair.aupaircl.controller.usercontroller.userdto.FindHostDTO;
 import com.aupair.aupaircl.controller.usercontroller.userdto.UserDTO;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountry;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountryRepository;
@@ -85,13 +86,22 @@ public UserService(UserRepository userRepository,
     }
     }
     @Transactional(readOnly = true)
-    public ResponseEntity<CustomResponse> getPreferencesByUser(String email){
+    public ResponseEntity<CustomResponse> getPreferencesCountryByUser(String email){
         List<AuPairPreferredCountry> auPairPreferredCountry = this.auPairPreferredCountryRepository.findByAuPairProfile_User_Email(email);
         List<CountryDTO> countryDTOS = MapperUser.mapAuPairPreferredCountry(auPairPreferredCountry);
         if(!auPairPreferredCountry.isEmpty()){
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Ciudades de preferencia",200,false,countryDTOS));
         }else{
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Sin registros",200,false,null));
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Sin registros",400,false,null));
+        }
+    }
+    @Transactional(readOnly = true)
+    public ResponseEntity<CustomResponse> findHostFamilies(FindHostDTO findHostDTO){
+        try {
+            return null;
+        }catch (Exception e){
+            log.error("Error al filtrar: "+e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo ocurrio al filtrar"));
         }
     }
 

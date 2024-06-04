@@ -1,5 +1,6 @@
 package com.aupair.aupaircl.model.aupairprofile;
 
+import com.aupair.aupaircl.model.gender.Gender;
 import com.aupair.aupaircl.model.user.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
@@ -40,6 +41,9 @@ public class AuPairProfile {
     private Boolean isApproved = false;
     @Column(name = "smoke")
     private Boolean smokes;
+    @ManyToOne
+    @JoinColumn(name = "fk_gender", nullable = false)
+    private Gender gender;
     @PrePersist
     private void generateUUID(){
         if(this.auPairProfileId==null){

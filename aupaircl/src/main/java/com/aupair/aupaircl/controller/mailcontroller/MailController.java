@@ -14,20 +14,32 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 public class MailController {
-private final MailService mailService;
-private static final String INTERNALSERVERERROR = "Algo ocurrio en el servidor";
-@Autowired
-public MailController(MailService mailService){
-    this.mailService = mailService;
-}
-@PostMapping(value = "/validateCode", produces = "application/json")
-public ResponseEntity<CustomResponse> validateCode(@RequestBody MailDTO mailDTO){
-    try {
-        return this.mailService.validateCodeEmail(mailDTO);
+    private final MailService mailService;
+    private static final String INTERNALSERVERERROR = "Algo ocurrio en el servidor";
 
-    }catch (Exception e) {
-        log.error("Error en validate code "+e.getMessage());
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo sucedio al validar"));
+    @Autowired
+    public MailController(MailService mailService) {
+        this.mailService = mailService;
     }
-}
+
+    @PostMapping(value = "/validateCode", produces = "application/json")
+    public ResponseEntity<CustomResponse> validateCode(@RequestBody MailDTO mailDTO) {
+        try {
+            return this.mailService.validateCodeEmail(mailDTO);
+
+        } catch (Exception e) {
+            log.error("Error en validate code " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al validar"));
+        }
+    }
+
+    @PutMapping(value = "/sendCode", produces = "application/json")
+    public ResponseEntity<CustomResponse> sendCode(@RequestBody MailDTO mailDTO) {
+        try {
+            return this.mailService.sendCodeEmail(mailDTO);
+        } catch (Exception e) {
+            log.error("Error" + e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal"));
+        }
+    }
 }

@@ -22,6 +22,7 @@ public class ProfileDTO {
     private String about_me;
     private Integer min_stay_months;
     private Integer max_stay_months;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date available_from;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")

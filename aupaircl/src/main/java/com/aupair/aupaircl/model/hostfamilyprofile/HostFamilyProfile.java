@@ -1,7 +1,6 @@
 package com.aupair.aupaircl.model.hostfamilyprofile;
 
 import com.aupair.aupaircl.model.lada.Lada;
-import com.aupair.aupaircl.model.locationtype.LocationTypes;
 import com.aupair.aupaircl.model.user.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Entity;
@@ -9,7 +8,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Id;
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.OneToOne;
@@ -42,9 +40,6 @@ public class HostFamilyProfile {
     @Column(name = "house_description",nullable = false)
     private String houseDescription;
 
-    @ManyToOne
-    @JoinColumn(name = "fk_location_type", nullable = false)
-    private LocationTypes locationType;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
 
     @Column(name = "search_from",nullable = false)

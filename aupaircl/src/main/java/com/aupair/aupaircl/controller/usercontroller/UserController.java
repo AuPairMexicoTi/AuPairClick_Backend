@@ -34,7 +34,7 @@ public class UserController {
     @GetMapping(value ="/preferencesByUser/{email}",produces = "application/json")
     public ResponseEntity<CustomResponse> preferencesByUser(@PathVariable("email") String email){
         try {
-            return this.userService.getPreferencesByUser(email);
+            return this.userService.getPreferencesCountryByUser(email);
         }catch (Exception e){
             log.error("Error"+e.getMessage());
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal"));

@@ -1,7 +1,7 @@
 package com.aupair.aupaircl.model.profile;
 
 import com.aupair.aupaircl.model.country.Country;
-import com.aupair.aupaircl.model.gender.Gender;
+import com.aupair.aupaircl.model.locationtype.LocationTypes;
 import com.aupair.aupaircl.model.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -33,10 +33,6 @@ public class Profile {
     @Column(name = "last_name",nullable = false)
     private String lastName;
 
-    @ManyToOne
-    @JoinColumn(name = "fk_gender", nullable = false)
-    private Gender gender;
-
     @Column(name = "age",nullable = false)
     private Integer age;
 
@@ -50,6 +46,9 @@ public class Profile {
     private Integer maxStayMonths;
     @Column(name = "isApproved")
     private Boolean isApproved = false;
+    @ManyToOne
+    @JoinColumn(name = "fk_location_type", nullable = false)
+    private LocationTypes locationType;
     @ManyToOne
     @JoinColumn(name = "fk_country", nullable = false)
     private Country country;
