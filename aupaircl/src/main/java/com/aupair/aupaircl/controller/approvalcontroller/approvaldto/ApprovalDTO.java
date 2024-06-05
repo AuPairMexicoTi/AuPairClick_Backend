@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class ApprovalDTO {
-    public boolean isApproved;
+    private Boolean isApproved;
     private String message;
     private String email;
 }

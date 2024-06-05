@@ -3,6 +3,7 @@ package com.aupair.aupaircl.model.aupairprofile;
 import com.aupair.aupaircl.model.gender.Gender;
 import com.aupair.aupaircl.model.user.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,7 +22,7 @@ public class AuPairProfile {
     @Column(name = "id_profile_aupair")
     @GeneratedValue(generator = "UUID")
     private UUID auPairProfileId;
-
+    @JsonIgnore
     @OneToOne(targetEntity = User.class)
     @JoinColumn(name = "fk_user", nullable = false)
     private User user;
@@ -41,6 +42,7 @@ public class AuPairProfile {
     private Boolean isApproved = false;
     @Column(name = "smoke")
     private Boolean smokes;
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "fk_gender", nullable = false)
     private Gender gender;

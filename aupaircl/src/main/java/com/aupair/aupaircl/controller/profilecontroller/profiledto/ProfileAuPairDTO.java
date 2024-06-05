@@ -20,6 +20,5 @@ public class ProfileAuPairDTO {
     private String child_care_experience;
     private String motivation;
     private Boolean smoke;
-    private String isType;
     private String gender;
 }

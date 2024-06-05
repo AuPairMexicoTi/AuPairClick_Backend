@@ -16,9 +16,9 @@ public class NotificationService {
         message.setTo(email);
         message.setSubject("Actualización de la Aprobación del Perfil");
         if (isApproved) {
-            message.setText("La sección " + sectionName + " de tu perfil ha sido aprobada.");
+            message.setText(sectionName);
         } else {
-            message.setText("La sección " + sectionName + " de tu perfil necesita modificaciones. Por favor, revisa y actualiza tu perfil.");
+            message.setText(sectionName);
         }
         mailSender.send(message);
     }

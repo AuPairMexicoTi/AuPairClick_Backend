@@ -42,7 +42,7 @@ public class ProfileDTO {
     private Date search_to;
     private String location_type;
     private Boolean smokes;
-
+    private String genderPreferred;
 
     private String isType;
 

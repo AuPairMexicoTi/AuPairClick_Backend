@@ -7,7 +7,10 @@ import com.aupair.aupaircl.model.hostfamilyprofile.HostFamilyProfile;
 import com.aupair.aupaircl.model.hostfamilyprofile.HostFamilyProfileRepository;
 import com.aupair.aupaircl.model.profile.Profile;
 import com.aupair.aupaircl.model.profile.ProfileRepository;
+import com.aupair.aupaircl.model.user.User;
+import com.aupair.aupaircl.model.user.UserRepository;
 import com.aupair.aupaircl.service.approvalservice.ApprovalService;
+import com.aupair.aupaircl.service.mailservice.MailService;
 import com.aupair.aupaircl.service.notificationservice.NotificationService;
 import com.aupair.aupaircl.utils.CustomResponse;
 import org.slf4j.Logger;
@@ -28,17 +31,20 @@ public class ApprovalController {
     private final NotificationService notificationService;
     private final AuPairProfileRepository auPairProfileRepository;
     private final HostFamilyProfileRepository hostFamilyProfileRepository;
-
+    private final UserRepository userRepository;
+    private final MailService mailService;
     public ApprovalController(ProfileRepository profileRepository,
                               ApprovalService approvalService,NotificationService notificationService
-    ,AuPairProfileRepository auPairProfileRepository,HostFamilyProfileRepository hostFamilyProfileRepository) {
+    ,AuPairProfileRepository auPairProfileRepository,HostFamilyProfileRepository hostFamilyProfileRepository,
+                              UserRepository userRepository,MailService mailService) {
         this.approvalService = approvalService;
         this.notificationService = notificationService;
         this.profileRepository = profileRepository;
         this.auPairProfileRepository = auPairProfileRepository;
         this.hostFamilyProfileRepository = hostFamilyProfileRepository;
+        this.mailService = mailService;
+        this.userRepository = userRepository;
     }
-
 
     @PostMapping(value="/profile")
     public ResponseEntity<CustomResponse> approvedProfile(@RequestBody ApprovalDTO approvalDTO){
@@ -47,12 +53,14 @@ public class ApprovalController {
          log.error("User not found to profile");
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido"));
         }
-
-        approvalService.approveProfileSection(userFind.get().getProfileId(),approvalDTO.isApproved());
-        notificationService.sendApprovalNotification(approvalDTO.getEmail(), "Perfil", approvalDTO.isApproved());
+        if(Boolean.TRUE.equals(userFind.get().getIsApproved())){
+            log.error("User already approved");
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario ya ha sido aprobada"));
+        }
+        approvalService.approveProfileSection(userFind.get().getProfileId(),approvalDTO.getIsApproved());
+        mailService.sendEmail(approvalDTO.getEmail(), "Aprovacion de seccion Pefil", approvalDTO.getMessage());
         return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.OK.value(), "Actualizacion de seccion Perfil"));
     }
-
 
     @PostMapping(value="/aupair")
     public ResponseEntity<CustomResponse> approvedAuPairProfile(@RequestBody ApprovalDTO approvalDTO){
@@ -61,15 +69,14 @@ public class ApprovalController {
          log.error("User not found to au pair profile");
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario no valido"));
         }
-        if (Boolean.TRUE.equals(userFindAuPair.get().getIsApproved())) {
-            log.error("Au pair profile already approved");
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Au Pair perfil ya ha sido aprobado"));
+        if(Boolean.TRUE.equals(userFindAuPair.get().getIsApproved())){
+            log.error("Au pair already approved");
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Au Pair ya ha sido aprobada"));
         }
-        approvalService.approveAuPairProfileSection(userFindAuPair.get().getAuPairProfileId(),false);
-        notificationService.sendApprovalNotification(approvalDTO.getEmail(),"Perfil de au pair", approvalDTO.isApproved());
+        approvalService.approveAuPairProfileSection(userFindAuPair.get().getAuPairProfileId(), approvalDTO.getIsApproved());
+        mailService.sendEmail(approvalDTO.getEmail(), "Aprovacion de informacion de Au Pair", approvalDTO.getMessage());
         return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.OK.value(), "Actualizacion de seccion Au Pair"));
     }
-
 
     @PostMapping(value = "/hostfamily")
     public ResponseEntity<CustomResponse> approvedHostFamilyProfile(@RequestBody ApprovalDTO approvalDTO){
@@ -82,8 +89,28 @@ public class ApprovalController {
             log.error("Host family already approved");
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Familia ya ha sido aprobada"));
         }
-        approvalService.approveHostFamilyProfileSection(userFindHost.get().getHostFamilyProfileId(),false);
-        notificationService.sendApprovalNotification(approvalDTO.getEmail(),"Perfil de familia anfitriona", approvalDTO.isApproved());
+        approvalService.approveHostFamilyProfileSection(userFindHost.get().getHostFamilyProfileId(), approvalDTO.getIsApproved());
+        mailService.sendEmail(approvalDTO.getEmail(), "Aprovacion de informacion de familia", approvalDTO.getMessage());
         return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.OK.value(), "Actualizacion de seccion Familia"));
+    }
+    @PostMapping(value = "/approvalAccount")
+    public ResponseEntity<CustomResponse> approvedAccount(@RequestBody ApprovalDTO approvalDTO){
+        try {
+            Optional<User> user = this.userRepository.findByEmail(approvalDTO.getEmail());
+            if (user.isEmpty()){
+                log.error("Could not find");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario no encontrado"));
+            }
+            if(Boolean.TRUE.equals(user.get().getIsLocked())){
+                log.error("User already approved");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario ya ha sido aprobada"));
+            }
+            approvalService.approveAccount(user.get().getUserId(),approvalDTO.getIsApproved());
+            mailService.sendEmail(approvalDTO.getEmail(), "Aprovacion de cuenta", approvalDTO.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.OK.value(), "Actualizacion de cuenta"));
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+        }
     }
 }

@@ -26,6 +26,7 @@ import com.aupair.aupaircl.model.profile.ProfileRepository;
 import com.aupair.aupaircl.model.rol.RolRepository;
 import com.aupair.aupaircl.model.user.User;
 import com.aupair.aupaircl.model.user.UserRepository;
+import com.aupair.aupaircl.service.mailservice.MailService;
 import com.aupair.aupaircl.service.profileservice.mapperprofile.MapperProfile;
 import com.aupair.aupaircl.utils.CustomResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +61,7 @@ public class ProfileService {
     private final HostFamilyPreferredCountryRepository hostFamilyPreferredCountryRepository;
     private static final String AuPairType= "aupair";
     private static final String FamilyType = "family";
-
+    private static MailService mailService;
     @Autowired
     public ProfileService(ProfileRepository profileRepository,ImageRepository imageRepository,CountryRepository countryRepository,
                           RolRepository rolRepository, LadaRepository ladaRepository,
@@ -69,7 +70,7 @@ public class ProfileService {
                           LocationTypesRepository locationTypeRepository,
                           GenderRepository genderRepository,
             MapperProfile mapperProfile,HostFamilyPreferredCountryRepository hostFamilyPreferredCountryRepository,
-                          AuPairPreferredCountryRepository auPairPreferredCountryRepository) {
+                          AuPairPreferredCountryRepository auPairPreferredCountryRepository,MailService mailService) {
         this.profileRepository = profileRepository;
         this.genderRepository = genderRepository;
         this.countryRepository = countryRepository;
@@ -83,6 +84,7 @@ public class ProfileService {
         this.mapperProfile = mapperProfile;
         this.auPairPreferredCountryRepository = auPairPreferredCountryRepository;
         this.hostFamilyPreferredCountryRepository = hostFamilyPreferredCountryRepository;
+        this.mailService = mailService;
     }
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> registerProfile(ProfileDTO profileDTO){
@@ -219,34 +221,18 @@ public class ProfileService {
                 log.error("Email isnt verified");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario no verificado"));
             }
-            if(this.profileRepository.existsByUser_Email(profileUpdateDTO.getEmail())){
-                log.error("User already exists");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Ya has creado tu perfil"));
-            }
-            if(this.rolRepository.findByRoleName(profileUpdateDTO.getIsType()).isEmpty()){
-                log.error("Rol invalid");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Rol invalido"));
-            }
             Optional<LocationTypes> locationTypeSaved = this.locationTypesRepository.findByLocationTypeName(profileUpdateDTO.getLocation_type());
             if (locationTypeSaved.isEmpty()) {
                 log.error("Could not find location type");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Location invalida"));
             }
-            Optional<Lada> ladaSaved = this.ladaRepository.findByLadaName(profileUpdateDTO.getLada());
-            if (ladaSaved.isEmpty()){
-                log.error("Could not find lada");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Lada invalida"));
-            }
+
             Optional<Country> countrySaved = this.countryRepository.findByCountryName(profileUpdateDTO.getCountry_of_residence());
             if (countrySaved.isEmpty()) {
                 log.error("Could not find country");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Pais invalido"));
             }
-            Optional<Gender> genderSaved = this.genderRepository.findByGenderName(profileUpdateDTO.getGender());
-            if (genderSaved.isEmpty()){
-                log.error("Could not find gender");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Genero invalido"));
-            }
+
             Optional<Profile> profile = this.profileRepository.findByUser_Email(profileUpdateDTO.getEmail());
                 profile.get().setUser(userSaved.get());
                 profile.get().setAge(profileUpdateDTO.getAge());
@@ -281,7 +267,7 @@ public class ProfileService {
     @Transactional(rollbackFor = {SQLException.class})
     public ResponseEntity<CustomResponse> updateProfileAuPair(ProfileAuPairDTO profileAuPairDTO) {
         try {
-            Optional<User> userSaved = this.userRepository.findByEmail(profileAuPairDTO.getEmail());
+            Optional<AuPairProfile> userSaved = this.auPairProfileRepository.findByUser_Email(profileAuPairDTO.getEmail());
             if (userSaved.isEmpty()){
                 log.error("Could not find user");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido"));
@@ -291,15 +277,17 @@ public class ProfileService {
                 log.error("Could not find gender");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Genero invalido"));
             }
-
-            if (userSaved.isPresent()) {
+            if (Boolean.FALSE.equals(userSaved.get().getUser().getEmailVerified())) {
+                log.error("Email isnt verified");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario no verificado"));
+            }
                 Optional<AuPairProfile> auPairProfile = this.auPairProfileRepository.findByUser_Email(profileAuPairDTO.getEmail());
                 if (auPairProfile.isPresent()) {
                     auPairProfile.get().setSmokes(profileAuPairDTO.getSmoke());
                     auPairProfile.get().setMotivation(profileAuPairDTO.getMotivation());
                     auPairProfile.get().setChildcareExperience(profileAuPairDTO.getChild_care_experience());
                     auPairProfile.get().setIsApproved(false);
-                    auPairProfile.get().setUser(userSaved.get());
+                    auPairProfile.get().setUser(userSaved.get().getUser());
                     auPairProfile.get().setAvailableFrom(profileAuPairDTO.getAvailable_from());
                     auPairProfile.get().setAvailableTo(profileAuPairDTO.getAvailable_to());
                     auPairProfile.get().setGender(genderSaved.get());
@@ -309,13 +297,20 @@ public class ProfileService {
                     log.error("User with Au Pair profile not found");
                     return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido"));
                 }
-            }else{
-                log.error("Could not find user");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido"));
-            }
+
         }catch (Exception e){
             log.error("Error updating profile au pair");
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.OK.value(), "Perfil actualizado"));
+        }
+    }
+
+    @Transactional(readOnly = true)
+   public ResponseEntity<CustomResponse> getPerfilAuPair(String email){
+        AuPairProfile auPairProfile = auPairProfileRepository.findByUser_EmailAndIsApproved(email,false);
+        if (auPairProfile != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Perfil Au Pair: ",HttpStatus.OK.value(), false,auPairProfile));
+        }else{
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.OK.value(), "Perfil no encontrado"));
         }
     }
     public ResponseEntity<CustomResponse> checkProfileApprovalStatus(UUID userId) {

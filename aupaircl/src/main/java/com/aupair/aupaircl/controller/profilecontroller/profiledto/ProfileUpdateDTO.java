@@ -14,15 +14,12 @@ public class ProfileUpdateDTO {
     private Integer age;
     private String last_name;
     private String phone;
-    private String lada;
     private String languages_spoken;
     private String nationality;
     private String country_of_residence;
-    private String gender;
     private String about_me;
     private Integer min_stay_months;
     private Integer max_stay_months;
-    private String isType;
     private String location_type;
 
 }

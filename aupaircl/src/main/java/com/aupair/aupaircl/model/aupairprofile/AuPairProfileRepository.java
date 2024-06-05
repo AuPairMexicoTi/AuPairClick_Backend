@@ -7,4 +7,5 @@ import java.util.UUID;
 
 public interface AuPairProfileRepository extends JpaRepository<AuPairProfile, UUID> {
     Optional<AuPairProfile> findByUser_Email(String email);
+    AuPairProfile findByUser_EmailAndIsApproved(String email,boolean isApp);
 }

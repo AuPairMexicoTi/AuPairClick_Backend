@@ -70,105 +70,110 @@ public class MailService {
 
     }
     @Transactional
-    public ResponseEntity<CustomResponse> sendCodeEmail(MailDTO mailDTO){
+    public ResponseEntity<CustomResponse> sendCodeEmail(MailDTO mailDTO) {
         String code = genereteRandomCode();
         Optional<User> userSaved = this.userRepository.findByEmail(mailDTO.getEmail());
-        if(userSaved.isPresent()) {
-            EmailVerification emailVerificationSaved = new EmailVerification();
-            emailVerificationSaved.setUser(userSaved.get());
-            emailVerificationSaved.setVerificationToken(code);
-            emailVerificationSaved.setExpiresAt(new Date());
-            this.emailVerificationRepository.saveAndFlush(emailVerificationSaved);
-            log.info("Codigo enviado");
-            String html = """
-        <html>
-        <head>
-            <style>
-                body {
-                    background-color: #F5F5F7;
-                    padding: 20px;
-                    line-height: 1.6;
-                    font-family: Arial, sans-serif;
-                }
-                .text {
-                    font-size: 24px;
-                    text-align: justify;
-                    color: black;
-                }
-                .header {
-                    font-size: 16px;
-                    text-align: justify;
-                    color: #8d8c8c;
-                }
-                .container-fluid {
-                    margin: 0 auto;
-                    max-width: 600px;
-                    background-color: white;
-                    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-                    border-radius: 26px;
-                }
-                .row {
-                    padding: 30px;
-                    padding-block: 60px;
-                }
-                .color-font {
-                    width: 100%%;
-                    height: auto;
-                }
-                h1 {
-                    color: #ED8003;
-                }
-                .size {
-                    width: 150px;
-                    height: auto;
-                }
-                a {
-                    margin-left: 10px;
-                    margin-right: 10px;
-                    border: 1px solid black;
-                    padding: 15px;
-                    border-radius: 16px;
-                    letter-spacing: 50px;
-                    padding-left: 50px;
-                }
-                .container-code {
-                    text-align: center;
-                    padding: 50px;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container-fluid">
-                <div class="row" style="text-align:center;">
-                    <img class="size" src="https://fhweovj.stripocdn.email/content/guids/CABINET_1b64288a36c96ad48cda203d3abb3b684f230cc2a18e4f2ba8ee4884477de08c/images/marca_au_pair_click.png" alt="Logo.png">
-                    <div style="text-align:center;">
-                        <h1  style="color:#6600FF;">Hola, %s</h1>
-                        <h2 class="text">Confirma tu correo </h2>
-                        <p>Codigo de verificacion</p<
-                    </div>
-                    <div class="container-code">
-                        <a>%s</a>
-                    </div>
-                    <div class="color-font">
-                        <p class="header">Si no solicitaste este correo, por favor ignóralo.</p>
-                        <strong> Este es un correo generado automáticamente, por favor no respondas a este mensaje.</strong>
-                    </div>
-                </div>
-            </div>
-        </body>
-        </html>
-        """;
+        if (userSaved.isPresent()) {
+            if (!userSaved.get().getEmailVerified()) {
+                EmailVerification emailVerificationSaved = new EmailVerification();
+                emailVerificationSaved.setUser(userSaved.get());
+                emailVerificationSaved.setVerificationToken(code);
+                emailVerificationSaved.setExpiresAt(new Date());
+                this.emailVerificationRepository.saveAndFlush(emailVerificationSaved);
+                log.info("Codigo enviado");
+                String html = """
+                        <html>
+                        <head>
+                            <style>
+                                body {
+                                    background-color: #F5F5F7;
+                                    padding: 20px;
+                                    line-height: 1.6;
+                                    font-family: Arial, sans-serif;
+                                }
+                                .text {
+                                    font-size: 24px;
+                                    text-align: justify;
+                                    color: black;
+                                }
+                                .header {
+                                    font-size: 16px;
+                                    text-align: justify;
+                                    color: #8d8c8c;
+                                }
+                                .container-fluid {
+                                    margin: 0 auto;
+                                    max-width: 600px;
+                                    background-color: white;
+                                    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+                                    border-radius: 26px;
+                                }
+                                .row {
+                                    padding: 30px;
+                                    padding-block: 60px;
+                                }
+                                .color-font {
+                                    width: 100%%;
+                                    height: auto;
+                                }
+                                h1 {
+                                    color: #ED8003;
+                                }
+                                .size {
+                                    width: 150px;
+                                    height: auto;
+                                }
+                                a {
+                                    margin-left: 10px;
+                                    margin-right: 10px;
+                                    border: 1px solid black;
+                                    padding: 15px;
+                                    border-radius: 16px;
+                                    letter-spacing: 50px;
+                                    padding-left: 50px;
+                                }
+                                .container-code {
+                                    text-align: center;
+                                    padding: 50px;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="container-fluid">
+                                <div class="row" style="text-align:center;">
+                                    <img class="size" src="https://fhweovj.stripocdn.email/content/guids/CABINET_1b64288a36c96ad48cda203d3abb3b684f230cc2a18e4f2ba8ee4884477de08c/images/marca_au_pair_click.png" alt="Logo.png">
+                                    <div style="text-align:center;">
+                                        <h1  style="color:#6600FF;">Hola, %s</h1>
+                                        <h2 class="text">Confirma tu correo </h2>
+                                        <p>Codigo de verificacion</p<
+                                    </div>
+                                    <div class="container-code">
+                                        <a>%s</a>
+                                    </div>
+                                    <div class="color-font">
+                                        <p class="header">Si no solicitaste este correo, por favor ignóralo.</p>
+                                        <strong> Este es un correo generado automáticamente, por favor no respondas a este mensaje.</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </body>
+                        </html>
+                        """;
 
-            String messageFormat = String.format(
-                    html,
-                    userSaved.get().getUsername(),
-                    code
-            );
+                String messageFormat = String.format(
+                        html,
+                        userSaved.get().getUsername(),
+                        code
+                );
 
 
-            return sendEmail(mailDTO.getEmail(), "Codigo de verificación ", messageFormat);
-        }else{
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.BAD_REQUEST.value(),"El usuario no es valido"));
+                return sendEmail(mailDTO.getEmail(), "Codigo de verificación ", messageFormat);
+            }else{
+                log.info("El usuario ya esta verificado");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.BAD_REQUEST.value(), "El usuario ya esta verificado"));
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.BAD_REQUEST.value(), "El usuario no es valido"));
         }
     }
     @Transactional

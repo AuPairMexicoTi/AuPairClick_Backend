@@ -6,6 +6,8 @@ import com.aupair.aupaircl.model.hostfamilyprofile.HostFamilyProfile;
 import com.aupair.aupaircl.model.hostfamilyprofile.HostFamilyProfileRepository;
 import com.aupair.aupaircl.model.profile.Profile;
 import com.aupair.aupaircl.model.profile.ProfileRepository;
+import com.aupair.aupaircl.model.user.User;
+import com.aupair.aupaircl.model.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -19,29 +21,43 @@ public class ApprovalService {
     private final ProfileRepository profileRepository;
     private final AuPairProfileRepository auPairProfileRepository;
     private final HostFamilyProfileRepository hostFamilyProfileRepository;
-    public ApprovalService(ProfileRepository profileRepository, AuPairProfileRepository auPair,HostFamilyProfileRepository hostFamilyProfileRepository){
+    private final UserRepository userRepository;
+    public ApprovalService(ProfileRepository profileRepository, AuPairProfileRepository auPair,
+                           HostFamilyProfileRepository hostFamilyProfileRepository,UserRepository userRepository){
         this.profileRepository = profileRepository;
         this.auPairProfileRepository = auPair;
         this.hostFamilyProfileRepository = hostFamilyProfileRepository;
+        this.userRepository = userRepository;
     }
 
-    public void approveProfileSection(UUID profileId, boolean isApproved) {
+    public void approveProfileSection(UUID profileId, Boolean isApproved) {
         Optional<Profile> profile = profileRepository.findById(profileId);
         if (profile.isPresent()) {
             profile.get().setIsApproved(isApproved);
-            profileRepository.save(profile.get());
+            profileRepository.saveAndFlush(profile.get());
         }
     }
 
     public void approveAuPairProfileSection(UUID auPairProfileId,boolean isApproved) {
-        AuPairProfile auPairProfile = auPairProfileRepository.findById(auPairProfileId).get();
-        auPairProfile.setIsApproved(isApproved);
-        auPairProfileRepository.save(auPairProfile);
+        Optional<AuPairProfile> auPairProfile = auPairProfileRepository.findById(auPairProfileId);
+        if (auPairProfile.isPresent()) {
+            auPairProfile.get().setIsApproved(isApproved);
+            auPairProfileRepository.saveAndFlush(auPairProfile.get());
+        }
     }
 
     public void approveHostFamilyProfileSection(UUID hostFamilyProfileId,boolean isApproved) {
-        HostFamilyProfile hostFamilyProfile = hostFamilyProfileRepository.findById(hostFamilyProfileId).get();
-        hostFamilyProfile.setIsApproved(isApproved);
-        hostFamilyProfileRepository.save(hostFamilyProfile);
+        Optional<HostFamilyProfile> hostFamilyProfile = hostFamilyProfileRepository.findById(hostFamilyProfileId);
+        if (hostFamilyProfile.isPresent()){
+            hostFamilyProfile.get().setIsApproved(isApproved);
+            hostFamilyProfileRepository.saveAndFlush(hostFamilyProfile.get());
+        }
+    }
+    public void approveAccount(UUID account, boolean isApproved){
+       Optional<User> user = this.userRepository.findById(account);
+       if (user.isPresent()){
+           user.get().setIsLocked(isApproved);
+           this.userRepository.saveAndFlush(user.get());
+       }
     }
 }

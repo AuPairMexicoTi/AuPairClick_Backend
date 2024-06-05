@@ -33,7 +33,6 @@ public class ProfileController {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal en el registro de perfil"));
         }
     }
-
     @PutMapping(value = "/updateProfile", produces = "application/json")
     public ResponseEntity<CustomResponse> updateProfile(@RequestBody ProfileUpdateDTO profileDTO) {
         try {
@@ -51,5 +50,14 @@ public class ProfileController {
         log.error("Algo sucedio al actualizar seccion Au Pair");
         return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal"));
     }
+    }
+    @GetMapping(value = "/getPerfilAuPair/{email}", produces = "application/json")
+    public ResponseEntity<CustomResponse> getPreferencesCountryByUser(@PathVariable String email) {
+        try {
+            return this.profileService.getPerfilAuPair(email);
+        }catch (Exception e){
+            log.error("Error"+e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal"));
+        }
     }
 }
