@@ -10,7 +10,6 @@ import com.aupair.aupaircl.model.user.User;
 import com.aupair.aupaircl.model.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 import java.util.Optional;
 import java.util.UUID;
 @Slf4j
@@ -40,6 +39,11 @@ public class ApprovalService {
 
     public void approveAuPairProfileSection(UUID auPairProfileId,boolean isApproved) {
         Optional<AuPairProfile> auPairProfile = auPairProfileRepository.findById(auPairProfileId);
+        Optional<User> user = this.userRepository.findByEmail(auPairProfile.get().getUser().getEmail());
+        if (user.isPresent() && !isApproved) {
+            user.get().setIsLocked(true);
+            this.userRepository.saveAndFlush(user.get());
+        }
         if (auPairProfile.isPresent()) {
             auPairProfile.get().setIsApproved(isApproved);
             auPairProfileRepository.saveAndFlush(auPairProfile.get());
@@ -48,6 +52,11 @@ public class ApprovalService {
 
     public void approveHostFamilyProfileSection(UUID hostFamilyProfileId,boolean isApproved) {
         Optional<HostFamilyProfile> hostFamilyProfile = hostFamilyProfileRepository.findById(hostFamilyProfileId);
+        Optional<User> user = this.userRepository.findByEmail(hostFamilyProfile.get().getUser().getEmail());
+        if (user.isPresent() && !isApproved) {
+            user.get().setIsLocked(true);
+            this.userRepository.saveAndFlush(user.get());
+        }
         if (hostFamilyProfile.isPresent()){
             hostFamilyProfile.get().setIsApproved(isApproved);
             hostFamilyProfileRepository.saveAndFlush(hostFamilyProfile.get());

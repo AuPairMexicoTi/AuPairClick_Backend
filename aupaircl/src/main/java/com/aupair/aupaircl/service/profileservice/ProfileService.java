@@ -40,7 +40,6 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -242,7 +241,6 @@ public class ProfileService {
                 profile.get().setAboutMe(profileUpdateDTO.getAbout_me());
                 profile.get().setMaxStayMonths(profileUpdateDTO.getMax_stay_months());
                 profile.get().setLanguagesSpoken(profileUpdateDTO.getLanguages_spoken());
-                profile.get().setIsApproved(false);
                 profile.get().setCountry(countrySaved.get());
                 profile.get().setLocationType(locationTypeSaved.get());
             this.profileRepository.saveAndFlush(profile.get());
@@ -253,17 +251,7 @@ public class ProfileService {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.OK.value(), "Perfil actualizado"));
         }
     }
-    public boolean isProfileCompletelyApproved(UUID userId) {
-        Optional<Profile> profile = profileRepository.findById(userId);
-        Optional<AuPairProfile> auPairProfile = auPairProfileRepository.findById(userId);
-        Optional<HostFamilyProfile> hostFamilyProfile = hostFamilyProfileRepository.findById(userId);
 
-        boolean profileApproved = profile != null && profile.get().getIsApproved();
-        boolean auPairProfileApproved = auPairProfile == null || auPairProfile.get().getIsApproved();
-        boolean hostFamilyProfileApproved = hostFamilyProfile == null || hostFamilyProfile.get().getIsApproved();
-
-        return profileApproved && auPairProfileApproved && hostFamilyProfileApproved;
-    }
     @Transactional(rollbackFor = {SQLException.class})
     public ResponseEntity<CustomResponse> updateProfileAuPair(ProfileAuPairDTO profileAuPairDTO) {
         try {
@@ -286,7 +274,6 @@ public class ProfileService {
                     auPairProfile.get().setSmokes(profileAuPairDTO.getSmoke());
                     auPairProfile.get().setMotivation(profileAuPairDTO.getMotivation());
                     auPairProfile.get().setChildcareExperience(profileAuPairDTO.getChild_care_experience());
-                    auPairProfile.get().setIsApproved(false);
                     auPairProfile.get().setUser(userSaved.get().getUser());
                     auPairProfile.get().setAvailableFrom(profileAuPairDTO.getAvailable_from());
                     auPairProfile.get().setAvailableTo(profileAuPairDTO.getAvailable_to());
@@ -306,18 +293,11 @@ public class ProfileService {
 
     @Transactional(readOnly = true)
    public ResponseEntity<CustomResponse> getPerfilAuPair(String email){
-        AuPairProfile auPairProfile = auPairProfileRepository.findByUser_EmailAndIsApproved(email,false);
+        AuPairProfile auPairProfile = auPairProfileRepository.findByUser_EmailAndIsApproved(email,true);
         if (auPairProfile != null) {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Perfil Au Pair: ",HttpStatus.OK.value(), false,auPairProfile));
         }else{
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.OK.value(), "Perfil no encontrado"));
-        }
-    }
-    public ResponseEntity<CustomResponse> checkProfileApprovalStatus(UUID userId) {
-        if (isProfileCompletelyApproved(userId)) {
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.OK.value(), "Perfil completamente aprobado"));
-        } else {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new CustomResponse(true, HttpStatus.FORBIDDEN.value(), "Perfil no completamente aprobado"));
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.BAD_REQUEST.value(), "Perfil no encontrado"));
         }
     }
 }
