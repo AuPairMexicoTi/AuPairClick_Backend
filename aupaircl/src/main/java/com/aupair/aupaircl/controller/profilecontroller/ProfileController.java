@@ -1,6 +1,5 @@
 package com.aupair.aupaircl.controller.profilecontroller;
 
-import com.aupair.aupaircl.controller.profilecontroller.profiledto.ProfileAuPairDTO;
 import com.aupair.aupaircl.controller.profilecontroller.profiledto.ProfileDTO;
 import com.aupair.aupaircl.controller.profilecontroller.profiledto.ProfileUpdateDTO;
 import com.aupair.aupaircl.service.profileservice.ProfileService;
@@ -40,24 +39,6 @@ public class ProfileController {
         } catch (Exception e) {
             log.error("Error en actualizacion de perfil + e.getMessage()");
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal"));
-        }
-    }
-    @PutMapping(value = "/updateProfileAuPair", produces = "application/json")
-    public ResponseEntity<CustomResponse> updateProfileAuPair(@RequestBody ProfileAuPairDTO profileDTO) {
-    try {
-        return this.profileService.updateProfileAuPair(profileDTO);
-    }catch (Exception e){
-        log.error("Algo sucedio al actualizar seccion Au Pair");
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal"));
-    }
-    }
-    @GetMapping(value = "/getPerfilAuPair/{email}", produces = "application/json")
-    public ResponseEntity<CustomResponse> getPreferencesCountryByUser(@PathVariable String email) {
-        try {
-            return this.profileService.getPerfilAuPair(email);
-        }catch (Exception e){
-            log.error("Error"+e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal"));
         }
     }
 }

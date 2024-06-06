@@ -3,6 +3,7 @@ package com.aupair.aupaircl.model.hostfamilyprofile;
 import com.aupair.aupaircl.model.lada.Lada;
 import com.aupair.aupaircl.model.user.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
@@ -29,6 +30,7 @@ public class HostFamilyProfile {
     @Column(name = "id_profile_host_family",nullable = false)
     @GeneratedValue(generator = "UUID")
     private UUID hostFamilyProfileId;
+    @JsonIgnore
     @OneToOne(targetEntity = User.class)
     @JoinColumn(name = "fk_user", nullable = false)
     private User user;
@@ -56,6 +58,7 @@ public class HostFamilyProfile {
     private Boolean isApproved = false;
     @Column(name = "genderPreferred")
     private String genderPreferred;
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "fk_lada")
     private Lada lada;

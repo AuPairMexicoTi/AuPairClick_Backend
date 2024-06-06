@@ -1,5 +1,6 @@
-package com.aupair.aupaircl.controller.profilecontroller.profiledto;
+package com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto;
 
+import com.aupair.aupaircl.controller.profilecontroller.profiledto.CountryDTO;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,4 +22,5 @@ public class ProfileAuPairDTO {
     private String motivation;
     private Boolean smoke;
     private String gender;
+    private CountryDTO[] countries;
 }

@@ -1,6 +1,10 @@
 package com.aupair.aupaircl.controller.profilecontroller.profiledto;
 
-import lombok.*;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;

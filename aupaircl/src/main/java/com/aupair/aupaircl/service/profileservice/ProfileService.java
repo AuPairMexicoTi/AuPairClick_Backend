@@ -1,6 +1,5 @@
 package com.aupair.aupaircl.service.profileservice;
 
-import com.aupair.aupaircl.controller.profilecontroller.profiledto.ProfileAuPairDTO;
 import com.aupair.aupaircl.controller.profilecontroller.profiledto.ProfileDTO;
 import com.aupair.aupaircl.controller.profilecontroller.profiledto.ProfileUpdateDTO;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountry;
@@ -252,52 +251,6 @@ public class ProfileService {
         }
     }
 
-    @Transactional(rollbackFor = {SQLException.class})
-    public ResponseEntity<CustomResponse> updateProfileAuPair(ProfileAuPairDTO profileAuPairDTO) {
-        try {
-            Optional<AuPairProfile> userSaved = this.auPairProfileRepository.findByUser_Email(profileAuPairDTO.getEmail());
-            if (userSaved.isEmpty()){
-                log.error("Could not find user");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido"));
-            }
-            Optional<Gender> genderSaved = this.genderRepository.findByGenderName(profileAuPairDTO.getGender());
-            if (genderSaved.isEmpty()){
-                log.error("Could not find gender");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Genero invalido"));
-            }
-            if (Boolean.FALSE.equals(userSaved.get().getUser().getEmailVerified())) {
-                log.error("Email isnt verified");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario no verificado"));
-            }
-                Optional<AuPairProfile> auPairProfile = this.auPairProfileRepository.findByUser_Email(profileAuPairDTO.getEmail());
-                if (auPairProfile.isPresent()) {
-                    auPairProfile.get().setSmokes(profileAuPairDTO.getSmoke());
-                    auPairProfile.get().setMotivation(profileAuPairDTO.getMotivation());
-                    auPairProfile.get().setChildcareExperience(profileAuPairDTO.getChild_care_experience());
-                    auPairProfile.get().setUser(userSaved.get().getUser());
-                    auPairProfile.get().setAvailableFrom(profileAuPairDTO.getAvailable_from());
-                    auPairProfile.get().setAvailableTo(profileAuPairDTO.getAvailable_to());
-                    auPairProfile.get().setGender(genderSaved.get());
-                    this.auPairProfileRepository.save(auPairProfile.get());
-                    return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.OK.value(), "Perfil actualizado"));
-                }else{
-                    log.error("User with Au Pair profile not found");
-                    return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido"));
-                }
 
-        }catch (Exception e){
-            log.error("Error updating profile au pair");
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.OK.value(), "Perfil actualizado"));
-        }
-    }
 
-    @Transactional(readOnly = true)
-   public ResponseEntity<CustomResponse> getPerfilAuPair(String email){
-        AuPairProfile auPairProfile = auPairProfileRepository.findByUser_EmailAndIsApproved(email,true);
-        if (auPairProfile != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Perfil Au Pair: ",HttpStatus.OK.value(), false,auPairProfile));
-        }else{
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.BAD_REQUEST.value(), "Perfil no encontrado"));
-        }
-    }
 }
