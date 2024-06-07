@@ -250,7 +250,20 @@ public class ProfileService {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.OK.value(), "Perfil actualizado"));
         }
     }
-
+    @Transactional(readOnly = true)
+    public ResponseEntity<CustomResponse> getProfileByEmail(String email) {
+        try {
+            Profile userSave = this.profileRepository.findByUser_EmailAndIsApproved(email,true);
+            if (userSave == null){
+                log.error("Could not find user");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido"));
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Perfil: ",HttpStatus.OK.value(), false, userSave));
+        }catch (Exception e){
+            log.error("Failed to get profile" +e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.OK.value(), "Perfil actualizado"));
+        }
+    }
 
 
 }

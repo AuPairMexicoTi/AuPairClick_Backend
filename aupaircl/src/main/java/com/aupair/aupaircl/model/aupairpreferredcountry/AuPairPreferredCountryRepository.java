@@ -7,4 +7,5 @@ import java.util.UUID;
 
 public interface AuPairPreferredCountryRepository extends JpaRepository<AuPairPreferredCountry, UUID> {
 List<AuPairPreferredCountry> findByAuPairProfile_User_Email(String user);
+
 }

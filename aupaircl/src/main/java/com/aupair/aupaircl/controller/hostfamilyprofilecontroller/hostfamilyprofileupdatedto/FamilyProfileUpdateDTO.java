@@ -1,6 +1,5 @@
 package com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto;
 
-import com.aupair.aupaircl.controller.profilecontroller.profiledto.CountryDTO;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,6 +24,5 @@ private Date search_to;
 private String location_type;
 private Boolean smokes;
 private String genderPreferred;
-private CountryDTO[] countries;
 private String lada;
 }

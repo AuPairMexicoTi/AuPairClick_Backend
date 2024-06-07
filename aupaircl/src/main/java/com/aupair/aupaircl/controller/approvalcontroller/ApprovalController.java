@@ -11,7 +11,6 @@ import com.aupair.aupaircl.model.user.User;
 import com.aupair.aupaircl.model.user.UserRepository;
 import com.aupair.aupaircl.service.approvalservice.ApprovalService;
 import com.aupair.aupaircl.service.mailservice.MailService;
-import com.aupair.aupaircl.service.notificationservice.NotificationService;
 import com.aupair.aupaircl.utils.CustomResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,15 +90,42 @@ public class ApprovalController {
         mailService.sendEmail(approvalDTO.getEmail(), "Aprovacion de informacion de familia", approvalDTO.getMessage());
         return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.OK.value(), "Actualizacion de seccion Familia"));
     }
-    @PostMapping(value = "/approvalAccount")
-    public ResponseEntity<CustomResponse> approvedAccount(@RequestBody ApprovalDTO approvalDTO){
+    @PostMapping(value = "/approvalAccountAuPair")
+    public ResponseEntity<CustomResponse> approvedAccountAuPair(@RequestBody ApprovalDTO approvalDTO){
         try {
             Optional<User> user = this.userRepository.findByEmail(approvalDTO.getEmail());
             if (user.isEmpty()){
                 log.error("Could not find");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario no encontrado"));
             }
-            if(isProfileAuPairCompletely(approvalDTO.getEmail())){
+            if(isProfileAuPairCompletely(approvalDTO.getEmail()) && user.get().getRole().getRoleName().equals("aupair")){
+                if(Boolean.FALSE.equals(user.get().getIsLocked()) && Boolean.FALSE.equals(approvalDTO.getIsApproved())){
+                    log.error("User already approved");
+                    return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario ya ha sido aprobada"));
+                }
+                approvalService.approveAccount(user.get().getUserId(),approvalDTO.getIsApproved());
+                mailService.sendEmail(approvalDTO.getEmail(), "Aprovacion de cuenta", approvalDTO.getMessage());
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.OK.value(), "Actualizacion de cuenta"));
+            }else{
+                log.error("Perfiles incompletos de aprovar");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Alguna seccion del perfil no ah sido aprovada"));
+            }
+
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+        }
+    }
+
+    @PostMapping(value = "/approvalAccountFamily")
+    public ResponseEntity<CustomResponse> approvedAccountFamily(@RequestBody ApprovalDTO approvalDTO){
+        try {
+            Optional<User> user = this.userRepository.findByEmail(approvalDTO.getEmail());
+            if (user.isEmpty()){
+                log.error("Could not find");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario no encontrado"));
+            }
+            if(isProfileHostFamilyCompletely(approvalDTO.getEmail()) && user.get().getRole().getRoleName().equals("family")){
                 if(Boolean.FALSE.equals(user.get().getIsLocked()) && Boolean.FALSE.equals(approvalDTO.getIsApproved())){
                     log.error("User already approved");
                     return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario ya ha sido aprobada"));
@@ -118,13 +144,11 @@ public class ApprovalController {
         }
     }
     public boolean isProfileHostFamilyCompletely(String email) {
-        Optional<Profile> profile = profileRepository.findByUser_Email(email);
         Optional<HostFamilyProfile> hostFamilyProfile = hostFamilyProfileRepository.findByUser_Email(email);
-
+        Optional<Profile> profile = profileRepository.findByUser_Email(email);
         boolean profileApproved = profile.isPresent() && profile.get().getIsApproved();
-        boolean hostFamilyProfileApproved = hostFamilyProfile.isPresent() || hostFamilyProfile.get().getIsApproved();
-
-        return profileApproved  && hostFamilyProfileApproved;
+        boolean profileAupairApproved = hostFamilyProfile.get().getIsApproved();
+        return profileApproved && profileAupairApproved;
     }
     public boolean isProfileAuPairCompletely(String email){
         Optional<AuPairProfile> auPairProfile = auPairProfileRepository.findByUser_Email(email);

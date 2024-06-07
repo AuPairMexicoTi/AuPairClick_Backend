@@ -3,6 +3,7 @@ package com.aupair.aupaircl.model.profile;
 import com.aupair.aupaircl.model.country.Country;
 import com.aupair.aupaircl.model.locationtype.LocationTypes;
 import com.aupair.aupaircl.model.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,7 +23,7 @@ public class Profile {
     @GeneratedValue(generator = "UUID")
     private UUID profileId;
 
-
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "fk_user", nullable = false)
     private User user;
@@ -46,9 +47,11 @@ public class Profile {
     private Integer maxStayMonths;
     @Column(name = "isApproved")
     private Boolean isApproved = false;
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "fk_location_type", nullable = false)
     private LocationTypes locationType;
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "fk_country", nullable = false)
     private Country country;

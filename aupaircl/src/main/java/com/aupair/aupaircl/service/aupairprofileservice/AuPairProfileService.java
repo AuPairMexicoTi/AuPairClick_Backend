@@ -1,11 +1,9 @@
 package com.aupair.aupaircl.service.aupairprofileservice;
 
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.ProfileAuPairDTO;
-import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountry;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountryRepository;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfile;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfileRepository;
-import com.aupair.aupaircl.model.country.Country;
 import com.aupair.aupaircl.model.gender.Gender;
 import com.aupair.aupaircl.model.gender.GenderRepository;
 import com.aupair.aupaircl.service.profileservice.mapperprofile.MapperProfile;
@@ -18,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -73,16 +70,7 @@ public AuPairProfileService(AuPairProfileRepository auPairProfileRepository,
                 auPairProfile.get().setAvailableFrom(profileAuPairDTO.getAvailable_from());
                 auPairProfile.get().setAvailableTo(profileAuPairDTO.getAvailable_to());
                 auPairProfile.get().setGender(genderSaved.get());
-                AuPairProfile auPairProfileUpdate = this.auPairProfileRepository.save(auPairProfile.get());
-                List<Country> preferredCountries = mapperProfile.mapCountriesFromNames(profileAuPairDTO.getCountries());
-
-                // Crear y guardar las relaciones intermedias
-                for (Country country : preferredCountries) {
-                    AuPairPreferredCountry auPairPreferredCountry = new AuPairPreferredCountry();
-                    auPairPreferredCountry.setAuPairProfile(auPairProfileUpdate);
-                    auPairPreferredCountry.setCountry(country);
-                    this.auPairPreferredCountryRepository.saveAndFlush(auPairPreferredCountry);
-                }//Modificar para que actualize las preferencias del usuario o se eliminen depende, se estan duplicando los datos
+             this.auPairProfileRepository.save(auPairProfile.get());
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.OK.value(), "Perfil actualizado"));
             }else{
                 log.error("User with Au Pair profile not found");
