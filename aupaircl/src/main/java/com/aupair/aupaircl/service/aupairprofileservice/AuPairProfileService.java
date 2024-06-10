@@ -1,12 +1,11 @@
 package com.aupair.aupaircl.service.aupairprofileservice;
 
+import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.FindAuPairDTO;
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.ProfileAuPairDTO;
-import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountryRepository;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfile;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfileRepository;
 import com.aupair.aupaircl.model.gender.Gender;
 import com.aupair.aupaircl.model.gender.GenderRepository;
-import com.aupair.aupaircl.service.profileservice.mapperprofile.MapperProfile;
 import com.aupair.aupaircl.utils.CustomResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,16 +24,14 @@ import java.util.Optional;
 public class AuPairProfileService {
 private final AuPairProfileRepository auPairProfileRepository;
     private final GenderRepository genderRepository;
-    private final AuPairPreferredCountryRepository auPairPreferredCountryRepository;
-    private final MapperProfile mapperProfile;
+
 
     @Autowired
 public AuPairProfileService(AuPairProfileRepository auPairProfileRepository,
-                            GenderRepository genderRepository, AuPairPreferredCountryRepository auPairPreferredCountryRepository, MapperProfile mapperProfile) {
+                            GenderRepository genderRepository) {
     this.auPairProfileRepository = auPairProfileRepository;
     this.genderRepository = genderRepository;
-    this.auPairPreferredCountryRepository = auPairPreferredCountryRepository;
-        this.mapperProfile = mapperProfile;
+
     }
     @Transactional(readOnly = true)
     public ResponseEntity<CustomResponse> getAuPairProfile(String email){
@@ -70,6 +68,8 @@ public AuPairProfileService(AuPairProfileRepository auPairProfileRepository,
                 auPairProfile.get().setAvailableFrom(profileAuPairDTO.getAvailable_from());
                 auPairProfile.get().setAvailableTo(profileAuPairDTO.getAvailable_to());
                 auPairProfile.get().setGender(genderSaved.get());
+                auPairProfile.get().setChildrenAgeMinSearch(profileAuPairDTO.getChildrenAgeMinFind());
+                auPairProfile.get().setChildrenAgeMaxSearch(profileAuPairDTO.getChildrenAgeMaxFind());
              this.auPairProfileRepository.save(auPairProfile.get());
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.OK.value(), "Perfil actualizado"));
             }else{
@@ -82,5 +82,20 @@ public AuPairProfileService(AuPairProfileRepository auPairProfileRepository,
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.OK.value(), "Perfil actualizado"));
         }
     }
+    @Transactional(readOnly = true)
+    public ResponseEntity<CustomResponse> findAuPair (FindAuPairDTO findAuPairDTO){
+        try {
+        List<AuPairProfile> auPairProfiles = this.auPairProfileRepository.findAuPair(findAuPairDTO.getFamilyCountry(),findAuPairDTO.getGenderSearch(),findAuPairDTO.getPreferredCountryNames(),
+                findAuPairDTO.getStartDate(),findAuPairDTO.getEndDate(),findAuPairDTO.getMinDuration(), findAuPairDTO.getMaxDuration());
+            if (auPairProfiles.isEmpty()) {
+                log.error("No hay registros que hagan mach");
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.BAD_REQUEST.value(), "No hay coincidencias"));
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Coincidencia de Au Pairs", HttpStatus.OK.value(), false, auPairProfiles));
+        }catch (Exception e) {
+        log.error("Algo sucedio en la busqueda avanzada de au pairs");
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio en la busqueda avanzada de au pairs"));
+        }
 
+    }
 }

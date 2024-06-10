@@ -3,7 +3,6 @@ package com.aupair.aupaircl.model.hostfamilyprofile;
 import com.aupair.aupaircl.model.hostfamilypreferredcountry.HostFamilyPreferredCountry;
 import com.aupair.aupaircl.model.lada.Lada;
 import com.aupair.aupaircl.model.user.User;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -33,18 +32,16 @@ public class HostFamilyProfile {
 
     @Column(name = "number_of_children", nullable = false)
     private Integer numberOfChildren;
-
-    @Column(name = "children_age", nullable = false)
-    private String childrenAges;
-
+    @Column(name = "children_age_min",nullable = false)
+   private Integer childrenAgesMin;
+   @Column(name = "children_age_max",nullable = false)
+   private Integer childrenAgesMax;
     @Column(name = "house_description", nullable = false)
     private String houseDescription;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "search_from", nullable = false)
     private Date searchFrom;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "search_to", nullable = false)
     private Date searchTo;
 

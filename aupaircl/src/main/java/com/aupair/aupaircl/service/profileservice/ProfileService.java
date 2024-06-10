@@ -25,7 +25,6 @@ import com.aupair.aupaircl.model.profile.ProfileRepository;
 import com.aupair.aupaircl.model.rol.RolRepository;
 import com.aupair.aupaircl.model.user.User;
 import com.aupair.aupaircl.model.user.UserRepository;
-import com.aupair.aupaircl.service.mailservice.MailService;
 import com.aupair.aupaircl.service.profileservice.mapperprofile.MapperProfile;
 import com.aupair.aupaircl.utils.CustomResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +58,6 @@ public class ProfileService {
     private final HostFamilyPreferredCountryRepository hostFamilyPreferredCountryRepository;
     private static final String AuPairType= "aupair";
     private static final String FamilyType = "family";
-    private static MailService mailService;
     @Autowired
     public ProfileService(ProfileRepository profileRepository,ImageRepository imageRepository,CountryRepository countryRepository,
                           RolRepository rolRepository, LadaRepository ladaRepository,
@@ -68,7 +66,7 @@ public class ProfileService {
                           LocationTypesRepository locationTypeRepository,
                           GenderRepository genderRepository,
             MapperProfile mapperProfile,HostFamilyPreferredCountryRepository hostFamilyPreferredCountryRepository,
-                          AuPairPreferredCountryRepository auPairPreferredCountryRepository,MailService mailService) {
+                          AuPairPreferredCountryRepository auPairPreferredCountryRepository) {
         this.profileRepository = profileRepository;
         this.genderRepository = genderRepository;
         this.countryRepository = countryRepository;
@@ -82,7 +80,6 @@ public class ProfileService {
         this.mapperProfile = mapperProfile;
         this.auPairPreferredCountryRepository = auPairPreferredCountryRepository;
         this.hostFamilyPreferredCountryRepository = hostFamilyPreferredCountryRepository;
-        this.mailService = mailService;
     }
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> registerProfile(ProfileDTO profileDTO){
@@ -154,6 +151,8 @@ public class ProfileService {
                     auPairProfile.setAvailableFrom(profileDTO.getAvailable_from());
                     auPairProfile.setAvailableTo(profileDTO.getAvailable_to());
                     auPairProfile.setChildcareExperience(profileDTO.getChild_care_experience());
+                    auPairProfile.setChildrenAgeMinSearch(profileDTO.getChildren_Age_min());
+                    auPairProfile.setChildrenAgeMaxSearch(profileDTO.getChildren_Age_max());
                     auPairProfile.setUser(userSaved.get());
                     //Guardar perfil au pair
 
@@ -175,7 +174,8 @@ public class ProfileService {
                     HostFamilyProfile hostFamilyProfile = new HostFamilyProfile();
                     hostFamilyProfile.setHostingExperience(profileDTO.getHostin_experience());
                     hostFamilyProfile.setHouseDescription(profileDTO.getHouse_description());
-                    hostFamilyProfile.setChildrenAges(profileDTO.getChildren_Age());
+                    hostFamilyProfile.setChildrenAgesMin(profileDTO.getChildren_Age_min());
+                    hostFamilyProfile.setChildrenAgesMax(profileDTO.getChildren_Age_max());
                     hostFamilyProfile.setNumberOfChildren(profileDTO.getNumber_of_children() != null ? profileDTO.getNumber_of_children() : 0); // Proveer valor por defecto
                     hostFamilyProfile.setSearchFrom(profileDTO.getSearch_from());
                     hostFamilyProfile.setSearchTo(profileDTO.getSearch_to());

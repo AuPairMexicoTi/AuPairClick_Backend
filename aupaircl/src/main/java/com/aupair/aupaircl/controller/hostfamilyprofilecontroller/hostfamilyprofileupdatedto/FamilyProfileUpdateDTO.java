@@ -13,7 +13,8 @@ import java.util.Date;
 @Data
 public class FamilyProfileUpdateDTO {
     private String email;
-private String children_Age;
+private Integer children_Age_min;
+private Integer children_Age_max;
 private String hostin_experience;
 private String house_description;
 private Integer number_of_children;

@@ -86,7 +86,8 @@ public class HostFamilyProfileService {
             HostFamilyProfile hostFamilyProfile = userSaved.get();
             hostFamilyProfile.setHostingExperience(familyProfileUpdateDTO.getHostin_experience());
             hostFamilyProfile.setHouseDescription(familyProfileUpdateDTO.getHouse_description());
-            hostFamilyProfile.setChildrenAges(familyProfileUpdateDTO.getChildren_Age());
+            hostFamilyProfile.setChildrenAgesMin(familyProfileUpdateDTO.getChildren_Age_min());
+            hostFamilyProfile.setChildrenAgesMax(familyProfileUpdateDTO.getChildren_Age_max());
             hostFamilyProfile.setNumberOfChildren(familyProfileUpdateDTO.getNumber_of_children());
             hostFamilyProfile.setSearchFrom(familyProfileUpdateDTO.getSearch_from());
             hostFamilyProfile.setSearchTo(familyProfileUpdateDTO.getSearch_to());
@@ -112,7 +113,11 @@ public class HostFamilyProfileService {
             List<HostFamilyProfile> hostFamilyProfiles = hostFamilyProfileRepository.findHostFamilies(
                     familyDto.getAuPairCountry(), familyDto.getGender(), familyDto.getPreferredCountryIds(),
                     familyDto.getStartDate(), familyDto.getEndDate(), familyDto.getMinDuration(), familyDto.getMaxDuration());
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Matching Families", HttpStatus.OK.value(), false, hostFamilyProfiles));
+            if (hostFamilyProfiles.isEmpty()) {
+                log.error("No host families found");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.BAD_REQUEST.value(), "No se encontraron coincidencias"));
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Coincidencias de familias", HttpStatus.OK.value(), false, hostFamilyProfiles));
         } catch (Exception e) {
             log.error("Error in findHostFamilies: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Something went wrong"));

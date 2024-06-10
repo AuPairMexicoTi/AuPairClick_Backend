@@ -51,9 +51,9 @@ public class Profile {
     @ManyToOne
     @JoinColumn(name = "fk_location_type", nullable = false)
     private LocationTypes locationType;
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "fk_country", nullable = false)
+
+    @ManyToOne(optional = false, targetEntity = Country.class)
+    @JoinColumn(name = "fk_country", referencedColumnName = "id_country")
     private Country country;
 
     @PrePersist

@@ -1,5 +1,6 @@
 package com.aupair.aupaircl.controller.profileaupaircontroller;
 
+import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.FindAuPairDTO;
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.ProfileAuPairDTO;
 import com.aupair.aupaircl.service.aupairprofileservice.AuPairProfileService;
 import com.aupair.aupaircl.utils.CustomResponse;
@@ -24,7 +25,7 @@ public class ProfileAuPairController {
             return this.profileAuPairService.getAuPairProfile(email);
         }catch (Exception e){
             log.error("Error"+e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal"));
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal al obtener perfil"));
         }
     }
     @PutMapping(value = "/updateProfileAuPair", produces = "application/json")
@@ -33,9 +34,17 @@ public class ProfileAuPairController {
             return this.profileAuPairService.updateProfileAuPair(profileDTO);
         }catch (Exception e){
             log.error("Algo sucedio al actualizar seccion Au Pair");
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal"));
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal al actualizar"));
         }
-
+    }
+    @PostMapping(value = "/findAuPair", produces = "application/json")
+    public ResponseEntity<CustomResponse> findAuPair(@RequestBody FindAuPairDTO findAuPairDTO) {
+        try {
+            return this.profileAuPairService.findAuPair(findAuPairDTO);
+        }catch (Exception e){
+            log.error("Algo sucedio al buscar Au Pair");
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal al buscar Au Pair"));
+        }
     }
 }
 

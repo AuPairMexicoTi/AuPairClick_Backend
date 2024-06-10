@@ -7,20 +7,18 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
-
+import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
-public class ProfileAuPairDTO {
-    private String email;
+public class FindAuPairDTO {
+    private String familyCountry;
+    private String genderSearch;
+    private List<String> preferredCountryNames;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date available_from;
+    private Date startDate;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date available_to;
-    private String child_care_experience;
-    private String motivation;
-    private Boolean smoke;
-    private Integer childrenAgeMinFind;
-    private Integer childrenAgeMaxFind;
-    private String gender;
+    private Date endDate;
+    private int minDuration;
+    private int maxDuration;
 }

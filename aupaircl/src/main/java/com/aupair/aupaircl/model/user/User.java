@@ -5,6 +5,7 @@ import com.aupair.aupaircl.model.hostfamilyprofile.HostFamilyProfile;
 import com.aupair.aupaircl.model.profile.Profile;
 import com.aupair.aupaircl.model.rol.Rol;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,7 +34,7 @@ public class User {
     @Column(name="password",nullable = false)
     private String password;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private Rol role;
     @Column(name = "email_verified")
@@ -53,11 +54,13 @@ public class User {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @Column(name = "reset_token_expires")
     private Date resetTokenExpires;
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY,targetEntity = Profile.class)
     private Profile profile;
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch =FetchType.LAZY)
+    @JsonIgnore
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch =FetchType.LAZY,targetEntity = AuPairProfile.class)
     private AuPairProfile auPairProfile;
-    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL, fetch =FetchType.LAZY)
+    @JsonIgnore
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL, fetch =FetchType.LAZY,targetEntity = HostFamilyProfile.class)
     private HostFamilyProfile hostFamilyProfile;
     @PrePersist
     private void generateUUID(){
