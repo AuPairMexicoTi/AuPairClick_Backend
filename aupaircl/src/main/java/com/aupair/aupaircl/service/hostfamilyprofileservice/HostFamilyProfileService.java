@@ -1,6 +1,7 @@
 package com.aupair.aupaircl.service.hostfamilyprofileservice;
 
 import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.FamilyProfileUpdateDTO;
+import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.FindHostFamilyDto;
 import com.aupair.aupaircl.model.gender.Gender;
 import com.aupair.aupaircl.model.gender.GenderRepository;
 
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -101,6 +103,19 @@ public class HostFamilyProfileService {
         } catch (Exception e) {
             log.error("Error en updateHostProfile" + e.getMessage());
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal"));
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<CustomResponse> findHostFamilies(FindHostFamilyDto familyDto) {
+        try {
+            List<HostFamilyProfile> hostFamilyProfiles = hostFamilyProfileRepository.findHostFamilies(
+                    familyDto.getAuPairCountry(), familyDto.getGender(), familyDto.getPreferredCountryIds(),
+                    familyDto.getStartDate(), familyDto.getEndDate(), familyDto.getMinDuration(), familyDto.getMaxDuration());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Matching Families", HttpStatus.OK.value(), false, hostFamilyProfiles));
+        } catch (Exception e) {
+            log.error("Error in findHostFamilies: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Something went wrong"));
         }
     }
 }

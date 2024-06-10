@@ -41,4 +41,14 @@ public class UserController {
         }
 
     }
+    @GetMapping(value ="/preferencesByFamily/{email}",produces = "application/json")
+    public ResponseEntity<CustomResponse> preferencesByFamily(@PathVariable("email") String email){
+        try {
+            return this.userService.getPreferencesCountryByFamily(email);
+        }catch (Exception e){
+            log.error("Error"+e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal"));
+        }
+
+    }
 }

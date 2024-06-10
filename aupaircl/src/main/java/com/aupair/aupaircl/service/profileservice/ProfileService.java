@@ -86,6 +86,7 @@ public class ProfileService {
     }
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> registerProfile(ProfileDTO profileDTO){
+        System.out.println(profileDTO);
         try {
 
             Optional<User> userSaved = this.userRepository.findByEmail(profileDTO.getEmail());
@@ -122,7 +123,7 @@ public class ProfileService {
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Pais invalido"));
             }
             Optional<Gender> genderSaved = this.genderRepository.findByGenderName(profileDTO.getGender());
-            if (genderSaved.isEmpty()){
+            if (genderSaved.isEmpty() && profileDTO.getIsType().equals("aupair")){
                 log.error("Could not find gender");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Genero invalido"));
             }
@@ -175,13 +176,13 @@ public class ProfileService {
                     hostFamilyProfile.setHostingExperience(profileDTO.getHostin_experience());
                     hostFamilyProfile.setHouseDescription(profileDTO.getHouse_description());
                     hostFamilyProfile.setChildrenAges(profileDTO.getChildren_Age());
-                    hostFamilyProfile.setNumberOfChildren(profileDTO.getNumber_of_children());
+                    hostFamilyProfile.setNumberOfChildren(profileDTO.getNumber_of_children() != null ? profileDTO.getNumber_of_children() : 0); // Proveer valor por defecto
                     hostFamilyProfile.setSearchFrom(profileDTO.getSearch_from());
                     hostFamilyProfile.setSearchTo(profileDTO.getSearch_to());
                     hostFamilyProfile.setLada(ladaSaved.get());
                     hostFamilyProfile.setSmokes(profileDTO.getSmokes());
                     hostFamilyProfile.setUser(userSaved.get());
-
+                    hostFamilyProfile.setGenderPreferred(profileDTO.getGenderPreferred());
                     // Usar MapperProfile para obtener la lista de países preferidos
                     List<Country> preferredCountries = mapperProfile.mapCountriesFromNames(profileDTO.getCountriesPreferences());
 

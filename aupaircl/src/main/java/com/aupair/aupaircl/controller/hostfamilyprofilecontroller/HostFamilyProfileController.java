@@ -1,6 +1,7 @@
 package com.aupair.aupaircl.controller.hostfamilyprofilecontroller;
 
 import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.FamilyProfileUpdateDTO;
+import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.FindHostFamilyDto;
 import com.aupair.aupaircl.service.hostfamilyprofileservice.HostFamilyProfileService;
 import com.aupair.aupaircl.utils.CustomResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,4 +37,13 @@ public class HostFamilyProfileController {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.BAD_REQUEST.value(), "Algo sucedio al actualizar el perfil familiar"));
         }
     }
+    @PostMapping(value = "/findHostFamily", produces = "application/json")
+    public ResponseEntity<CustomResponse> findHostFamily(@RequestBody FindHostFamilyDto findHostFamilyDto) {
+        try {
+            return this.hostFamilyProfileService.findHostFamilies(findHostFamilyDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.BAD_REQUEST.value(), "Algo sucedio al actualizar el perfil familiar"));
+        }
+    }
+
 }

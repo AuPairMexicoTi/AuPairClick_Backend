@@ -33,7 +33,7 @@ public class User {
     @Column(name="password",nullable = false)
     private String password;
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "role_id", nullable = false)
     private Rol role;
     @Column(name = "email_verified")

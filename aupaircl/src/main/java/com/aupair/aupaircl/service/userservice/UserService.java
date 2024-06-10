@@ -5,6 +5,8 @@ import com.aupair.aupaircl.controller.usercontroller.userdto.FindHostDTO;
 import com.aupair.aupaircl.controller.usercontroller.userdto.UserDTO;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountry;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountryRepository;
+import com.aupair.aupaircl.model.hostfamilypreferredcountry.HostFamilyPreferredCountry;
+import com.aupair.aupaircl.model.hostfamilypreferredcountry.HostFamilyPreferredCountryRepository;
 import com.aupair.aupaircl.model.rol.Rol;
 import com.aupair.aupaircl.model.rol.RolRepository;
 import com.aupair.aupaircl.model.user.User;
@@ -32,14 +34,15 @@ private static final String AuPairType= "aupair";
     private static final String FamilyType = "family";
     private final MailService mailService;
     private final AuPairPreferredCountryRepository auPairPreferredCountryRepository;
-
+    private final HostFamilyPreferredCountryRepository hostFamilyPreferredCountryRepository;
 @Autowired
 public UserService(UserRepository userRepository,
-                   RolRepository rolesRepository, MailService mailService,AuPairPreferredCountryRepository auPairPreferredCountryRepository){
+                   RolRepository rolesRepository, MailService mailService,HostFamilyPreferredCountryRepository hostFamilyPreferredCountryRepository,AuPairPreferredCountryRepository auPairPreferredCountryRepository){
     this.userRepository = userRepository;
     this.rolesRepository = rolesRepository;
     this.mailService = mailService;
     this.auPairPreferredCountryRepository = auPairPreferredCountryRepository;
+    this.hostFamilyPreferredCountryRepository = hostFamilyPreferredCountryRepository;
 }
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> registerUser(UserDTO userDTO){
@@ -91,6 +94,16 @@ public UserService(UserRepository userRepository,
     public ResponseEntity<CustomResponse> getPreferencesCountryByUser(String email){
         List<AuPairPreferredCountry> auPairPreferredCountry = this.auPairPreferredCountryRepository.findByAuPairProfile_User_Email(email);
         List<CountryDTO> countryDTOS = MapperUser.mapAuPairPreferredCountry(auPairPreferredCountry);
+        if(!auPairPreferredCountry.isEmpty()){
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Ciudades de preferencia",200,false,countryDTOS));
+        }else{
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Sin registros",400,false,null));
+        }
+    }
+    @Transactional(readOnly = true)
+    public ResponseEntity<CustomResponse> getPreferencesCountryByFamily(String email){
+        List<HostFamilyPreferredCountry> auPairPreferredCountry = this.hostFamilyPreferredCountryRepository.findByHostFamilyProfile_UserEmail(email);
+        List<CountryDTO> countryDTOS = MapperUser.mapHostPreferredCountry(auPairPreferredCountry);
         if(!auPairPreferredCountry.isEmpty()){
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Ciudades de preferencia",200,false,countryDTOS));
         }else{

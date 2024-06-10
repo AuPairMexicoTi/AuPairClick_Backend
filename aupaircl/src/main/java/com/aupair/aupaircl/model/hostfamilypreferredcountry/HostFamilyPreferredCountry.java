@@ -10,6 +10,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.FetchType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,11 +29,11 @@ public class HostFamilyPreferredCountry {
     @GeneratedValue(generator = "UUID")
     private UUID idHostFamilyPreferredCountries;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_host_family_profile", nullable = false)
     private HostFamilyProfile hostFamilyProfile;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_country", nullable = false)
     private Country country;
     @PrePersist

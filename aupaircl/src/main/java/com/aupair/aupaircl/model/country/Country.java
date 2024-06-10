@@ -1,15 +1,12 @@
 package com.aupair.aupaircl.model.country;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Column;
-import jakarta.persistence.PrePersist;
+import com.aupair.aupaircl.model.hostfamilypreferredcountry.HostFamilyPreferredCountry;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -32,6 +29,9 @@ public class Country {
 
     @Column(name = "country_code",nullable = false)
     private String countryCode;
+    @OneToMany(mappedBy = "country")
+    private List<HostFamilyPreferredCountry> preferredCountries;
+
     @PrePersist
     private void generateUUID(){
         if(this.countryId==null){
