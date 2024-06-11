@@ -15,6 +15,7 @@ public interface HostFamilyProfileRepository extends JpaRepository<HostFamilyPro
     Optional<HostFamilyProfile> findByUser_Email(String email);
 
     HostFamilyProfile findByUser_EmailAndUser_IsLocked(String email, boolean isLocked);
+    HostFamilyProfile findByUser_EmailAndIsApproved(String email, boolean isApproved);
 
     @EntityGraph(attributePaths = {"user", "preferredCountries", "user.profile"})
     @Query("SELECT DISTINCT hfp FROM HostFamilyProfile hfp " +

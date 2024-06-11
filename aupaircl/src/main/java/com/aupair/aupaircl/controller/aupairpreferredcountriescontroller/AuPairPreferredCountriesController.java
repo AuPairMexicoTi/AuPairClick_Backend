@@ -5,10 +5,7 @@ import com.aupair.aupaircl.service.aupairpreferredcountryservice.AuPairPreferred
 import com.aupair.aupaircl.utils.CustomResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auPairPreferredCountries")
@@ -20,7 +17,7 @@ public class AuPairPreferredCountriesController {
         this.auPairPreferredCountryService = auPairPreferredCountryService;
     }
     @PostMapping(value = "/updatePreferredCountriesAuPair")
-    private ResponseEntity<CustomResponse> updatePreferredCountriesAuPair(AuPairPreferredCountriesDTO auPairPreferredCountriesDTO){
+    private ResponseEntity<CustomResponse> updatePreferredCountriesAuPair(@RequestBody AuPairPreferredCountriesDTO auPairPreferredCountriesDTO){
         try {
             return auPairPreferredCountryService.aupairPreferredCountry(auPairPreferredCountriesDTO);
         }catch (Exception e){

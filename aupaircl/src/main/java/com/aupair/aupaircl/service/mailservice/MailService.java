@@ -74,12 +74,12 @@ public class MailService {
         String code = genereteRandomCode();
         Optional<User> userSaved = this.userRepository.findByEmail(mailDTO.getEmail());
         if (userSaved.isPresent()) {
-            if (!userSaved.get().getEmailVerified()) {
-                EmailVerification emailVerificationSaved = new EmailVerification();
-                emailVerificationSaved.setUser(userSaved.get());
-                emailVerificationSaved.setVerificationToken(code);
-                emailVerificationSaved.setExpiresAt(new Date());
-                this.emailVerificationRepository.saveAndFlush(emailVerificationSaved);
+            if (Boolean.FALSE.equals(userSaved.get().getEmailVerified())) {
+               Optional <EmailVerification> emailVerificationSaved = this.emailVerificationRepository.findByUser_Email(mailDTO.getEmail());
+                emailVerificationSaved.get().setUser(userSaved.get());
+                emailVerificationSaved.get().setVerificationToken(code);
+                emailVerificationSaved.get().setExpiresAt(new Date());
+                this.emailVerificationRepository.saveAndFlush(emailVerificationSaved.get());
                 log.info("Codigo enviado");
                 String html = """
                         <html>
