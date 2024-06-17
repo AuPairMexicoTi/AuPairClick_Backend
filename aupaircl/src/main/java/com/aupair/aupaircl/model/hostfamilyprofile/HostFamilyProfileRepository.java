@@ -38,4 +38,29 @@ public interface HostFamilyProfileRepository extends JpaRepository<HostFamilyPro
             @Param("minDuration") int minDuration,
             @Param("maxDuration") int maxDuration
     );
+    @Query("SELECT DISTINCT hfp FROM HostFamilyProfile hfp " +
+            "JOIN hfp.user u " +
+            "JOIN hfp.preferredCountries pc " +
+            "JOIN u.profile p " +
+            "WHERE :auPairCountry IN (SELECT c.country.countryName FROM hfp.preferredCountries c) " +
+            "AND hfp.genderPreferred = :gender " +
+            "AND p.locationType.locationTypeName = :locationType "+
+            "AND p.country.countryName IN :preferredCountryIds " +
+            "AND hfp.searchFrom <= :endDate " +
+            "AND hfp.searchTo >= :startDate " +
+            "AND p.minStayMonths <= :maxDuration " +
+            "AND p.maxStayMonths >= :minDuration " +
+            "AND hfp.childrenAgesMin <= :childrenAgesMax " +
+            "AND hfp.childrenAgesMax >= :childrenAgesMin ")
+    List<HostFamilyProfile> findHostFamiliesDashboard(
+            @Param("auPairCountry") String auPairCountry,
+            @Param("gender") String gender,
+            @Param("locationType") String locationType,
+            @Param("preferredCountryIds") List<String> preferredCountryIds,
+            @Param("startDate") Date startDate,
+            @Param("endDate") Date endDate,
+            @Param("minDuration") int minDuration,
+            @Param("maxDuration") int maxDuration,
+            @Param("childrenAgesMax") int childrenAgesMin,
+            @Param("childrenAgesMin") int childrenAgesMax);
 }

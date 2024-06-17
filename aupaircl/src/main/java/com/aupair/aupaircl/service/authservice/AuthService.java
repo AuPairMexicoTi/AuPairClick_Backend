@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Optional;
 
 @Service
@@ -34,9 +33,6 @@ public class AuthService {
     private final JwtService provider;
     private final PasswordEncoder encoder;
     private static final String RESPONSE_INVALID_CREDENTIALS = "Credenciales invalidas";
-    private static final String STATUS_ENABLE = "enable";
-    private static final String STATUS_INVALID = "Status invalido";
-    HashMap<String, Integer> intentValid = new HashMap<>();
     private final MailService mailService;
 
     @Autowired
@@ -51,19 +47,29 @@ public class AuthService {
     @Transactional(rollbackFor = {SQLException.class})
     public ResponseEntity<CustomResponse> login(AuthRequest authRequest) {
         try {
-
-
             Optional<User> userAccount = userAccountRepository.findByEmail(authRequest.getEmail());
-
-            if (userAccount.isPresent() && Boolean.TRUE.equals(!userAccount.get().getIsLocked())){
+            if(Boolean.FALSE.equals(userAccount.get().getEmailVerified())){
+                log.error("Usuario no verificado");
+                return ResponseEntity.status(599).body(new CustomResponse(true,599,"Cuenta no verificada"));
+            }
+            if (userAccount.isPresent() && Boolean.TRUE.equals(userAccount.get().getIsLocked())){
                 log.error("Usuario bloqueado");
                 return ResponseEntity.status(601).body(
                         new CustomResponse(true, 601, "Cuenta bloqueada"));
             }
 
-            if (userAccount != null ) {
+            if (userAccount.isPresent()) {
                 String token = authentication(authRequest);
                 if (token == null) {
+                    if(userAccount.isPresent() && userAccount.get().getRole().getRoleName().equals("family") || userAccount.get().getRole().getRoleName().equals("aupair") && userAccount.get().getFailedAttempts() >= 3){
+                        userAccount.get().setIsLocked(true);
+                        userAccountRepository.saveAndFlush(userAccount.get());
+                        mailService.blockedAccountByFailedIntents(userAccount.get().getEmail());
+                    }else{
+                        userAccount.get().setFailedAttempts(userAccount.get().getFailedAttempts() + 1);
+                        userAccountRepository.saveAndFlush(userAccount.get());
+                    }
+
                     return ResponseEntity.status(600).body(
                             new CustomResponse(true, 600, "Credenciales incorrectas"));
                 }

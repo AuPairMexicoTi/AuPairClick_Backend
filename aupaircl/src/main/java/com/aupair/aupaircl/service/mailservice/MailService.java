@@ -299,7 +299,84 @@ public class MailService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CustomResponse( true, HttpStatus.NOT_FOUND.value(), "Error connexion"));
         }
     }
+    public ResponseEntity<CustomResponse> blockedAccountByFailedIntents(String email){
+        try {
+            Optional<User> userSaved = this.userRepository.findByEmail(email);
+            String html = """
+        <html>
+        <head>
+            <style>
+              <style>
+                body {
+                    background-color: #F5F5F7;
+                    padding: 20px;
+                    line-height: 1.6;
+                    font-family: Arial, sans-serif;
+                }
+                .text {
+                    font-size: 24px;
+                    text-align: justify;
+                    color: black;
+                }
+                .header {
+                    font-size: 16px;
+                    text-align: justify;
+                    color: #8d8c8c;
+                }
+                .container-fluid {
+                    margin: 0 auto;
+                    max-width: 600px;
+                    background-color: white;
+                    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+                    border-radius: 26px;
+                }
+                .row {
+                    padding: 30px;
+                    padding-block: 60px;
+                }
+                .color-font {
+                    width: 100%%;
+                    height: auto;
+                }
+                h1 {
+                    color: #ED8003;
+                }
+                .size {
+                    width: 150px;
+                    height: auto;
+                    border-radius: 100%%;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container-fluid">
+                <div class="row">
+                    <img class="size" src="https://fhweovj.stripocdn.email/content/guids/CABINET_1b64288a36c96ad48cda203d3abb3b684f230cc2a18e4f2ba8ee4884477de08c/images/marca_au_pair_click.png" alt="Logo.png">
+                    <div class="color-font">
+                        <h1>Hola, %s  %s  %s</h1>
+                        <p class="text">Tu cuenta se ha bloqueado por inicios de sesion fallidos, por favor cambia tu contraseña para recuperar tu cuenta.</p>
+                        <a href="http://localhost:5173/recuperar"><p>Da click aqui<p><a>
+                    </div>
+                    <div class="color-font">
+                        <p class="header">Te enviamos esta notificación para garantizar la privacidad y seguridad de tu cuenta de Au Pair Click. Si has autorizado este cambio, no es necesario que realices ninguna otra acción.</p>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+        """;
 
+            String messageFormat = String.format(html,
+                    userSaved.get().getProfile().getFirstName(),
+                    userSaved.get().getProfile().getLastName(),
+                    userSaved.get().getProfile().getLastName()
+            );
+           return sendEmail(userSaved.get().getEmail(),"Tu cuenta se ah bloqueado temporalmente",messageFormat);
+        }catch (Exception e){
+            log.error("Algo sucedio al bloquear cuenta");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new CustomResponse( true, HttpStatus.NOT_FOUND.value(), "Algo sucedio al bloquear cuenta"));
+        }
+    }
     private void scheduleCodeRemoval(String email, long delay, TimeUnit unit) {
         if (delay <= 0) {
             throw new IllegalArgumentException("El retraso debe ser un valor positivo.");

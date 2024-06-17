@@ -16,6 +16,7 @@ import com.aupair.aupaircl.service.userservice.mapperuser.MapperUser;
 import com.aupair.aupaircl.utils.CustomResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,19 +31,22 @@ import java.util.*;
 public class UserService {
 private final UserRepository userRepository;
 private final RolRepository rolesRepository;
+private final PasswordEncoder passwordEncoder;
 private static final String AuPairType= "aupair";
-    private static final String FamilyType = "family";
     private final MailService mailService;
     private final AuPairPreferredCountryRepository auPairPreferredCountryRepository;
     private final HostFamilyPreferredCountryRepository hostFamilyPreferredCountryRepository;
 @Autowired
 public UserService(UserRepository userRepository,
-                   RolRepository rolesRepository, MailService mailService,HostFamilyPreferredCountryRepository hostFamilyPreferredCountryRepository,AuPairPreferredCountryRepository auPairPreferredCountryRepository){
+                   RolRepository rolesRepository,
+                   MailService mailService,HostFamilyPreferredCountryRepository hostFamilyPreferredCountryRepository,
+                   AuPairPreferredCountryRepository auPairPreferredCountryRepository, PasswordEncoder passwordEncoder){
     this.userRepository = userRepository;
     this.rolesRepository = rolesRepository;
     this.mailService = mailService;
     this.auPairPreferredCountryRepository = auPairPreferredCountryRepository;
     this.hostFamilyPreferredCountryRepository = hostFamilyPreferredCountryRepository;
+    this.passwordEncoder = passwordEncoder;
 }
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> registerUser(UserDTO userDTO){
@@ -58,7 +62,7 @@ public UserService(UserRepository userRepository,
             if(Objects.equals(userDTO.getIsType(), AuPairType)){
 
                 user.setEmail(userDTO.getEmail());
-                user.setPassword(userDTO.getPassword());
+                user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
                 user.setRole(rol);
                 user.setUsername(userDTO.getUsername());
                 user.setResetToken("");
@@ -73,7 +77,7 @@ public UserService(UserRepository userRepository,
             }else {
 
                 user.setEmail(userDTO.getEmail());
-                user.setPassword(userDTO.getPassword());
+                user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
                 user.setRole(rol);
                 user.setUsername(userDTO.getUsername());
                 user.setResetToken("");

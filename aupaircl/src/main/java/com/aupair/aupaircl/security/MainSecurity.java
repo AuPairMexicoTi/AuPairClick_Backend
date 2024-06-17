@@ -26,11 +26,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class MainSecurity {
     private static final String[] WHITELIST = {
-            "/api/auth/login",
+            "/api/auth/**",
             "/api/mail/**",
             "/api/hostFamilyProfile/findHostFamily",
             "/api/profileAuPair/findAuPair",
-
+            "/api/approval/**",
+            "/api/userAccount/register"
 
     };
     private final UserDetailsServiceImpl service;
