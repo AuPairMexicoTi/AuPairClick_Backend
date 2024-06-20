@@ -52,8 +52,11 @@ public UserService(UserRepository userRepository,
     public ResponseEntity<CustomResponse> registerUser(UserDTO userDTO){
     try {
             User user = new User();
+            if(this.userRepository.existsByUsername(userDTO.getUsername())){
+                return ResponseEntity.ok(new CustomResponse("Nombre de usuario ya existe",400,true,null));
+            }
             if(this.userRepository.existsByEmail(userDTO.getEmail())){
-                return ResponseEntity.ok(new CustomResponse("User already exists",400,true,null));
+                return ResponseEntity.ok(new CustomResponse("El correo ya ah sido registrado",400,true,null));
             }
             Rol rol = this.rolesRepository.findByRoleName(userDTO.getIsType()).get();
             if( rol == null){

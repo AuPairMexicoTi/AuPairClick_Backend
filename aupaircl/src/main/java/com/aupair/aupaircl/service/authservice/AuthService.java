@@ -31,16 +31,14 @@ public class AuthService {
     private final UserRepository userAccountRepository;
     private final AuthenticationManager manager;
     private final JwtService provider;
-    private final PasswordEncoder encoder;
     private static final String RESPONSE_INVALID_CREDENTIALS = "Credenciales invalidas";
     private final MailService mailService;
 
     @Autowired
-    public AuthService(UserRepository userAccountRepository, MailService mailService, AuthenticationManager manager, JwtService provider, PasswordEncoder encoder) {
+    public AuthService(UserRepository userAccountRepository, MailService mailService, AuthenticationManager manager, JwtService provider) {
         this.userAccountRepository = userAccountRepository;
         this.manager = manager;
         this.provider = provider;
-        this.encoder = encoder;
         this.mailService= mailService;
     }
 
@@ -48,7 +46,7 @@ public class AuthService {
     public ResponseEntity<CustomResponse> login(AuthRequest authRequest) {
         try {
             Optional<User> userAccount = userAccountRepository.findByEmail(authRequest.getEmail());
-            if(Boolean.FALSE.equals(userAccount.get().getEmailVerified())){
+            if(userAccount.isPresent() &&  Boolean.FALSE.equals(userAccount.get().getEmailVerified())){
                 log.error("Usuario no verificado");
                 return ResponseEntity.status(599).body(new CustomResponse(true,599,"Cuenta no verificada"));
             }
