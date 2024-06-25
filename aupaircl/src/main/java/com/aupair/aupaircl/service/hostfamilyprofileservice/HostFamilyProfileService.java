@@ -115,11 +115,11 @@ public class HostFamilyProfileService {
             List<HostFamilyProfile> hostFamilyProfiles = hostFamilyProfileRepository.findHostFamilies(
                     familyDto.getAuPairCountry(), familyDto.getGender(), familyDto.getPreferredCountryIds(),
                     familyDto.getStartDate(), familyDto.getEndDate(), familyDto.getMinDuration(), familyDto.getMaxDuration());
-            List<ResponseFindHostFamilyDto> responseFindHostFamilyDtos = MapperHostProfile.mapHostToResponseProfile(hostFamilyProfiles);
             if (hostFamilyProfiles.isEmpty()) {
                 log.error("No host families found");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.BAD_REQUEST.value(), "No se encontraron coincidencias"));
             }
+            List<ResponseFindHostFamilyDto> responseFindHostFamilyDtos = MapperHostProfile.mapHostToResponseProfile(hostFamilyProfiles);
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Coincidencias de familias", HttpStatus.OK.value(), false, responseFindHostFamilyDtos));
         } catch (Exception e) {
             log.error("Error in findHostFamilies: " + e.getMessage());

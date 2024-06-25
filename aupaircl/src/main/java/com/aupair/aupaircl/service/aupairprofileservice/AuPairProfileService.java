@@ -2,10 +2,12 @@ package com.aupair.aupaircl.service.aupairprofileservice;
 
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.FindAuPairDTO;
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.ProfileAuPairDTO;
+import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.ResponseFindAuPair;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfile;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfileRepository;
 import com.aupair.aupaircl.model.gender.Gender;
 import com.aupair.aupaircl.model.gender.GenderRepository;
+import com.aupair.aupaircl.service.aupairprofileservice.mapperaupairprofile.MapperAuPairProfile;
 import com.aupair.aupaircl.utils.CustomResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +93,9 @@ public AuPairProfileService(AuPairProfileRepository auPairProfileRepository,
                 log.error("No hay registros que hagan mach");
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.BAD_REQUEST.value(), "No hay coincidencias"));
             }
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Coincidencia de Au Pairs", HttpStatus.OK.value(), false, auPairProfiles));
+            List<ResponseFindAuPair> responseFindAuPairs = MapperAuPairProfile.mapAuPairToResponseProfile(auPairProfiles);
+
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Coincidencia de Au Pairs", HttpStatus.OK.value(), false, responseFindAuPairs));
         }catch (Exception e) {
         log.error("Algo sucedio en la busqueda avanzada de au pairs");
         return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio en la busqueda avanzada de au pairs"));
