@@ -49,6 +49,14 @@ public class UserController {
             log.error("Error"+e.getMessage());
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal"));
         }
-
+    }
+    @PostMapping(value = "/updatePassword",produces = "application/json")
+    public ResponseEntity<CustomResponse> updatePassword(@RequestBody UserDTO userDTO){
+        try {
+            return this.userService.updatePassword(userDTO);
+        }catch (Exception e){
+            log.error("Error"+e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal"));
+        }
     }
 }

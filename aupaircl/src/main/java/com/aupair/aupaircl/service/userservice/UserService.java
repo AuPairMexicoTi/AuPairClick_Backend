@@ -1,7 +1,6 @@
 package com.aupair.aupaircl.service.userservice;
 
 import com.aupair.aupaircl.controller.profilecontroller.profiledto.CountryDTO;
-import com.aupair.aupaircl.controller.usercontroller.userdto.FindHostDTO;
 import com.aupair.aupaircl.controller.usercontroller.userdto.UserDTO;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountry;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountryRepository;
@@ -110,14 +109,24 @@ public UserService(UserRepository userRepository,
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Sin registros",400,false,null));
         }
     }
-    @Transactional(readOnly = true)
-    public ResponseEntity<CustomResponse> findHostFamilies(FindHostDTO findHostDTO){
-        try {
-            return null;
-        }catch (Exception e){
-            log.error("Error al filtrar: "+e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo ocurrio al filtrar"));
+
+    @Transactional(rollbackFor={SQLException.class})
+    public ResponseEntity<CustomResponse> updatePassword(UserDTO userDTO){
+    try {
+        Optional<User> user = this.userRepository.findByEmail(userDTO.getEmail());
+        if (user.isPresent()){
+            User userUpdate = user.get();
+            userUpdate.setPassword(userDTO.getPassword());
+            this.userRepository.save(userUpdate);
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse( false, HttpStatus.OK.value(), "Contraseña actualizada"));
+        }else{
+            log.error("Usuario invalido");
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse( false, HttpStatus.NOT_FOUND.value(), "Usuario invalido"));
         }
+    }catch (Exception e){
+        log.error(e.getMessage());
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse( false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio en el servidor"));
+    }
     }
 
 }
