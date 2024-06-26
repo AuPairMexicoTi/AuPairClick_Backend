@@ -1,6 +1,8 @@
 package com.aupair.aupaircl.controller.usercontroller;
 
+import com.aupair.aupaircl.controller.mailcontroller.maildto.MailDTO;
 import com.aupair.aupaircl.controller.usercontroller.userdto.UserDTO;
+import com.aupair.aupaircl.service.mailservice.MailService;
 import com.aupair.aupaircl.service.userservice.UserService;
 import com.aupair.aupaircl.utils.CustomResponse;
 import jakarta.validation.Valid;
@@ -17,10 +19,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService   userService;
     private static final String INTERNALSERVER = "Algo sucedio en el servidor";
+    private final MailService mailService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, MailService mailService) {
         this.userService = userService;
+        this.mailService = mailService;
     }
     @PostMapping(value = "/register", produces = "application/json")
     public ResponseEntity<CustomResponse> registerUser( @Valid  @RequestBody UserDTO userDTO){
@@ -57,6 +61,24 @@ public class UserController {
         }catch (Exception e){
             log.error("Error"+e.getMessage());
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal"));
+        }
+    }
+    @PostMapping(value = "/recoverPassword",produces = "application/json")
+    public ResponseEntity<CustomResponse> recoverPassword(@RequestBody MailDTO mailDTO){
+        try {
+           return mailService.recoverPassword(mailDTO);
+        }catch (Exception e){
+            log.error("Algo sucedio al recuperar la contraseña");
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal al recuperar la contraseña"));
+        }
+    }
+    @PostMapping(value = "/validateRecoverPassword",produces = "application/json")
+    public ResponseEntity<CustomResponse> validateRecoverPassword(@RequestBody MailDTO mailDTO){
+        try {
+            return this.userService.verifyRecoverPassword(mailDTO);
+        }catch (Exception e){
+            log.error("Algo sucedio al recuperar la contraseña");
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal al recuperar la contraseña"));
         }
     }
 }
