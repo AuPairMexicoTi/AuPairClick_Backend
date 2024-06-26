@@ -1,7 +1,9 @@
 package com.aupair.aupaircl.service.profileservice;
 
+import com.aupair.aupaircl.controller.profilecontroller.profiledto.CountryDTO;
 import com.aupair.aupaircl.controller.profilecontroller.profiledto.ProfileDTO;
 import com.aupair.aupaircl.controller.profilecontroller.profiledto.ProfileUpdateDTO;
+import com.aupair.aupaircl.controller.profilecontroller.profiledto.ResponseProfileDto;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountry;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountryRepository;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfile;
@@ -26,6 +28,7 @@ import com.aupair.aupaircl.model.rol.RolRepository;
 import com.aupair.aupaircl.model.user.User;
 import com.aupair.aupaircl.model.user.UserRepository;
 import com.aupair.aupaircl.service.profileservice.mapperprofile.MapperProfile;
+import com.aupair.aupaircl.service.userservice.mapperuser.MapperUser;
 import com.aupair.aupaircl.utils.CustomResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,7 +86,6 @@ public class ProfileService {
     }
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> registerProfile(ProfileDTO profileDTO){
-        System.out.println(profileDTO);
         try {
 
             Optional<User> userSaved = this.userRepository.findByEmail(profileDTO.getEmail());
@@ -252,17 +254,41 @@ public class ProfileService {
         }
     }
     @Transactional(readOnly = true)
-    public ResponseEntity<CustomResponse> getProfileByEmail(String email) {
+    public ResponseEntity<CustomResponse> getProfileAuPairByEmail(String email) {
         try {
             Profile userSave = this.profileRepository.findByUser_EmailAndIsApproved(email,true);
             if (userSave == null){
                 log.error("Could not find user");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido"));
             }
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Perfil: ",HttpStatus.OK.value(), false, userSave));
+            if (!userSave.getUser().getRole().getRoleName().equals("aupair")){
+                log.error("Solicitud incorrecta para el usuario");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Solicitud incorrecta para el usuario"));
+            }
+            ResponseProfileDto responseProfileDto = new ResponseProfileDto();
+            responseProfileDto.setName(userSave.getFirstName());
+            responseProfileDto.setLastname(userSave.getLastName());
+            responseProfileDto.setGender(userSave.getUser().getAuPairProfile().getGender().getGenderName());
+            responseProfileDto.setAge(userSave.getAge());
+            responseProfileDto.setCountry(userSave.getCountry().getCountryName());
+            responseProfileDto.setNationality(userSave.getCountry().getNationality());
+            responseProfileDto.setLanguageOur("Español");
+            responseProfileDto.setLanguageOther(userSave.getLanguagesSpoken());
+            responseProfileDto.setStartDate(userSave.getUser().getAuPairProfile().getAvailableFrom());
+            responseProfileDto.setEndDate(userSave.getUser().getAuPairProfile().getAvailableTo());
+            responseProfileDto.setMaxStayMonths(userSave.getMaxStayMonths());
+            responseProfileDto.setMinStayMonths(userSave.getMinStayMonths());
+            responseProfileDto.setLocationType(userSave.getLocationType().getLocationTypeName());
+            responseProfileDto.setPreferredRegion("New York");
+            responseProfileDto.setChildrenAgeMax(userSave.getUser().getAuPairProfile().getChildrenAgeMaxSearch());
+            responseProfileDto.setChildrenAgeMin(userSave.getUser().getAuPairProfile().getChildrenAgeMinSearch());
+            List<AuPairPreferredCountry> auPairPreferredCountry = this.auPairPreferredCountryRepository.findByAuPairProfile_User_Email(email);
+            List<CountryDTO> countryDTOS = MapperUser.mapAuPairPreferredCountry(auPairPreferredCountry);
+            responseProfileDto.setPreferredCountries(countryDTOS);
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Perfil: ",HttpStatus.OK.value(), false, responseProfileDto));
         }catch (Exception e){
-            log.error("Failed to get profile" +e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.OK.value(), "Perfil actualizado"));
+            log.error("Fallo al obtener perfil de au pair" +e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al obtener perfil de au pair"));
         }
     }
 

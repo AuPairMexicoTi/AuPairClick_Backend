@@ -50,7 +50,7 @@ public class AuPairProfile {
     @JoinColumn(name = "fk_gender", nullable = false)
     private Gender gender;
     @JsonIgnore
-    @OneToMany(mappedBy = "auPairProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "auPairProfile", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<AuPairPreferredCountry> preferredCountries;
 
     @PrePersist

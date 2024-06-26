@@ -44,7 +44,7 @@ public class ProfileController {
     @GetMapping(value = "/getProfile/{email}",produces = "application/json")
     public ResponseEntity<CustomResponse> getProfile(@PathVariable("email") String email) {
         try {
-            return this.profileService.getProfileByEmail(email);
+            return this.profileService.getProfileAuPairByEmail(email);
         }catch (Exception e){
             log.error("Error"+e.getMessage());
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal"));
