@@ -2,6 +2,7 @@ package com.aupair.aupaircl.service.hostfamilyprofileservice;
 
 import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.FamilyProfileUpdateDTO;
 import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.FindHostFamilyDto;
+import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.ResponseFindHostFamilyDto;
 import com.aupair.aupaircl.model.gender.Gender;
 import com.aupair.aupaircl.model.gender.GenderRepository;
 
@@ -11,6 +12,7 @@ import com.aupair.aupaircl.model.lada.Lada;
 import com.aupair.aupaircl.model.lada.LadaRepository;
 import com.aupair.aupaircl.model.locationtype.LocationTypes;
 import com.aupair.aupaircl.model.locationtype.LocationTypesRepository;
+import com.aupair.aupaircl.service.hostfamilyprofileservice.mapperhostprofile.MapperHostProfile;
 import com.aupair.aupaircl.utils.CustomResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -117,7 +119,8 @@ public class HostFamilyProfileService {
                 log.error("No host families found");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.BAD_REQUEST.value(), "No se encontraron coincidencias"));
             }
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Coincidencias de familias", HttpStatus.OK.value(), false, hostFamilyProfiles));
+            List<ResponseFindHostFamilyDto> responseFindHostFamilyDtos = MapperHostProfile.mapHostToResponseProfile(hostFamilyProfiles);
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Coincidencias de familias", HttpStatus.OK.value(), false, responseFindHostFamilyDtos));
         } catch (Exception e) {
             log.error("Error in findHostFamilies: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Something went wrong"));

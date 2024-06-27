@@ -12,8 +12,6 @@ import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.print.attribute.standard.MediaSize;
 import java.util.UUID;
 
 @Data
