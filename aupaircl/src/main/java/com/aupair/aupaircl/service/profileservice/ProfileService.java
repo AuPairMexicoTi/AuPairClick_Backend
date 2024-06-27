@@ -90,8 +90,8 @@ public class ProfileService {
 
             Optional<User> userSaved = this.userRepository.findByEmail(profileDTO.getEmail());
             if (userSaved.isEmpty()){
-                log.error("Could not find user");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido"));
+                log.error("Could not find user in register");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario sin registrarse"));
             }
 
             if (Boolean.FALSE.equals(userSaved.get().getEmailVerified())) {
@@ -214,8 +214,8 @@ public class ProfileService {
 
             Optional<User> userSaved = this.userRepository.findByEmail(profileUpdateDTO.getEmail());
             if (userSaved.isEmpty()){
-                log.error("Could not find user");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido"));
+                log.error("Could not find user in update");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido al actualizar"));
             }
 
             if (Boolean.FALSE.equals(userSaved.get().getEmailVerified())) {
@@ -258,8 +258,8 @@ public class ProfileService {
         try {
             Profile userSave = this.profileRepository.findByUser_EmailAndIsApproved(email,true);
             if (userSave == null){
-                log.error("Could not find user");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido"));
+                log.error("Could not find user in get profile");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido al traer perfil"));
             }
             if (!userSave.getUser().getRole().getRoleName().equals("aupair")){
                 log.error("Solicitud incorrecta para el usuario");

@@ -65,6 +65,9 @@ public class ApprovalService {
     public void approveAccount(UUID account, boolean isApproved){
        Optional<User> user = this.userRepository.findById(account);
        if (user.isPresent()){
+           if (user.get().getFailedAttempts()>1){
+               user.get().setFailedAttempts(0);
+           }
            user.get().setIsLocked(isApproved);
            this.userRepository.saveAndFlush(user.get());
        }

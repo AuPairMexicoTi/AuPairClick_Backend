@@ -40,8 +40,8 @@ public class UserController {
         try {
             return this.userService.getPreferencesCountryByUser(email);
         }catch (Exception e){
-            log.error("Error"+e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal"));
+            log.error("Error en preferences au pair"+e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal al obtener las preferencias"));
         }
 
     }
@@ -51,7 +51,7 @@ public class UserController {
             return this.userService.getPreferencesCountryByFamily(email);
         }catch (Exception e){
             log.error("Error"+e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal"));
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal al obtener las preferencias de familia"));
         }
     }
     @PostMapping(value = "/updatePassword",produces = "application/json")
@@ -59,8 +59,8 @@ public class UserController {
         try {
             return this.userService.updatePassword(userDTO);
         }catch (Exception e){
-            log.error("Error"+e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal"));
+            log.error("Error en actualizar contraseña"+e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal al actualizar contraseña"));
         }
     }
     @PostMapping(value = "/recoverPassword",produces = "application/json")
