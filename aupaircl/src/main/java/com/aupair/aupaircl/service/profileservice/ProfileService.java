@@ -285,7 +285,11 @@ public class ProfileService {
             List<AuPairPreferredCountry> auPairPreferredCountry = this.auPairPreferredCountryRepository.findByAuPairProfile_User_Email(email);
             List<CountryDTO> countryDTOS = MapperUser.mapAuPairPreferredCountry(auPairPreferredCountry);
             responseProfileDto.setPreferredCountries(countryDTOS);
-        return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Perfil: ",HttpStatus.OK.value(), false, responseProfileDto));
+            responseProfileDto.setAboutMe(userSave.getAboutMe());
+            responseProfileDto.setLastLogin(userSave.getUser().getLastLogin());
+            List<Image> imageList = this.imageRepository.findByProfile_User_EmailAndProfile_IsApproved(email,true);
+            responseProfileDto.setImages(imageList);
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Perfil: ",HttpStatus.OK.value(), false, responseProfileDto));
         }catch (Exception e){
             log.error("Fallo al obtener perfil de au pair" +e.getMessage());
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al obtener perfil de au pair"));
