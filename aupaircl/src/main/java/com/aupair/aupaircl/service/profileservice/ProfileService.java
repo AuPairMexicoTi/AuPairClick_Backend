@@ -138,6 +138,7 @@ public class ProfileService {
                 profile.setMinStayMonths(profileDTO.getMinStayMonths());
                 profile.setMaxStayMonths(profileDTO.getMaxStayMonths());
                 profile.setUser(userSaved.get());
+                profile.setApproved(true);
                 profile.setLocationType(locationTypeSaved.get());
 
             Profile profileSaved = this.profileRepository.save(profile);
@@ -162,6 +163,7 @@ public class ProfileService {
                     auPairProfile.setHouseWork(profileDTO.isHouseWork());
                     auPairProfile.setWorkSpecialChildren(profileDTO.isWorkSpecialChildren());
                     auPairProfile.setToFamily(profileDTO.getToFamily());
+                    auPairProfile.setApproved(true);
                     //Guardar perfil au pair
 
                    AuPairProfile auPairProfileSaved = this.auPairProfileRepository.save(auPairProfile);
@@ -191,6 +193,7 @@ public class ProfileService {
                     hostFamilyProfile.setSmokes(profileDTO.isSmokes());
                     hostFamilyProfile.setUser(userSaved.get());
                     hostFamilyProfile.setGenderPreferred(profileDTO.getGenderPreferred());
+                    hostFamilyProfile.setApproved(true);
                     // Usar MapperProfile para obtener la lista de países preferidos
                     List<Country> preferredCountries = mapperProfile.mapCountriesFromNames(profileDTO.getCountriesPreferences());
 
