@@ -79,7 +79,7 @@ public class MailService {
         String code = genereteRandomCode();
         Optional<User> userSaved = this.userRepository.findByEmail(mailDTO.getEmail());
         if (userSaved.isPresent()) {
-            if (Boolean.FALSE.equals(userSaved.get().getEmailVerified())) {
+            if (Boolean.FALSE.equals(userSaved.get().isEmailVerified())) {
                Optional <EmailVerification> emailVerificationSaved = this.emailVerificationRepository.findByUser_Email(mailDTO.getEmail());
                 emailVerificationSaved.get().setUser(userSaved.get());
                 emailVerificationSaved.get().setVerificationToken(code);

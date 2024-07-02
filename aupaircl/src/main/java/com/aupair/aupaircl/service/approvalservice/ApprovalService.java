@@ -32,7 +32,7 @@ public class ApprovalService {
     public void approveProfileSection(UUID profileId, Boolean isApproved) {
         Optional<Profile> profile = profileRepository.findById(profileId);
         if (profile.isPresent()) {
-            profile.get().setIsApproved(isApproved);
+            profile.get().setApproved(isApproved);
             profileRepository.saveAndFlush(profile.get());
         }
     }
@@ -41,11 +41,11 @@ public class ApprovalService {
         Optional<AuPairProfile> auPairProfile = auPairProfileRepository.findById(auPairProfileId);
         Optional<User> user = this.userRepository.findByEmail(auPairProfile.get().getUser().getEmail());
         if (user.isPresent() && !isApproved) {
-            user.get().setIsLocked(true);
+            user.get().setLocked(true);
             this.userRepository.saveAndFlush(user.get());
         }
         if (auPairProfile.isPresent()) {
-            auPairProfile.get().setIsApproved(isApproved);
+            auPairProfile.get().setApproved(isApproved);
             auPairProfileRepository.saveAndFlush(auPairProfile.get());
         }
     }
@@ -54,11 +54,11 @@ public class ApprovalService {
         Optional<HostFamilyProfile> hostFamilyProfile = hostFamilyProfileRepository.findById(hostFamilyProfileId);
         Optional<User> user = this.userRepository.findByEmail(hostFamilyProfile.get().getUser().getEmail());
         if (user.isPresent() && !isApproved) {
-            user.get().setIsLocked(true);
+            user.get().setLocked(true);
             this.userRepository.saveAndFlush(user.get());
         }
         if (hostFamilyProfile.isPresent()){
-            hostFamilyProfile.get().setIsApproved(isApproved);
+            hostFamilyProfile.get().setApproved(isApproved);
             hostFamilyProfileRepository.saveAndFlush(hostFamilyProfile.get());
         }
     }
@@ -68,7 +68,7 @@ public class ApprovalService {
            if (user.get().getFailedAttempts()>1){
                user.get().setFailedAttempts(0);
            }
-           user.get().setIsLocked(isApproved);
+           user.get().setLocked(isApproved);
            this.userRepository.saveAndFlush(user.get());
        }
     }

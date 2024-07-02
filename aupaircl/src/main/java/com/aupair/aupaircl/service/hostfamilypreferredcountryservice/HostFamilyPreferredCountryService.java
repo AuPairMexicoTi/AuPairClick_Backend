@@ -80,8 +80,8 @@ public HostFamilyPreferredCountryService(HostFamilyPreferredCountryRepository ho
     public boolean isProfileHostFamilyCompletely(String email) {
         Optional<HostFamilyProfile> hostFamilyProfile = hostFamilyProfileRepository.findByUser_Email(email);
         Optional<Profile> profile = profileRepository.findByUser_Email(email);
-        boolean profileApproved = profile.isPresent() && profile.get().getIsApproved();
-        boolean profileAupairApproved = hostFamilyProfile.get().getIsApproved();
+        boolean profileApproved = profile.isPresent() && profile.get().isApproved();
+        boolean profileAupairApproved = hostFamilyProfile.get().isApproved();
         return profileApproved && profileAupairApproved;
     }
 }

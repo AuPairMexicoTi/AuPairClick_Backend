@@ -66,7 +66,7 @@ public class HostFamilyProfileService {
                 log.error("Could not find user");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido"));
             }
-            if (Boolean.FALSE.equals(userSaved.get().getUser().getEmailVerified())) {
+            if (Boolean.FALSE.equals(userSaved.get().getUser().isEmailVerified())) {
                 log.error("Email isnt verified");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario no verificado"));
             }

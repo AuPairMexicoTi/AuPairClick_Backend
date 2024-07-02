@@ -31,7 +31,7 @@ public class UserInfoDetails implements UserDetails {
     return new UserInfoDetails(
             user.getEmail(),
             user.getPassword(),
-            user.getIsLocked(), authorities
+            user.isLocked(), authorities
     );
     }
     @Override

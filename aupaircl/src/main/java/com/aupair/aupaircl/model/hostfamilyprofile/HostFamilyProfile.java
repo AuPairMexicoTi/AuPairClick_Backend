@@ -50,10 +50,10 @@ public class HostFamilyProfile {
     private String hostingExperience;
 
     @Column(name = "smoke")
-    private Boolean smokes;
+    private boolean smokes;
 
     @Column(name = "isApproved")
-    private Boolean isApproved = false;
+    private boolean isApproved = false;
 
     @Column(name = "gender_preferred")
     private String genderPreferred;

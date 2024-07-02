@@ -16,7 +16,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,11 +45,11 @@ public class AuthService {
     public ResponseEntity<CustomResponse> login(AuthRequest authRequest) {
         try {
             Optional<User> userAccount = userAccountRepository.findByEmail(authRequest.getEmail());
-            if(userAccount.isPresent() &&  Boolean.FALSE.equals(userAccount.get().getEmailVerified())){
+            if(userAccount.isPresent() &&  Boolean.FALSE.equals(userAccount.get().isEmailVerified())){
                 log.error("Usuario no verificado");
                 return ResponseEntity.status(599).body(new CustomResponse(true,599,"Cuenta no verificada"));
             }
-            if (userAccount.isPresent() && Boolean.TRUE.equals(userAccount.get().getIsLocked())){
+            if (userAccount.isPresent() && Boolean.TRUE.equals(userAccount.get().isLocked())){
                 log.error("Usuario bloqueado");
                 return ResponseEntity.status(601).body(
                         new CustomResponse(true, 601, "Cuenta bloqueada"));
@@ -60,7 +59,7 @@ public class AuthService {
                 String token = authentication(authRequest);
                 if (token == null) {
                     if(userAccount.isPresent() && userAccount.get().getRole().getRoleName().equals("family") || userAccount.get().getRole().getRoleName().equals("aupair") && userAccount.get().getFailedAttempts() >= 3){
-                        userAccount.get().setIsLocked(true);
+                        userAccount.get().setLocked(true);
                         userAccountRepository.saveAndFlush(userAccount.get());
                         mailService.blockedAccountByFailedIntents(userAccount.get().getEmail());
                     }else{

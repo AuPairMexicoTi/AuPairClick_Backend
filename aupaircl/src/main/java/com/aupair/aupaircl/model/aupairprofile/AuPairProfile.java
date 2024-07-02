@@ -33,18 +33,31 @@ public class AuPairProfile {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @Column(name = "available_to",nullable = false)
     private Date availableTo;
-    @Column(name = "child_care_experience",nullable = false)
-    private String childcareExperience;
-    @Column(name = "motivation",nullable = false)
-    private String motivation;
+    @Column(name = "to_family",nullable = false)
+    private String toFamily;
     @Column(name = "isApproved")
-    private Boolean isApproved = false;
-    @Column(name = "smoke")
-    private Boolean smokes;
+    private boolean isApproved = false;
     @Column(name = "children_age_min_search")
     private Integer childrenAgeMinSearch;
     @Column(name = "children_age_max_search")
     private Integer childrenAgeMaxSearch;
+    @Column(name = "smoker",nullable = false)
+    private boolean smoker;
+    @Column(name = "family_smokes",nullable = false)
+    private boolean familySmokes;
+    @Column(name="driving_licence",nullable = false)
+    private boolean drivingLicence;
+    @Column(name = "house_work",nullable = false)
+    private boolean houseWork;
+    @Column(name = "child_care_exp",nullable = false)
+    private boolean childCareExp;
+    @Column(name = "work_special_children",nullable = false)
+    private boolean workSpecialChildren;
+    @Column(name = "single_families",nullable = false)
+    private boolean singleFamily;
+    @Column(name = "vegetarian",nullable = false)
+    private boolean vegetarian;
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "fk_gender", nullable = false)

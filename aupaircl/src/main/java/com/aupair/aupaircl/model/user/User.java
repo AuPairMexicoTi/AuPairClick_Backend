@@ -38,7 +38,7 @@ public class User {
     @JoinColumn(name = "role_id", nullable = false)
     private Rol role;
     @Column(name = "email_verified")
-    private Boolean emailVerified = false;
+    private boolean emailVerified = false;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @Column(name = "created_at",nullable = false)
     private Date createdAt;
@@ -48,7 +48,7 @@ public class User {
     @Column(name="failed_attempts")
     private Integer failedAttempts = 0;
     @Column(name="is_locked")
-    private Boolean isLocked = false;
+    private boolean isLocked = false;
     @Column(name = "reset_token")
     private String resetToken;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")

@@ -93,8 +93,8 @@ public AuPairPreferredCountryService(AuPairPreferredCountryRepository auPairPref
     public boolean isProfileAuPairCompletely(String email){
         Optional<AuPairProfile> auPairProfile = auPairProfileRepository.findByUser_Email(email);
         Optional<Profile> profile = profileRepository.findByUser_Email(email);
-        boolean profileApproved = profile.isPresent() && profile.get().getIsApproved();
-        boolean profileAupairApproved = auPairProfile.get().getIsApproved();
+        boolean profileApproved = profile.isPresent() && profile.get().isApproved();
+        boolean profileAupairApproved = auPairProfile.get().isApproved();
         return profileApproved && profileAupairApproved;
     }
 }

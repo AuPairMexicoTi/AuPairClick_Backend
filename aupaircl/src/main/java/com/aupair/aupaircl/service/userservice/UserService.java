@@ -75,7 +75,7 @@ public UserService(UserRepository userRepository,
                 user.setRole(rol);
                 user.setUsername(userDTO.getUsername());
                 user.setResetToken("");
-                user.setIsLocked(true);
+                user.setLocked(false);
                 user.setResetTokenExpires(new Date());
                 User userSaved= this.userRepository.save(user);
                     if(userSaved !=null){
@@ -90,7 +90,7 @@ public UserService(UserRepository userRepository,
                 user.setRole(rol);
                 user.setUsername(userDTO.getUsername());
                 user.setResetToken("");
-                user.setIsLocked(true);
+                user.setLocked(false);
                 user.setResetTokenExpires(new Date());
                 User userSaved= this.userRepository.save(user);
                 if(userSaved !=null){

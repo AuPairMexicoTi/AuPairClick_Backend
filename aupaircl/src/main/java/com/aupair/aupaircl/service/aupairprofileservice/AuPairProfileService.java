@@ -57,15 +57,13 @@ public AuPairProfileService(AuPairProfileRepository auPairProfileRepository,
                 log.error("Could not find gender");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Genero invalido"));
             }
-            if (Boolean.FALSE.equals(userSaved.get().getUser().getEmailVerified())) {
+            if (Boolean.FALSE.equals(userSaved.get().getUser().isEmailVerified())) {
                 log.error("Email isnt verified");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario no verificado"));
             }
             Optional<AuPairProfile> auPairProfile = this.auPairProfileRepository.findByUser_Email(profileAuPairDTO.getEmail());
             if (auPairProfile.isPresent()) {
-                auPairProfile.get().setSmokes(profileAuPairDTO.getSmoke());
-                auPairProfile.get().setMotivation(profileAuPairDTO.getMotivation());
-                auPairProfile.get().setChildcareExperience(profileAuPairDTO.getChild_care_experience());
+                auPairProfile.get().setSmoker(profileAuPairDTO.getSmoke());
                 auPairProfile.get().setUser(userSaved.get().getUser());
                 auPairProfile.get().setAvailableFrom(profileAuPairDTO.getAvailable_from());
                 auPairProfile.get().setAvailableTo(profileAuPairDTO.getAvailable_to());
