@@ -33,7 +33,8 @@ public class Profile {
 
     @Column(name = "last_name",nullable = false)
     private String lastName;
-
+    @Column(name = "surname",nullable = false)
+    private String surname;
     @Column(name = "age",nullable = false)
     private Integer age;
 
@@ -46,7 +47,7 @@ public class Profile {
     @Column(name = "max_stay_months",nullable = false)
     private Integer maxStayMonths;
     @Column(name = "isApproved")
-    private Boolean isApproved = false;
+    private boolean isApproved = false;
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "fk_location_type", nullable = false)

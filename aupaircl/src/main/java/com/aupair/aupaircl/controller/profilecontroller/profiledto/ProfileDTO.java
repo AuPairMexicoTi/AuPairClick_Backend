@@ -14,41 +14,47 @@ import java.util.Date;
 @Data
 public class ProfileDTO {
     private String email;
-    private String first_name;
+    private String firstName;
     private Integer age;
-    private String last_name;
+    private String lastName;
+    private String surname;
     private String phone;
     private String lada;
-    private String languages_spoken;
+    private String languagesSpoken;
     private String nationality;
-    private String country_of_residence;
+    private String countryOfResidence;
     private String gender;
-    private String about_me;
-    private Integer min_stay_months;
-    private Integer max_stay_months;
+    private String aboutMe;
+    private Integer minStayMonths;
+    private Integer maxStayMonths;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date available_from;
+    private Date availableFrom;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date available_to;
-    private String child_care_experience;
-    private String motivation;
-    private Boolean smoke;
+    private Date availableTo;
     private Integer childrenAgeMinFind;
     private Integer childrenAgeMaxFind;
+    private boolean childCareExp;
+    private boolean smoker;
+    private boolean familySmokes;
+    private boolean drivingLicence;
+    private boolean houseWork;
+    private boolean workSpecialChildren;
+    private boolean singleFamily;
+    private boolean vegetarian;
+    private String toFamily;
 
-
-    private Integer children_Age_min;
-    private Integer children_Age_max;
-    private String hostin_experience;
-    private String house_description;
-    private Integer number_of_children;
+    private Integer childrenAgeMin;
+    private Integer childrenAgeMax;
+    private String hostingExperience;
+    private String houseDescription;
+    private Integer numberOfChildren;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date search_from;
+    private Date searchFrom;
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date search_to;
-    private String location_type;
-    private Boolean smokes;
+    private Date searchTo;
+    private String locationType;
+    private boolean smokes;
     private String genderPreferred;
 
     private String isType;

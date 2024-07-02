@@ -86,7 +86,7 @@ public class ProfileService {
     }
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> registerProfile(ProfileDTO profileDTO){
-        try {
+            try {
 
             Optional<User> userSaved = this.userRepository.findByEmail(profileDTO.getEmail());
             if (userSaved.isEmpty()){
@@ -94,7 +94,7 @@ public class ProfileService {
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario sin registrarse"));
             }
 
-            if (Boolean.FALSE.equals(userSaved.get().getEmailVerified())) {
+            if (Boolean.FALSE.equals(userSaved.get().isEmailVerified())) {
                 log.error("Email isnt verified");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario no verificado"));
             }
@@ -106,7 +106,7 @@ public class ProfileService {
                 log.error("Rol invalid");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Rol invalido"));
             }
-            Optional<LocationTypes> locationTypeSaved = this.locationTypesRepository.findByLocationTypeName(profileDTO.getLocation_type());
+            Optional<LocationTypes> locationTypeSaved = this.locationTypesRepository.findByLocationTypeName(profileDTO.getLocationType());
             if (locationTypeSaved.isEmpty()) {
                 log.error("Could not find location type");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Location invalida"));
@@ -116,7 +116,7 @@ public class ProfileService {
                 log.error("Could not find lada");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Lada invalida"));
             }
-            Optional<Country> countrySaved = this.countryRepository.findByCountryName(profileDTO.getCountry_of_residence());
+            Optional<Country> countrySaved = this.countryRepository.findByCountryName(profileDTO.getCountryOfResidence());
             if (countrySaved.isEmpty()) {
                 log.error("Could not find country");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Pais invalido"));
@@ -128,14 +128,15 @@ public class ProfileService {
             }
 
                 Profile profile = new Profile();
-                profile.setFirstName(profileDTO.getFirst_name());
-                profile.setLastName(profileDTO.getLast_name());
+                profile.setFirstName(profileDTO.getFirstName());
+                profile.setLastName(profileDTO.getLastName());
+                profile.setSurname(profileDTO.getSurname());
                 profile.setAge(profileDTO.getAge());
                 profile.setCountry(countrySaved.get());
-                profile.setAboutMe(profileDTO.getAbout_me());
-                profile.setLanguagesSpoken(profileDTO.getLanguages_spoken());
-                profile.setMinStayMonths(profileDTO.getMin_stay_months());
-                profile.setMaxStayMonths(profileDTO.getMax_stay_months());
+                profile.setAboutMe(profileDTO.getAboutMe());
+                profile.setLanguagesSpoken(profileDTO.getLanguagesSpoken());
+                profile.setMinStayMonths(profileDTO.getMinStayMonths());
+                profile.setMaxStayMonths(profileDTO.getMaxStayMonths());
                 profile.setUser(userSaved.get());
                 profile.setLocationType(locationTypeSaved.get());
 
@@ -147,15 +148,20 @@ public class ProfileService {
                 this.imageRepository.saveAllAndFlush(imageList);
                 if(profileDTO.getIsType().equals(AuPairType)){
                     AuPairProfile auPairProfile = new  AuPairProfile();
-                    auPairProfile.setSmokes(profileDTO.getSmoke());
                     auPairProfile.setGender(genderSaved.get());
-                    auPairProfile.setMotivation(profileDTO.getMotivation());
-                    auPairProfile.setAvailableFrom(profileDTO.getAvailable_from());
-                    auPairProfile.setAvailableTo(profileDTO.getAvailable_to());
-                    auPairProfile.setChildcareExperience(profileDTO.getChild_care_experience());
-                    auPairProfile.setChildrenAgeMinSearch(profileDTO.getChildren_Age_min());
-                    auPairProfile.setChildrenAgeMaxSearch(profileDTO.getChildren_Age_max());
+                    auPairProfile.setAvailableFrom(profileDTO.getAvailableFrom());
+                    auPairProfile.setAvailableTo(profileDTO.getAvailableTo());
+                    auPairProfile.setChildrenAgeMinSearch(profileDTO.getChildrenAgeMin());
+                    auPairProfile.setChildrenAgeMaxSearch(profileDTO.getChildrenAgeMax());
                     auPairProfile.setUser(userSaved.get());
+                    auPairProfile.setSmoker(profileDTO.isSmoker());
+                    auPairProfile.setDrivingLicence(profileDTO.isDrivingLicence());
+                    auPairProfile.setVegetarian(profileDTO.isVegetarian());
+                    auPairProfile.setChildCareExp(profileDTO.isChildCareExp());
+                    auPairProfile.setFamilySmokes(profileDTO.isFamilySmokes());
+                    auPairProfile.setHouseWork(profileDTO.isHouseWork());
+                    auPairProfile.setWorkSpecialChildren(profileDTO.isWorkSpecialChildren());
+                    auPairProfile.setToFamily(profileDTO.getToFamily());
                     //Guardar perfil au pair
 
                    AuPairProfile auPairProfileSaved = this.auPairProfileRepository.save(auPairProfile);
@@ -174,15 +180,15 @@ public class ProfileService {
                 }
                 if(profileDTO.getIsType().equals(FamilyType)){
                     HostFamilyProfile hostFamilyProfile = new HostFamilyProfile();
-                    hostFamilyProfile.setHostingExperience(profileDTO.getHostin_experience());
-                    hostFamilyProfile.setHouseDescription(profileDTO.getHouse_description());
-                    hostFamilyProfile.setChildrenAgesMin(profileDTO.getChildren_Age_min());
-                    hostFamilyProfile.setChildrenAgesMax(profileDTO.getChildren_Age_max());
-                    hostFamilyProfile.setNumberOfChildren(profileDTO.getNumber_of_children() != null ? profileDTO.getNumber_of_children() : 0); // Proveer valor por defecto
-                    hostFamilyProfile.setSearchFrom(profileDTO.getSearch_from());
-                    hostFamilyProfile.setSearchTo(profileDTO.getSearch_to());
+                    hostFamilyProfile.setHostingExperience(profileDTO.getHostingExperience());
+                    hostFamilyProfile.setHouseDescription(profileDTO.getHouseDescription());
+                    hostFamilyProfile.setChildrenAgesMin(profileDTO.getChildrenAgeMin());
+                    hostFamilyProfile.setChildrenAgesMax(profileDTO.getChildrenAgeMax());
+                    hostFamilyProfile.setNumberOfChildren(profileDTO.getNumberOfChildren() != null ? profileDTO.getNumberOfChildren() : 0); // Proveer valor por defecto
+                    hostFamilyProfile.setSearchFrom(profileDTO.getSearchFrom());
+                    hostFamilyProfile.setSearchTo(profileDTO.getSearchTo());
                     hostFamilyProfile.setLada(ladaSaved.get());
-                    hostFamilyProfile.setSmokes(profileDTO.getSmokes());
+                    hostFamilyProfile.setSmokes(profileDTO.isSmokes());
                     hostFamilyProfile.setUser(userSaved.get());
                     hostFamilyProfile.setGenderPreferred(profileDTO.getGenderPreferred());
                     // Usar MapperProfile para obtener la lista de países preferidos
@@ -203,7 +209,7 @@ public class ProfileService {
             }
         }catch (Exception e){
             log.error("Failed to register profile" +e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.OK.value(), "Perfil registrado"));
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.OK.value(), "Problema al registrar perfil"));
         }
         return null;
     }
@@ -218,7 +224,7 @@ public class ProfileService {
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido al actualizar"));
             }
 
-            if (Boolean.FALSE.equals(userSaved.get().getEmailVerified())) {
+            if (Boolean.FALSE.equals(userSaved.get().isEmailVerified())) {
                 log.error("Email isnt verified");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario no verificado"));
             }
