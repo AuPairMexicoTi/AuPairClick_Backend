@@ -60,7 +60,7 @@ public class AuthService {
             }
             if(!this.profileRepository.findByUser_Email(userAccount.get().getEmail()).isPresent()){
                 log.error("Usuario sin perfil registrado");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,102, "Primero debes completar el perfil"));
+                return ResponseEntity.status(606).body(new CustomResponse(true,606, "Primero debes completar el perfil"));
             }
             if (userAccount.isPresent()) {
                 String token = authentication(authRequest);
