@@ -18,7 +18,6 @@ public class ProfileDTO {
     private Integer age;
     private String lastName;
     private String surname;
-    private String phone;
     private String lada;
     private String languagesSpoken;
     private String nationality;
@@ -62,4 +61,9 @@ public class ProfileDTO {
     private ImageDTO[] images;
     private CountryDTO[] countriesPreferences;
 
+    private String street;
+    private String zipCode;
+    private String city;
+    private String province;
+    private String phone;
 }

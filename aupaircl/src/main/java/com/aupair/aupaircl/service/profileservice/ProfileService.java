@@ -8,6 +8,8 @@ import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountry;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountryRepository;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfile;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfileRepository;
+import com.aupair.aupaircl.model.contactdetails.ContactDetails;
+import com.aupair.aupaircl.model.contactdetails.ContactDetailsRepository;
 import com.aupair.aupaircl.model.country.Country;
 import com.aupair.aupaircl.model.country.CountryRepository;
 import com.aupair.aupaircl.model.gender.Gender;
@@ -59,6 +61,7 @@ public class ProfileService {
     private final MapperProfile mapperProfile;
     private final AuPairPreferredCountryRepository auPairPreferredCountryRepository;
     private final HostFamilyPreferredCountryRepository hostFamilyPreferredCountryRepository;
+    private final ContactDetailsRepository contactDetailsRepository;
     private static final String AuPairType= "aupair";
     private static final String FamilyType = "family";
     @Autowired
@@ -69,7 +72,7 @@ public class ProfileService {
                           LocationTypesRepository locationTypeRepository,
                           GenderRepository genderRepository,
             MapperProfile mapperProfile,HostFamilyPreferredCountryRepository hostFamilyPreferredCountryRepository,
-                          AuPairPreferredCountryRepository auPairPreferredCountryRepository) {
+                          AuPairPreferredCountryRepository auPairPreferredCountryRepository,ContactDetailsRepository contactDetailsRepository) {
         this.profileRepository = profileRepository;
         this.genderRepository = genderRepository;
         this.countryRepository = countryRepository;
@@ -83,11 +86,11 @@ public class ProfileService {
         this.mapperProfile = mapperProfile;
         this.auPairPreferredCountryRepository = auPairPreferredCountryRepository;
         this.hostFamilyPreferredCountryRepository = hostFamilyPreferredCountryRepository;
+        this.contactDetailsRepository = contactDetailsRepository;
     }
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> registerProfile(ProfileDTO profileDTO){
             try {
-
             Optional<User> userSaved = this.userRepository.findByEmail(profileDTO.getEmail());
             if (userSaved.isEmpty()){
                 log.error("Could not find user in register");
@@ -122,7 +125,7 @@ public class ProfileService {
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Pais invalido"));
             }
             Optional<Gender> genderSaved = this.genderRepository.findByGenderName(profileDTO.getGender());
-            if (genderSaved.isEmpty() && profileDTO.getIsType().equals("aupair")){
+            if (genderSaved.isEmpty() && profileDTO.getIsType().equals(AuPairType)){
                 log.error("Could not find gender");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Genero invalido"));
             }
@@ -167,6 +170,16 @@ public class ProfileService {
                     //Guardar perfil au pair
 
                    AuPairProfile auPairProfileSaved = this.auPairProfileRepository.save(auPairProfile);
+
+                   //Detalles de contacto
+                    ContactDetails contactDetails = new ContactDetails();
+                    contactDetails.setStreet(profileDTO.getStreet());
+                    contactDetails.setProvince(profileDTO.getProvince());
+                    contactDetails.setZipCode(profileDTO.getZipCode());
+                    contactDetails.setPhone(profileDTO.getPhone());
+                    contactDetails.setCity(profileDTO.getCity());
+                    contactDetails.setProfile(profileSaved);
+                    this.contactDetailsRepository.save(contactDetails);
                     // Usar MapperProfile para obtener la lista de países preferidos
                     List<Country> preferredCountries = mapperProfile.mapCountriesFromNames(profileDTO.getCountriesPreferences());
 
@@ -270,7 +283,7 @@ public class ProfileService {
                 log.error("Could not find user in get profile");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido al traer perfil"));
             }
-            if (!userSave.getUser().getRole().getRoleName().equals("aupair")){
+            if (!userSave.getUser().getRole().getRoleName().equals(AuPairType)){
                 log.error("Solicitud incorrecta para el usuario");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Solicitud incorrecta para el usuario"));
             }
