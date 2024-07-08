@@ -1,6 +1,7 @@
 package com.aupair.aupaircl.service.authservice;
 
 import com.aupair.aupaircl.controller.authcontroller.authdto.AuthRequest;
+import com.aupair.aupaircl.model.profile.ProfileRepository;
 import com.aupair.aupaircl.model.user.User;
 import com.aupair.aupaircl.model.user.UserRepository;
 import com.aupair.aupaircl.security.service.JwtService;
@@ -28,17 +29,20 @@ import java.util.Optional;
 @Slf4j
 public class AuthService {
     private final UserRepository userAccountRepository;
+    private final ProfileRepository profileRepository;
     private final AuthenticationManager manager;
     private final JwtService provider;
     private static final String RESPONSE_INVALID_CREDENTIALS = "Credenciales invalidas";
     private final MailService mailService;
 
     @Autowired
-    public AuthService(UserRepository userAccountRepository, MailService mailService, AuthenticationManager manager, JwtService provider) {
+    public AuthService(UserRepository userAccountRepository, MailService mailService, AuthenticationManager manager,
+                       JwtService provider,ProfileRepository profileRepository) {
         this.userAccountRepository = userAccountRepository;
         this.manager = manager;
         this.provider = provider;
         this.mailService= mailService;
+        this.profileRepository = profileRepository;
     }
 
     @Transactional(rollbackFor = {SQLException.class})
@@ -54,7 +58,10 @@ public class AuthService {
                 return ResponseEntity.status(601).body(
                         new CustomResponse(true, 601, "Cuenta bloqueada"));
             }
-
+            if(!this.profileRepository.findByUser_Email(userAccount.get().getEmail()).isPresent()){
+                log.error("Usuario sin perfil registrado");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,102, "Primero debes completar el perfil"));
+            }
             if (userAccount.isPresent()) {
                 String token = authentication(authRequest);
                 if (token == null) {
