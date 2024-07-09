@@ -49,6 +49,11 @@ public class AuthService {
     public ResponseEntity<CustomResponse> login(AuthRequest authRequest) {
         try {
             Optional<User> userAccount = userAccountRepository.findByEmail(authRequest.getEmail());
+            if (userAccount.isEmpty()){
+                log.error("Usuario invalido");
+                return ResponseEntity.status(600).body(
+                        new CustomResponse(true,600, RESPONSE_INVALID_CREDENTIALS));
+            }
             if(userAccount.isPresent() &&  Boolean.FALSE.equals(userAccount.get().isEmailVerified())){
                 log.error("Usuario no verificado");
                 return ResponseEntity.status(599).body(new CustomResponse(true,599,"Cuenta no verificada"));
@@ -62,37 +67,33 @@ public class AuthService {
                 log.error("Usuario sin perfil registrado");
                 return ResponseEntity.status(606).body(new CustomResponse(true,606, "Primero debes completar el perfil"));
             }
-            if (userAccount.isPresent()) {
-                String token = authentication(authRequest);
-                if (token == null) {
-                    if(userAccount.isPresent() && userAccount.get().getRole().getRoleName().equals("family") || userAccount.get().getRole().getRoleName().equals("aupair") && userAccount.get().getFailedAttempts() >= 3){
-                        userAccount.get().setLocked(true);
-                        userAccountRepository.saveAndFlush(userAccount.get());
-                        mailService.blockedAccountByFailedIntents(userAccount.get().getEmail());
-                    }else{
-                        userAccount.get().setFailedAttempts(userAccount.get().getFailedAttempts() + 1);
-                        userAccountRepository.saveAndFlush(userAccount.get());
-                    }
 
-                    return ResponseEntity.status(600).body(
-                            new CustomResponse(true, 600, "Credenciales incorrectas"));
+            String token = authentication(authRequest);
+            if (token == null) {
+                if(userAccount.get().getRole().getRoleName().equals("family") || userAccount.get().getRole().getRoleName().equals("aupair") && userAccount.get().getFailedAttempts() >= 3){
+                    userAccount.get().setLocked(true);
+                    userAccountRepository.saveAndFlush(userAccount.get());
+                    mailService.blockedAccountByFailedIntents(userAccount.get().getEmail());
+                }else{
+                    userAccount.get().setFailedAttempts(userAccount.get().getFailedAttempts() + 1);
+                    userAccountRepository.saveAndFlush(userAccount.get());
                 }
-                userAccount.get().setResetToken(token);
-                userAccount.get().setLastLogin(new Date());
-                userAccountRepository.saveAndFlush(userAccount.get());
-                return ResponseEntity.status(HttpStatus.OK).header(HttpHeaders.AUTHORIZATION, token).body(
-                        new CustomResponse("Login exitoso", 201, false, token));
-            } else {
-                log.error("Usuario invalido");
+
                 return ResponseEntity.status(600).body(
-                        new CustomResponse(true,600, "Credenciale invalidas"));
+                        new CustomResponse(true, 600, RESPONSE_INVALID_CREDENTIALS));
             }
+            userAccount.get().setResetToken(token);
+            userAccount.get().setLastLogin(new Date());
+            userAccountRepository.saveAndFlush(userAccount.get());
+            return ResponseEntity.status(HttpStatus.OK).header(HttpHeaders.AUTHORIZATION, token).body(
+                    new CustomResponse("Login exitoso", 201, false, token));
         } catch (Exception e) {
             log.error("Error al hacer login", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     new CustomResponse( true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error intentando hacer login"));
         }
     }
+
 
     private String authentication(AuthRequest authRequest) {
         try {
