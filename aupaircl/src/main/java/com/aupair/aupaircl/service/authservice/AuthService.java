@@ -63,10 +63,7 @@ public class AuthService {
                 return ResponseEntity.status(601).body(
                         new CustomResponse(true, 601, "Cuenta bloqueada"));
             }
-            if(!this.profileRepository.findByUser_Email(userAccount.get().getEmail()).isPresent()){
-                log.error("Usuario sin perfil registrado");
-                return ResponseEntity.status(606).body(new CustomResponse(true,606, "Primero debes completar el perfil"));
-            }
+
 
             String token = authentication(authRequest);
             if (token == null) {
@@ -85,6 +82,10 @@ public class AuthService {
             userAccount.get().setResetToken(token);
             userAccount.get().setLastLogin(new Date());
             userAccountRepository.saveAndFlush(userAccount.get());
+            if(!this.profileRepository.findByUser_Email(userAccount.get().getEmail()).isPresent()){
+                log.error("Usuario sin perfil registrado");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Primero debes completar tu perfil",606,true, token));
+            }
             return ResponseEntity.status(HttpStatus.OK).header(HttpHeaders.AUTHORIZATION, token).body(
                     new CustomResponse("Login exitoso", 201, false, token));
         } catch (Exception e) {
