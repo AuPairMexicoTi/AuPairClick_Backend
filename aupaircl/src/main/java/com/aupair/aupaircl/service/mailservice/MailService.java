@@ -58,14 +58,14 @@ public class MailService {
                     verification.get().setVerificationToken("");
                     this.userRepository.save(user.get());
                     this.emailVerificationRepository.save(verification.get());
-                    return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.OK.value(), "Codigo validado"));
+                    return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.OK.value(), "Codigo validado"));
                 }else{
-                    log.info("Codigo expirado");
-                    return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.BAD_REQUEST.value(), "Codigo invalido"));
+                    log.info("Codigo invalido");
+                    return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, 202, "Codigo invalido"));
                 }
             }else{
                 log.info("Codigo expirado");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.BAD_REQUEST.value(), "Codigo invalido"));
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, 202, "Codigo expirado"));
             }
 
         }catch (Exception e){
