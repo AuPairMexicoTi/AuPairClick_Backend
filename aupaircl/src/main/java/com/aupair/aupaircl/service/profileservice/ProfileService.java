@@ -3,7 +3,7 @@ package com.aupair.aupaircl.service.profileservice;
 import com.aupair.aupaircl.controller.profilecontroller.profiledto.CountryDTO;
 import com.aupair.aupaircl.controller.profilecontroller.profiledto.ProfileDTO;
 import com.aupair.aupaircl.controller.profilecontroller.profiledto.ProfileUpdateDTO;
-import com.aupair.aupaircl.controller.profilecontroller.profiledto.ResponseProfileDto;
+import com.aupair.aupaircl.controller.profilecontroller.profiledto.ResponseProfileAuPairDto;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountry;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountryRepository;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfile;
@@ -287,7 +287,7 @@ public class ProfileService {
                 log.error("Solicitud incorrecta para el usuario");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Solicitud incorrecta para el usuario"));
             }
-            ResponseProfileDto responseProfileDto = new ResponseProfileDto();
+            ResponseProfileAuPairDto responseProfileDto = new ResponseProfileAuPairDto();
             responseProfileDto.setName(userSave.getFirstName());
             responseProfileDto.setLastname(userSave.getLastName());
             responseProfileDto.setGender(userSave.getUser().getAuPairProfile().getGender().getGenderName());

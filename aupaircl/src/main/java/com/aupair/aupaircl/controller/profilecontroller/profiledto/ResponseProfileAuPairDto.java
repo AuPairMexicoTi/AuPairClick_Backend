@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
-public class ResponseProfileDto {
+public class ResponseProfileAuPairDto {
     private String name;
     private String lastname;
     private String gender;
