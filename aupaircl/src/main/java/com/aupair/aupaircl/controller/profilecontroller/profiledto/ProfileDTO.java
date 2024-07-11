@@ -27,9 +27,9 @@ public class ProfileDTO {
     private Integer minStayMonths;
     private Integer maxStayMonths;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM")
     private Date availableFrom;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM")
     private Date availableTo;
     private Integer childrenAgeMinFind;
     private Integer childrenAgeMaxFind;
@@ -48,9 +48,9 @@ public class ProfileDTO {
     private String hostingExperience;
     private String houseDescription;
     private Integer numberOfChildren;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM")
     private Date searchFrom;
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM")
     private Date searchTo;
     private String locationType;
     private boolean smokes;
