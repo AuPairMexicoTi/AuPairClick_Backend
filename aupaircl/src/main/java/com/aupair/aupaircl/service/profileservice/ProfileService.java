@@ -90,6 +90,7 @@ public class ProfileService {
     }
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> registerProfile(ProfileDTO profileDTO){
+        System.out.println(profileDTO);
             try {
             Optional<User> userSaved = this.userRepository.findByEmail(profileDTO.getEmail());
             if (userSaved.isEmpty()){
@@ -155,8 +156,8 @@ public class ProfileService {
                     auPairProfile.setGender(genderSaved.get());
                     auPairProfile.setAvailableFrom(profileDTO.getAvailableFrom());
                     auPairProfile.setAvailableTo(profileDTO.getAvailableTo());
-                    auPairProfile.setChildrenAgeMinSearch(profileDTO.getChildrenAgeMin());
-                    auPairProfile.setChildrenAgeMaxSearch(profileDTO.getChildrenAgeMax());
+                    auPairProfile.setChildrenAgeMinSearch(profileDTO.getChildrenAgeMinFind());
+                    auPairProfile.setChildrenAgeMaxSearch(profileDTO.getChildrenAgeMaxFind());
                     auPairProfile.setUser(userSaved.get());
                     auPairProfile.setSmoker(profileDTO.isSmoker());
                     auPairProfile.setDrivingLicence(profileDTO.isDrivingLicence());
