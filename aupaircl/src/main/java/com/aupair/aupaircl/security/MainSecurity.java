@@ -3,6 +3,7 @@ package com.aupair.aupaircl.security;
 import com.aupair.aupaircl.security.jwt.JwtAuthFilter;
 import com.aupair.aupaircl.security.service.JwtService;
 import com.aupair.aupaircl.security.service.UserDetailsServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,13 +32,14 @@ public class MainSecurity {
             "/api/hostFamilyProfile/findHostFamily",
             "/api/profileAuPair/findAuPair",
             "/api/approval/**",
-            "/api/userAccount/register"
+            "/api/userAccount/register",
+            "/api/checkout/**",
 
     };
     private final UserDetailsServiceImpl service;
     private JwtService jwtService;
 
-
+    @Autowired
     public MainSecurity(UserDetailsServiceImpl service, JwtService jwtService) {
         this.service = service;
         this.jwtService = jwtService;
