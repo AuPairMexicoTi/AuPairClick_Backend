@@ -34,6 +34,7 @@ public class MainSecurity {
             "/api/approval/**",
             "/api/userAccount/register",
             "/api/checkout/**",
+            "/api/subscription/**"
 
     };
     private final UserDetailsServiceImpl service;
