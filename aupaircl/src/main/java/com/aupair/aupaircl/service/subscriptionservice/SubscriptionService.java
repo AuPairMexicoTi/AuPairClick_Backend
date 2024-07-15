@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -27,7 +28,8 @@ public class SubscriptionService {
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> registerSubscription(SubscriptionDTO subscriptiondto){
         try {
-            if (this.subscriptionRepository.findByIdProduct(subscriptiondto.getIdProduct()).isPresent()){
+            Optional<Subscription> existingSubscription = this.subscriptionRepository.findByIdProduct(subscriptiondto.getIdProduct());
+            if (existingSubscription.isPresent()){
                 log.error("El producto de subscripcion ya existe");
                 return new ResponseEntity<>(new CustomResponse(false, 190, "Ya tienes registrado ese id de producto"), HttpStatus.OK);
             }
