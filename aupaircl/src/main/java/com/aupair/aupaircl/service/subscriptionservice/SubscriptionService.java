@@ -74,4 +74,24 @@ public class SubscriptionService {
                     true, 500, "Algo ha ocurrido al cancelar la suscripcion"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @Transactional(rollbackFor={SQLException.class})
+    public ResponseEntity<CustomResponse> updateSubscription(SubscriptionDTO subscriptionDTO) {
+        try {
+            if (this.subscriptionRepository.findByIdProduct(subscriptionDTO.getIdProduct()).isPresent()) {
+                Subscription subscription = this.subscriptionRepository.findByIdProduct(subscriptionDTO.getIdProduct()).get();
+                subscription.setTitleSubscription(subscriptionDTO.getTitleSubscription());
+                subscription.setSubscriptionFeatures(subscriptionDTO.getFeatures());
+                subscription.setTransactionAmount(subscriptionDTO.getTransactionAmount());
+                subscription.setTransactionCurrency(subscriptionDTO.getTransactionCurrency());
+                subscription.setTransactionDescription(subscriptionDTO.getTransactionDescription());
+                subscriptionRepository.saveAndFlush(subscription);
+                return new ResponseEntity<>(new CustomResponse(false, 200, "Suscripcion actualizada correctamente"), HttpStatus.OK);
+            }
+            log.error("No se encontro la suscripcion con el id: " + subscriptionDTO.getIdProduct());
+            return new ResponseEntity<>(new CustomResponse(false, 190, "No se encontro la suscripcion"), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new CustomResponse(
+                    true, 500, "Algo ha ocurrido al actualizar la suscripcion"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

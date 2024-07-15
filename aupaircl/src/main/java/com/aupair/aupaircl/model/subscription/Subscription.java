@@ -48,8 +48,6 @@ public class Subscription {
         if (this.idSubscription == null) {
             this.idSubscription = UUID.randomUUID();
         }
-        if (this.transactionDate == null) {
             this.transactionDate = new Date();
-        }
     }
 }
