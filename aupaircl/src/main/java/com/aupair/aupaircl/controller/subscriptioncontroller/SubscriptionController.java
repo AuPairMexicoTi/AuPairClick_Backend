@@ -46,10 +46,9 @@ public class SubscriptionController {
     @PostMapping(value = "/updateSubscription", produces = "application/json")
     public ResponseEntity<CustomResponse> updateSubscription(@RequestBody SubscriptionDTO subscriptionDTO) {
         try {
-            System.out.println(subscriptionDTO);
             return this.subscriptionService.updateSubscription(subscriptionDTO);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al registrar subscription"));
         }
     }
-}
+    }

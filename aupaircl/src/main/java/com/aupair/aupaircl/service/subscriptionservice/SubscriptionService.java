@@ -61,6 +61,10 @@ public class SubscriptionService {
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> updateStatusSubscription(UpdateStatus updateStatus){
         try {
+            if(this.subscriptionRepository.countByTransactionStatus(updateStatus.getStatus())>=3){
+                log.error("No puede agregar mas de 3 productos como principales");
+                return new ResponseEntity<>(new CustomResponse(false, 191, "No puedes agregar mas de 3 productos principales"), HttpStatus.OK);
+            }
             if (this.subscriptionRepository.findByIdProduct(updateStatus.getData()).isPresent()){
                 Subscription subscription = this.subscriptionRepository.findByIdProduct(updateStatus.getData()).get();
                 subscription.setTransactionStatus(updateStatus.getStatus());
