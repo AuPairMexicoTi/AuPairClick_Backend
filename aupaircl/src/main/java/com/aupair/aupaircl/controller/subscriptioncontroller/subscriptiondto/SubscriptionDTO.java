@@ -10,11 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 @Data
 public class SubscriptionDTO {
-    private String idPrice;
+    private String idProduct;
     private String titleSubscription;
     private String transactionDescription;
     private Double transactionAmount;
-    private String transactionStatus;
     private String transactionCurrency;
-    private String subscriptionFeatures;
+    private String features;
 }
