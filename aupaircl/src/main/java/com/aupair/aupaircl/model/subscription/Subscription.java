@@ -28,6 +28,8 @@ public class Subscription {
     private UUID idSubscription;
     @Column(name = "id_product")
     private String idProduct;
+    @Column(name = "id_price")
+    private String idPrice;
     @Column(name = "title_subscription")
     private String titleSubscription;
     @JsonFormat(pattern="yyyy-MM-dd")

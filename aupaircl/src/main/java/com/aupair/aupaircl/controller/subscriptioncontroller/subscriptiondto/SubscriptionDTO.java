@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class SubscriptionDTO {
     private String idProduct;
+    private String idPrice;
     private String titleSubscription;
     private String transactionDescription;
     private Double transactionAmount;

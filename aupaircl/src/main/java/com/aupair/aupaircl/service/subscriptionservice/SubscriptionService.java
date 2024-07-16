@@ -37,6 +37,7 @@ public class SubscriptionService {
             subscription.setTitleSubscription(subscriptiondto.getTitleSubscription());
             subscription.setSubscriptionFeatures(subscriptiondto.getFeatures());
             subscription.setIdProduct(subscriptiondto.getIdProduct());
+            subscription.setIdPrice(subscriptiondto.getIdPrice());
             subscription.setTransactionAmount(subscriptiondto.getTransactionAmount());
             subscription.setTransactionStatus("activo");
             subscription.setTransactionCurrency(subscriptiondto.getTransactionCurrency());
@@ -85,6 +86,7 @@ public class SubscriptionService {
                 Subscription subscription = this.subscriptionRepository.findByIdProduct(subscriptionDTO.getIdProduct()).get();
                 subscription.setTitleSubscription(subscriptionDTO.getTitleSubscription());
                 subscription.setSubscriptionFeatures(subscriptionDTO.getFeatures());
+                subscription.setIdPrice(subscriptionDTO.getIdPrice());
                 subscription.setTransactionAmount(subscriptionDTO.getTransactionAmount());
                 subscription.setTransactionCurrency(subscriptionDTO.getTransactionCurrency());
                 subscription.setTransactionDescription(subscriptionDTO.getTransactionDescription());
