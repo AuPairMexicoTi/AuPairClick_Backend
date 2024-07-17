@@ -39,4 +39,12 @@ public class ResponseProfileAuPairDto {
     private Date lastLogin;
     private String numPerfil;
     private List<Image> images;
+    private boolean childCareExperience;
+    private boolean drivingLicence;
+    private boolean familySmokes;
+    private boolean houseWork;
+    private boolean workSpecialChildren;
+    private boolean singleFamily;
+    private boolean smoker;
+    private boolean vegetarian;
 }

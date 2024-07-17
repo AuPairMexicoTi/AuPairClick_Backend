@@ -319,6 +319,17 @@ public class ProfileService {
             responseProfileDto.setToFamily(auPairProfile.getToFamily());
             responseProfileDto.setLastLogin(userSave.getUser().getLastLogin());
             responseProfileDto.setNumPerfil(userSave.getNumPerfil());
+
+            responseProfileDto.setChildCareExperience(auPairProfile.isChildCareExp());
+            responseProfileDto.setVegetarian(auPairProfile.isVegetarian());
+            responseProfileDto.setSingleFamily(auPairProfile.isSingleFamily());
+            responseProfileDto.setSmoker(auPairProfile.isSmoker());
+            responseProfileDto.setHouseWork(auPairProfile.isHouseWork());
+            responseProfileDto.setDrivingLicence(auPairProfile.isDrivingLicence());
+            responseProfileDto.setFamilySmokes(auPairProfile.isFamilySmokes());
+            responseProfileDto.setWorkSpecialChildren(auPairProfile.isWorkSpecialChildren());
+
+
             List<Image> imageList = this.imageRepository.findByProfile_User_EmailAndProfile_IsApproved(email,true);
             responseProfileDto.setImages(imageList);
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Perfil: ",HttpStatus.OK.value(), false, responseProfileDto));
