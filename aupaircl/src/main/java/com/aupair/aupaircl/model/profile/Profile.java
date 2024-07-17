@@ -23,6 +23,9 @@ public class Profile {
     @GeneratedValue(generator = "UUID")
     private UUID profileId;
 
+    @Column(name = "num_perfil")
+    private String numPerfil;
+
     @JsonIgnore
     @OneToOne
     @JoinColumn(name = "fk_user", nullable = false)
@@ -37,15 +40,20 @@ public class Profile {
     private String surname;
     @Column(name = "age",nullable = false)
     private Integer age;
-
-    @Column(name = "languages_spoken",nullable = false)
-    private String languagesSpoken;
+    @Column(name = "language_our")
+    private String languageOur;
+    @Column(name = "language_our_other")
+    private String languageOurOther;
+    @Column(name = "language_other")
+    private String languageOther;
     @Column(name = "about_me",nullable = false)
     private String aboutMe;
     @Column(name = "min_stay_months",nullable = false)
     private Integer minStayMonths;
     @Column(name = "max_stay_months",nullable = false)
     private Integer maxStayMonths;
+    @Column(name = "region")
+    private String region;
     @Column(name = "isApproved")
     private boolean isApproved = false;
     @JsonIgnore

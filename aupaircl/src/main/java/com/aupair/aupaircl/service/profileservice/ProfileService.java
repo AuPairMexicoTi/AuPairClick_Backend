@@ -39,6 +39,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -64,6 +65,8 @@ public class ProfileService {
     private final ContactDetailsRepository contactDetailsRepository;
     private static final String AuPairType= "aupair";
     private static final String FamilyType = "family";
+    SecureRandom random = new SecureRandom();
+
     @Autowired
     public ProfileService(ProfileRepository profileRepository,ImageRepository imageRepository,CountryRepository countryRepository,
                           RolRepository rolRepository, LadaRepository ladaRepository,
@@ -90,7 +93,6 @@ public class ProfileService {
     }
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> registerProfile(ProfileDTO profileDTO){
-        System.out.println(profileDTO);
             try {
             Optional<User> userSaved = this.userRepository.findByEmail(profileDTO.getEmail());
             if (userSaved.isEmpty()){
@@ -132,13 +134,18 @@ public class ProfileService {
             }
 
                 Profile profile = new Profile();
+                String numPerfil = genereteRandomCode();
+                profile.setNumPerfil(numPerfil);
                 profile.setFirstName(profileDTO.getFirstName());
                 profile.setLastName(profileDTO.getLastName());
                 profile.setSurname(profileDTO.getSurname());
                 profile.setAge(profileDTO.getAge());
                 profile.setCountry(countrySaved.get());
+                profile.setRegion(profileDTO.getRegion());
                 profile.setAboutMe(profileDTO.getAboutMe());
-                profile.setLanguagesSpoken(profileDTO.getLanguagesSpoken());
+                profile.setLanguageOur(profileDTO.getLanguageOur());
+                profile.setLanguageOurOther(profileDTO.getLanguageOurOther());
+                profile.setLanguageOther(profileDTO.getLanguageOther());
                 profile.setMinStayMonths(profileDTO.getMinStayMonths());
                 profile.setMaxStayMonths(profileDTO.getMaxStayMonths());
                 profile.setUser(userSaved.get());
@@ -265,7 +272,6 @@ public class ProfileService {
                 profile.get().setMinStayMonths(profileUpdateDTO.getMin_stay_months());
                 profile.get().setAboutMe(profileUpdateDTO.getAbout_me());
                 profile.get().setMaxStayMonths(profileUpdateDTO.getMax_stay_months());
-                profile.get().setLanguagesSpoken(profileUpdateDTO.getLanguages_spoken());
                 profile.get().setCountry(countrySaved.get());
                 profile.get().setLocationType(locationTypeSaved.get());
             this.profileRepository.saveAndFlush(profile.get());
@@ -280,6 +286,7 @@ public class ProfileService {
     public ResponseEntity<CustomResponse> getProfileAuPairByEmail(String email) {
         try {
             Profile userSave = this.profileRepository.findByUser_EmailAndIsApproved(email,true);
+            AuPairProfile auPairProfile = this.auPairProfileRepository.findByUser_EmailAndIsApproved(email,true);
             if (userSave == null){
                 log.error("Could not find user in get profile");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido al traer perfil"));
@@ -294,22 +301,24 @@ public class ProfileService {
             responseProfileDto.setGender(userSave.getUser().getAuPairProfile().getGender().getGenderName());
             responseProfileDto.setAge(userSave.getAge());
             responseProfileDto.setCountry(userSave.getCountry().getCountryName());
+            responseProfileDto.setRegion(userSave.getRegion());
             responseProfileDto.setNationality(userSave.getCountry().getNationality());
-            responseProfileDto.setLanguageOur("Español");
-            responseProfileDto.setLanguageOther(userSave.getLanguagesSpoken());
+            responseProfileDto.setLanguageOur(userSave.getLanguageOur());
+            responseProfileDto.setLanguageOurOther(userSave.getLanguageOurOther());
+            responseProfileDto.setLanguageOther(userSave.getLanguageOther());
             responseProfileDto.setStartDate(userSave.getUser().getAuPairProfile().getAvailableFrom());
             responseProfileDto.setEndDate(userSave.getUser().getAuPairProfile().getAvailableTo());
             responseProfileDto.setMaxStayMonths(userSave.getMaxStayMonths());
             responseProfileDto.setMinStayMonths(userSave.getMinStayMonths());
             responseProfileDto.setLocationType(userSave.getLocationType().getLocationTypeName());
-            responseProfileDto.setPreferredRegion("New York");
             responseProfileDto.setChildrenAgeMax(userSave.getUser().getAuPairProfile().getChildrenAgeMaxSearch());
             responseProfileDto.setChildrenAgeMin(userSave.getUser().getAuPairProfile().getChildrenAgeMinSearch());
             List<AuPairPreferredCountry> auPairPreferredCountry = this.auPairPreferredCountryRepository.findByAuPairProfile_User_Email(email);
             List<CountryDTO> countryDTOS = MapperUser.mapAuPairPreferredCountry(auPairPreferredCountry);
             responseProfileDto.setPreferredCountries(countryDTOS);
-            responseProfileDto.setAboutMe(userSave.getAboutMe());
+            responseProfileDto.setToFamily(auPairProfile.getToFamily());
             responseProfileDto.setLastLogin(userSave.getUser().getLastLogin());
+            responseProfileDto.setNumPerfil(userSave.getNumPerfil());
             List<Image> imageList = this.imageRepository.findByProfile_User_EmailAndProfile_IsApproved(email,true);
             responseProfileDto.setImages(imageList);
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Perfil: ",HttpStatus.OK.value(), false, responseProfileDto));
@@ -319,5 +328,8 @@ public class ProfileService {
         }
     }
 
-
+    public String genereteRandomCode () {
+        long randomCode = 10000000000L + random.nextLong() % 90000000000L;
+        return String.valueOf(randomCode);
+    }
 }

@@ -19,8 +19,10 @@ public class ResponseProfileAuPairDto {
     private String gender;
     private Integer age;
     private String country;
+    private String region;
     private String nationality;
     private String languageOur;
+    private String languageOurOther;
     private String languageOther;
     @JsonFormat(pattern="yyyy-MM")
     private Date startDate;
@@ -28,13 +30,13 @@ public class ResponseProfileAuPairDto {
     private Date endDate;
     private Integer minStayMonths;
     private Integer maxStayMonths;
-    private String aboutMe;
+    private String toFamily;
     private List<CountryDTO> preferredCountries;
     private String locationType;
-    private String preferredRegion;
     private Integer childrenAgeMin;
     private Integer childrenAgeMax;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date lastLogin;
+    private String numPerfil;
     private List<Image> images;
 }

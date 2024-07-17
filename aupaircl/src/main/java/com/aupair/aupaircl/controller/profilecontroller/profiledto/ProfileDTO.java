@@ -19,9 +19,12 @@ public class ProfileDTO {
     private String lastName;
     private String surname;
     private String lada;
-    private String languagesSpoken;
+    private String languageOur;
+    private String languageOurOther;
+    private String languageOther;
     private String nationality;
     private String countryOfResidence;
+    private String region;
     private String gender;
     private String aboutMe;
     private Integer minStayMonths;
