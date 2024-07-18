@@ -56,7 +56,7 @@ public class AuthService {
             }
             if(userAccount.isPresent() &&  Boolean.FALSE.equals(userAccount.get().isEmailVerified())){
                 log.error("Usuario no verificado");
-                return ResponseEntity.status(599).body(new CustomResponse(true,599,"Cuenta no verificada"));
+                return ResponseEntity.status(HttpStatus.OK  ).body(new CustomResponse(true,599,"Cuenta no verificada"));
             }
             if (userAccount.isPresent() && Boolean.TRUE.equals(userAccount.get().isLocked())){
                 log.error("Usuario bloqueado");
