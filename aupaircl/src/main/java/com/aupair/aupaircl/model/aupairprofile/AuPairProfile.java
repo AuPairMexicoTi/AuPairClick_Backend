@@ -33,8 +33,6 @@ public class AuPairProfile {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @Column(name = "available_to",nullable = false)
     private Date availableTo;
-    @Column(name = "to_family",nullable = false)
-    private String toFamily;
     @Column(name = "isApproved")
     private boolean isApproved = false;
     @Column(name = "children_age_min_search")
