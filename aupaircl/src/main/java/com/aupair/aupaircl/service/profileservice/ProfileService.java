@@ -94,6 +94,7 @@ public class ProfileService {
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> registerProfile(ProfileDTO profileDTO){
             try {
+                System.out.println(profileDTO);
             Optional<User> userSaved = this.userRepository.findByEmail(profileDTO.getEmail());
             if (userSaved.isEmpty()){
                 log.error("Could not find user in register");
@@ -173,7 +174,6 @@ public class ProfileService {
                     auPairProfile.setFamilySmokes(profileDTO.isFamilySmokes());
                     auPairProfile.setHouseWork(profileDTO.isHouseWork());
                     auPairProfile.setWorkSpecialChildren(profileDTO.isWorkSpecialChildren());
-                    auPairProfile.setToFamily(profileDTO.getToFamily());
                     auPairProfile.setApproved(true);
                     //Guardar perfil au pair
 
@@ -203,7 +203,6 @@ public class ProfileService {
                 }
                 if(profileDTO.getIsType().equals(FamilyType)){
                     HostFamilyProfile hostFamilyProfile = new HostFamilyProfile();
-                    hostFamilyProfile.setHostingExperience(profileDTO.getHostingExperience());
                     hostFamilyProfile.setHouseDescription(profileDTO.getHouseDescription());
                     hostFamilyProfile.setChildrenAgesMin(profileDTO.getChildrenAgeMin());
                     hostFamilyProfile.setChildrenAgesMax(profileDTO.getChildrenAgeMax());
@@ -211,9 +210,18 @@ public class ProfileService {
                     hostFamilyProfile.setSearchFrom(profileDTO.getSearchFrom());
                     hostFamilyProfile.setSearchTo(profileDTO.getSearchTo());
                     hostFamilyProfile.setLada(ladaSaved.get());
-                    hostFamilyProfile.setSmokes(profileDTO.isSmokes());
                     hostFamilyProfile.setUser(userSaved.get());
                     hostFamilyProfile.setGenderPreferred(profileDTO.getGenderPreferred());
+                    hostFamilyProfile.setAreSingleFamily(profileDTO.isAreSingleFamily());
+                    hostFamilyProfile.setAupairExp(profileDTO.isAupairExp());
+                    hostFamilyProfile.setAupairCareChildrenNeed(profileDTO.isAuPairCareChildrenNeed());
+                    hostFamilyProfile.setSmokesInFamily(profileDTO.isSmokesInFamily());
+                    hostFamilyProfile.setHavePets(profileDTO.isHavePets());
+                    hostFamilyProfile.setAupairSmoker(profileDTO.isAupairSmoker());
+                    hostFamilyProfile.setAupairDrivingLicense(profileDTO.isAupairDrivingLicense());
+                    hostFamilyProfile.setAupairHouseWork(profileDTO.isAupairHouseWork());
+                    hostFamilyProfile.setAupairAgeMin(profileDTO.getAupairAgeMin());
+                    hostFamilyProfile.setAupairAgeMax(profileDTO.getAupairAgeMax());
                     hostFamilyProfile.setApproved(true);
                     // Usar MapperProfile para obtener la lista de países preferidos
                     List<Country> preferredCountries = mapperProfile.mapCountriesFromNames(profileDTO.getCountriesPreferences());
@@ -316,7 +324,7 @@ public class ProfileService {
             List<AuPairPreferredCountry> auPairPreferredCountry = this.auPairPreferredCountryRepository.findByAuPairProfile_User_Email(email);
             List<CountryDTO> countryDTOS = MapperUser.mapAuPairPreferredCountry(auPairPreferredCountry);
             responseProfileDto.setPreferredCountries(countryDTOS);
-            responseProfileDto.setToFamily(auPairProfile.getToFamily());
+            responseProfileDto.setToFamily(userSave.getAboutMe());
             responseProfileDto.setLastLogin(userSave.getUser().getLastLogin());
             responseProfileDto.setNumPerfil(userSave.getNumPerfil());
 

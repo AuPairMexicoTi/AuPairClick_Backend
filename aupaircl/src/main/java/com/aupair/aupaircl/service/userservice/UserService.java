@@ -56,6 +56,7 @@ public UserService(UserRepository userRepository,
     }
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> registerUser(UserDTO userDTO){
+        System.out.println(userDTO);
     try {
             User user = new User();
             if(this.userRepository.existsByUsername(userDTO.getUsername())){

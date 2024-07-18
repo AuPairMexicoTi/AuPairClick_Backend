@@ -44,7 +44,6 @@ public class ProfileDTO {
     private boolean workSpecialChildren;
     private boolean singleFamily;
     private boolean vegetarian;
-    private String toFamily;
 
     private Integer childrenAgeMin;
     private Integer childrenAgeMax;
@@ -56,9 +55,17 @@ public class ProfileDTO {
     @DateTimeFormat(pattern = "yyyy-MM")
     private Date searchTo;
     private String locationType;
-    private boolean smokes;
     private String genderPreferred;
-
+    private boolean aupairExp;
+    private boolean areSingleFamily;
+    private boolean auPairCareChildrenNeed;
+    private boolean smokesInFamily;
+    private boolean havePets;
+    private boolean aupairSmoker;
+    private boolean aupairDrivingLicense;
+    private boolean aupairHouseWork;
+    private Integer aupairAgeMin;
+    private Integer aupairAgeMax;
     private String isType;
 
     private ImageDTO[] images;

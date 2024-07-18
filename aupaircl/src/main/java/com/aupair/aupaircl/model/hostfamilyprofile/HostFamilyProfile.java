@@ -46,18 +46,35 @@ public class HostFamilyProfile {
     @Column(name = "search_to", nullable = false)
     private Date searchTo;
 
-    @Column(name = "hosting_experience")
-    private String hostingExperience;
-
-    @Column(name = "smoke")
-    private boolean smokes;
-
     @Column(name = "isApproved")
     private boolean isApproved = false;
 
     @Column(name = "gender_preferred")
     private String genderPreferred;
-
+    @Column(name = "aupair_exp")
+    private boolean aupairExp;
+    @Column(name = "are_single_family")
+    private boolean areSingleFamily;
+    @Column(name = "aupair_care_children_need")
+    private boolean aupairCareChildrenNeed;
+    @Column(name = "smokes_in_family")
+    private boolean smokesInFamily;
+    @Column(name = "have_pets")
+    private boolean havePets;
+    @Column(name = "aupair_smoker")
+    private boolean aupairSmoker;
+    @Column(name = "aupair_driving_license")
+    private boolean aupairDrivingLicense;
+    @Column(name = "aupair_house_work")
+    private boolean aupairHouseWork;
+    @Column(name = "aupair_age_min")
+    private Integer aupairAgeMin;
+    @Column(name = "aupair_age_max")
+    private Integer aupairAgeMax;
+    @Column(name = "aupair_language_our_other")
+    private String aupairLanguageOurOther;
+    @Column(name = "aupair_language_other")
+    private String aupairLanguageOther;
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_lada")

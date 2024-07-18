@@ -86,7 +86,6 @@ public class HostFamilyProfileService {
                  return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Genero invalido"));
             }
             HostFamilyProfile hostFamilyProfile = userSaved.get();
-            hostFamilyProfile.setHostingExperience(familyProfileUpdateDTO.getHostin_experience());
             hostFamilyProfile.setHouseDescription(familyProfileUpdateDTO.getHouse_description());
             hostFamilyProfile.setChildrenAgesMin(familyProfileUpdateDTO.getChildren_Age_min());
             hostFamilyProfile.setChildrenAgesMax(familyProfileUpdateDTO.getChildren_Age_max());
@@ -94,7 +93,6 @@ public class HostFamilyProfileService {
             hostFamilyProfile.setSearchFrom(familyProfileUpdateDTO.getSearch_from());
             hostFamilyProfile.setSearchTo(familyProfileUpdateDTO.getSearch_to());
             hostFamilyProfile.setLada(ladaSaved.get());
-            hostFamilyProfile.setSmokes(familyProfileUpdateDTO.getSmokes());
             hostFamilyProfile.setUser(userSaved.get().getUser());
             hostFamilyProfile.setGenderPreferred(genderSaved.get().getGenderName());
 
