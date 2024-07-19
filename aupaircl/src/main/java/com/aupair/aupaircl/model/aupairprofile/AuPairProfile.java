@@ -55,7 +55,12 @@ public class AuPairProfile {
     private boolean singleFamily;
     @Column(name = "vegetarian",nullable = false)
     private boolean vegetarian;
-
+    @Column(name = "language_our")
+    private String languageOur;
+    @Column(name = "language_our_other")
+    private String languageOurOther;
+    @Column(name = "language_other")
+    private String languageOther;
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "fk_gender", nullable = false)

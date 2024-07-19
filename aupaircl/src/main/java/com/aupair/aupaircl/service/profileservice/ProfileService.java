@@ -1,9 +1,6 @@
 package com.aupair.aupaircl.service.profileservice;
 
-import com.aupair.aupaircl.controller.profilecontroller.profiledto.CountryDTO;
-import com.aupair.aupaircl.controller.profilecontroller.profiledto.ProfileDTO;
-import com.aupair.aupaircl.controller.profilecontroller.profiledto.ProfileUpdateDTO;
-import com.aupair.aupaircl.controller.profilecontroller.profiledto.ResponseProfileAuPairDto;
+import com.aupair.aupaircl.controller.profilecontroller.profiledto.*;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountry;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountryRepository;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfile;
@@ -144,9 +141,6 @@ public class ProfileService {
                 profile.setCountry(countrySaved.get());
                 profile.setRegion(profileDTO.getRegion());
                 profile.setAboutMe(profileDTO.getAboutMe());
-                profile.setLanguageOur(profileDTO.getLanguageOur());
-                profile.setLanguageOurOther(profileDTO.getLanguageOurOther());
-                profile.setLanguageOther(profileDTO.getLanguageOther());
                 profile.setMinStayMonths(profileDTO.getMinStayMonths());
                 profile.setMaxStayMonths(profileDTO.getMaxStayMonths());
                 profile.setUser(userSaved.get());
@@ -175,6 +169,9 @@ public class ProfileService {
                     auPairProfile.setHouseWork(profileDTO.isHouseWork());
                     auPairProfile.setWorkSpecialChildren(profileDTO.isWorkSpecialChildren());
                     auPairProfile.setApproved(true);
+                    auPairProfile.setLanguageOur(profileDTO.getLanguageOur());
+                    auPairProfile.setLanguageOurOther(profileDTO.getLanguageOurOther());
+                    auPairProfile.setLanguageOther(profileDTO.getLanguageOther());
                     //Guardar perfil au pair
 
                    AuPairProfile auPairProfileSaved = this.auPairProfileRepository.save(auPairProfile);
@@ -223,6 +220,19 @@ public class ProfileService {
                     hostFamilyProfile.setAupairAgeMin(profileDTO.getAupairAgeMin());
                     hostFamilyProfile.setAupairAgeMax(profileDTO.getAupairAgeMax());
                     hostFamilyProfile.setApproved(true);
+                    hostFamilyProfile.setAupairLanguageOurOther(profileDTO.getLanguageOurOther());
+                    hostFamilyProfile.setAupairLanguageOther(profileDTO.getLanguageOther());
+
+                    //Detalles de contacto
+                    ContactDetails contactDetails = new ContactDetails();
+                    contactDetails.setStreet(profileDTO.getStreet());
+                    contactDetails.setProvince(profileDTO.getProvince());
+                    contactDetails.setZipCode(profileDTO.getZipCode());
+                    contactDetails.setPhone(profileDTO.getPhone());
+                    contactDetails.setCity(profileDTO.getCity());
+                    contactDetails.setProfile(profileSaved);
+                    this.contactDetailsRepository.save(contactDetails);
+
                     // Usar MapperProfile para obtener la lista de países preferidos
                     List<Country> preferredCountries = mapperProfile.mapCountriesFromNames(profileDTO.getCountriesPreferences());
 
@@ -311,9 +321,9 @@ public class ProfileService {
             responseProfileDto.setCountry(userSave.getCountry().getCountryName());
             responseProfileDto.setRegion(userSave.getRegion());
             responseProfileDto.setNationality(userSave.getCountry().getNationality());
-            responseProfileDto.setLanguageOur(userSave.getLanguageOur());
-            responseProfileDto.setLanguageOurOther(userSave.getLanguageOurOther());
-            responseProfileDto.setLanguageOther(userSave.getLanguageOther());
+            responseProfileDto.setLanguageOur(auPairProfile.getLanguageOur());
+            responseProfileDto.setLanguageOurOther(auPairProfile.getLanguageOurOther());
+            responseProfileDto.setLanguageOther(auPairProfile.getLanguageOther());
             responseProfileDto.setStartDate(userSave.getUser().getAuPairProfile().getAvailableFrom());
             responseProfileDto.setEndDate(userSave.getUser().getAuPairProfile().getAvailableTo());
             responseProfileDto.setMaxStayMonths(userSave.getMaxStayMonths());
@@ -346,7 +356,61 @@ public class ProfileService {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al obtener perfil de au pair"));
         }
     }
+    @Transactional(readOnly = true)
+    public ResponseEntity<CustomResponse> getProfileFamilyByEmail(String email){
+        try {
+            Profile userSave = this.profileRepository.findByUser_EmailAndIsApproved(email,true);
+            HostFamilyProfile hostFamilyProfile = this.hostFamilyProfileRepository.findByUser_EmailAndIsApproved(email,true);
+            if (userSave == null){
+                log.error("No tiene perfil el usuario");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido al traer perfil"));
+            }
+            if (!userSave.getUser().getRole().getRoleName().equals(FamilyType)){
+                log.error("El rol no corresponse a la solicitud");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Solicitud incorrecta para el usuario"));
+            }
+            ResponseProfileFamilyDto responseProfileFamilyDto = new ResponseProfileFamilyDto();
+            responseProfileFamilyDto.setName(userSave.getFirstName());
+            responseProfileFamilyDto.setLastname(userSave.getLastName());
+            responseProfileFamilyDto.setSurname(userSave.getSurname());
+            responseProfileFamilyDto.setCountry(userSave.getCountry().getCountryName());
+            responseProfileFamilyDto.setNationality(userSave.getCountry().getNationality());
+            responseProfileFamilyDto.setGenderPreferred(hostFamilyProfile.getGenderPreferred());
+            responseProfileFamilyDto.setMinStayMonths(userSave.getMinStayMonths());
+            responseProfileFamilyDto.setMaxStayMonths(userSave.getMaxStayMonths());
+            responseProfileFamilyDto.setSearchFrom(hostFamilyProfile.getSearchFrom());
+            responseProfileFamilyDto.setSearchTo(hostFamilyProfile.getSearchTo());
+            responseProfileFamilyDto.setNumOfChildren(hostFamilyProfile.getNumberOfChildren());
+            responseProfileFamilyDto.setChildrenAgeMin(hostFamilyProfile.getChildrenAgesMin());
+            responseProfileFamilyDto.setChildrenAgeMax(hostFamilyProfile.getChildrenAgesMax());
+            responseProfileFamilyDto.setLocationType(userSave.getLocationType().getLocationTypeName());
+            responseProfileFamilyDto.setLastLogin(userSave.getUser().getLastLogin());
+            responseProfileFamilyDto.setNumPerfil(userSave.getNumPerfil());
+            responseProfileFamilyDto.setAboutMe(userSave.getAboutMe());
+            responseProfileFamilyDto.setAupairExp(hostFamilyProfile.isAupairExp());
+            responseProfileFamilyDto.setAreSingleFamily(hostFamilyProfile.isAreSingleFamily());
+            responseProfileFamilyDto.setAupairCareChildrenNeed(hostFamilyProfile.isAupairCareChildrenNeed());
+            responseProfileFamilyDto.setSmokesInFamily(hostFamilyProfile.isSmokesInFamily());
+            responseProfileFamilyDto.setHavePets(hostFamilyProfile.isHavePets());
+            responseProfileFamilyDto.setAupairSmoker(hostFamilyProfile.isAupairSmoker());
+            responseProfileFamilyDto.setAupairDrivingLicense(hostFamilyProfile.isAupairDrivingLicense());
+            responseProfileFamilyDto.setAupairHouseWork(hostFamilyProfile.isAupairHouseWork());
+            responseProfileFamilyDto.setAupairLanguageOther(hostFamilyProfile.getAupairLanguageOther());
+            responseProfileFamilyDto.setAupairLanguageOurOther(hostFamilyProfile.getAupairLanguageOurOther());
+            responseProfileFamilyDto.setAupairAgeMin(hostFamilyProfile.getAupairAgeMin());
+            responseProfileFamilyDto.setAupairAgeMax(hostFamilyProfile.getAupairAgeMax());
+            List<Image> imageList = this.imageRepository.findByProfile_User_EmailAndProfile_IsApproved(email,true);
+            responseProfileFamilyDto.setImages(imageList);
+            List<HostFamilyPreferredCountry> auPairPreferredCountry = this.hostFamilyPreferredCountryRepository.findByHostFamilyProfile_UserEmail(email);
+            List<CountryDTO> countryDTOS = MapperUser.mapHostPreferredCountry(auPairPreferredCountry);
+            responseProfileFamilyDto.setPreferredCountries(countryDTOS);
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Perfil familia: ",HttpStatus.OK.value(), false, responseProfileFamilyDto));
 
+        }catch (Exception e){
+        log.error("Fallo al obtener perfil de familia" + e.getMessage());
+        return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al obtener el perfil de familia"));
+        }
+    }
     public String genereteRandomCode () {
         long randomCode = 10000000000L + random.nextLong() % 90000000000L;
         return String.valueOf(randomCode);

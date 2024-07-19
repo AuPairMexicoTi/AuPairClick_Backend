@@ -46,8 +46,17 @@ public class ProfileController {
         try {
             return this.profileService.getProfileAuPairByEmail(email);
         }catch (Exception e){
-            log.error("Error"+e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal"));
+            log.error("Error al obtener perfil au pair"+e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo ocurrio al obtener el perfil de au pair"));
+        }
+    }
+    @GetMapping(value = "/getProfileFamilyByEmail/{email}",produces = "application/json")
+    public ResponseEntity<CustomResponse> getProfileFamilyByEmail(@PathVariable("email") String email) {
+        try {
+            return this.profileService.getProfileFamilyByEmail(email);
+        } catch (Exception e) {
+            log.error("Error en obtener el perfil de una familia  "+e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo ocurrio al obtener el perfil de la familia"));
         }
     }
 }

@@ -40,12 +40,6 @@ public class Profile {
     private String surname;
     @Column(name = "age",nullable = false)
     private Integer age;
-    @Column(name = "language_our")
-    private String languageOur;
-    @Column(name = "language_our_other")
-    private String languageOurOther;
-    @Column(name = "language_other")
-    private String languageOther;
     @Column(name = "about_me",nullable = false)
     private String aboutMe;
     @Column(name = "min_stay_months",nullable = false)

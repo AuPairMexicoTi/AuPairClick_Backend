@@ -39,10 +39,10 @@ public class HostFamilyProfile {
    private Integer childrenAgesMax;
     @Column(name = "house_description", nullable = false)
     private String houseDescription;
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @Column(name = "search_from", nullable = false)
     private Date searchFrom;
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @Column(name = "search_to", nullable = false)
     private Date searchTo;
 
