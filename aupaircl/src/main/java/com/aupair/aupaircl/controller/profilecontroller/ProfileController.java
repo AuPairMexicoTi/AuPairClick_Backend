@@ -28,7 +28,7 @@ public class ProfileController {
         try {
             return this.profileService.registerProfile(profileDTO);
         } catch (Exception e) {
-            log.error("Error en registro de perfil + e.getMessage()");
+            log.error("Error en registro de perfil " +e.getMessage());
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal en el registro de perfil"));
         }
     }

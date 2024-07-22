@@ -183,6 +183,7 @@ public class ProfileService {
                     contactDetails.setZipCode(profileDTO.getZipCode());
                     contactDetails.setPhone(profileDTO.getPhone());
                     contactDetails.setCity(profileDTO.getCity());
+                    contactDetails.setLada(ladaSaved.get());
                     contactDetails.setProfile(profileSaved);
                     this.contactDetailsRepository.save(contactDetails);
                     // Usar MapperProfile para obtener la lista de países preferidos
@@ -206,7 +207,6 @@ public class ProfileService {
                     hostFamilyProfile.setNumberOfChildren(profileDTO.getNumberOfChildren() != null ? profileDTO.getNumberOfChildren() : 0); // Proveer valor por defecto
                     hostFamilyProfile.setSearchFrom(profileDTO.getSearchFrom());
                     hostFamilyProfile.setSearchTo(profileDTO.getSearchTo());
-                    hostFamilyProfile.setLada(ladaSaved.get());
                     hostFamilyProfile.setUser(userSaved.get());
                     hostFamilyProfile.setGenderPreferred(profileDTO.getGenderPreferred());
                     hostFamilyProfile.setAreSingleFamily(profileDTO.isAreSingleFamily());
@@ -231,6 +231,7 @@ public class ProfileService {
                     contactDetails.setPhone(profileDTO.getPhone());
                     contactDetails.setCity(profileDTO.getCity());
                     contactDetails.setProfile(profileSaved);
+                    contactDetails.setLada(ladaSaved.get());
                     this.contactDetailsRepository.save(contactDetails);
 
                     // Usar MapperProfile para obtener la lista de países preferidos
@@ -310,7 +311,7 @@ public class ProfileService {
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido al traer perfil"));
             }
             if (!userSave.getUser().getRole().getRoleName().equals(AuPairType)){
-                log.error("Solicitud incorrecta para el usuario");
+                log.error("Solicitud de rol diferente al obtener perfil");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Solicitud incorrecta para el usuario"));
             }
             ResponseProfileAuPairDto responseProfileDto = new ResponseProfileAuPairDto();

@@ -32,8 +32,12 @@ public class MapperHostProfile {
         responseFindHostFamilyDto.setChildrenAgeMin(hostFamilyProfile.getChildrenAgesMin());
         responseFindHostFamilyDto.setChildrenAgeMax(hostFamilyProfile.getChildrenAgesMax());
         List<Image> images = imageRepository.findByProfile_User_EmailAndProfile_IsApproved(hostFamilyProfile.getUser().getEmail(),true);
-        responseFindHostFamilyDto.setImage(images.get(0).getImageName());
-        responseFindHostFamilyDto.setMinStayMonths(hostFamilyProfile.getUser().getProfile().getMinStayMonths());
+        if (!images.isEmpty()) {
+            responseFindHostFamilyDto.setImage(images.get(0).getImageName());
+        } else {
+            responseFindHostFamilyDto.setImage(null);
+        }
+         responseFindHostFamilyDto.setMinStayMonths(hostFamilyProfile.getUser().getProfile().getMinStayMonths());
         responseFindHostFamilyDto.setMaxStayMonths(hostFamilyProfile.getUser().getProfile().getMaxStayMonths());
         return responseFindHostFamilyDto;
     }

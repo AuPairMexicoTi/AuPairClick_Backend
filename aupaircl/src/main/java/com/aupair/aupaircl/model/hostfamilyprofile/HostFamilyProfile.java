@@ -1,7 +1,6 @@
 package com.aupair.aupaircl.model.hostfamilyprofile;
 
 import com.aupair.aupaircl.model.hostfamilypreferredcountry.HostFamilyPreferredCountry;
-import com.aupair.aupaircl.model.lada.Lada;
 import com.aupair.aupaircl.model.user.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -75,10 +74,6 @@ public class HostFamilyProfile {
     private String aupairLanguageOurOther;
     @Column(name = "aupair_language_other")
     private String aupairLanguageOther;
-    @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_lada")
-    private Lada lada;
     @JsonIgnore
     @OneToMany(mappedBy = "hostFamilyProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HostFamilyPreferredCountry> preferredCountries;

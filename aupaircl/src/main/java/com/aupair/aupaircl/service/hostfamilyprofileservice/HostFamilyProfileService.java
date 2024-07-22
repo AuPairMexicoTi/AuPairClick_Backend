@@ -92,7 +92,6 @@ public class HostFamilyProfileService {
             hostFamilyProfile.setNumberOfChildren(familyProfileUpdateDTO.getNumber_of_children());
             hostFamilyProfile.setSearchFrom(familyProfileUpdateDTO.getSearch_from());
             hostFamilyProfile.setSearchTo(familyProfileUpdateDTO.getSearch_to());
-            hostFamilyProfile.setLada(ladaSaved.get());
             hostFamilyProfile.setUser(userSaved.get().getUser());
             hostFamilyProfile.setGenderPreferred(genderSaved.get().getGenderName());
 
@@ -117,11 +116,12 @@ public class HostFamilyProfileService {
                 log.error("No host families found");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.BAD_REQUEST.value(), "No se encontraron coincidencias"));
             }
+
             List<ResponseFindHostFamilyDto> responseFindHostFamilyDtos = MapperHostProfile.mapHostToResponseProfile(hostFamilyProfiles);
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Coincidencias de familias", HttpStatus.OK.value(), false, responseFindHostFamilyDtos));
         } catch (Exception e) {
             log.error("Error in findHostFamilies: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Something went wrong"));
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio en la busqueda"));
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.aupair.aupaircl.model.contactdetails;
 
+import com.aupair.aupaircl.model.lada.Lada;
 import com.aupair.aupaircl.model.profile.Profile;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -37,6 +39,10 @@ public class ContactDetails {
     @OneToOne
     @JoinColumn(name = "fk_profile", referencedColumnName = "id_profile")
     private Profile profile;
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "fk_lada", nullable = false)
+    private Lada lada;
     @PrePersist
     private void generateUUID(){
         Date currentDateAddress = new Date();
