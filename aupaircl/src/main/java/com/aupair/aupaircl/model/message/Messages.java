@@ -1,6 +1,6 @@
 package com.aupair.aupaircl.model.message;
 
-import com.aupair.aupaircl.model.user.User;
+import com.aupair.aupaircl.model.conversation.Conversation;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -29,15 +30,16 @@ public class Messages {
     private UUID messageId;
 
     @ManyToOne
-    @JoinColumn(name = "fk_sender", nullable = false)
-    private User sender;
+    @JoinColumn(name = "fk_conversation", nullable = false)
+    private Conversation conversation;
 
-    @ManyToOne
-    @JoinColumn(name = "fk_receiver", nullable = false)
-    private User receiver;
 
     @Column(name = "contenct",nullable = false)
     private String content;
+    @Column(name = "lastMessage",nullable = false)
+    private String lastMessage;
+    @Column(name = "sendDate ",nullable = false)
+    private LocalDateTime timestamp;
 
     private Date sentAt;
     @PrePersist

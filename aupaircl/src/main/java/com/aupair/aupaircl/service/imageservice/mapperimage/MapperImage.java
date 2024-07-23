@@ -2,7 +2,6 @@ package com.aupair.aupaircl.service.imageservice.mapperimage;
 
 import com.aupair.aupaircl.controller.imagecontroller.imagedto.ImageUpdateDTO;
 import com.aupair.aupaircl.model.image.Image;
-import com.aupair.aupaircl.model.image.ImageRepository;
 import com.aupair.aupaircl.model.profile.Profile;
 import com.aupair.aupaircl.model.profile.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +14,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class MapperImage {
-    private static ImageRepository imageRepository;
     private final ProfileRepository profileRepository;
 
     @Autowired
-public MapperImage(ImageRepository imageRepository, ProfileRepository profileRepository){
-    this.imageRepository=imageRepository;
+public MapperImage(ProfileRepository profileRepository){
         this.profileRepository = profileRepository;
     }
 public List<Image> mapImageFromImageDto(ImageUpdateDTO[]imageDto){
