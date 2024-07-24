@@ -1,6 +1,7 @@
 package com.aupair.aupaircl.controller.hostfamilyprofilecontroller;
 
 import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.FamilyProfileUpdateDTO;
+import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.FindHostFamilyDashboardDto;
 import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.FindHostFamilyDto;
 import com.aupair.aupaircl.service.hostfamilyprofileservice.HostFamilyProfileService;
 import com.aupair.aupaircl.utils.CustomResponse;
@@ -45,5 +46,12 @@ public class HostFamilyProfileController {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.BAD_REQUEST.value(), "Algo sucedio al actualizar el perfil familiar"));
         }
     }
-
+    @PostMapping(value = "/findHostFamilyDashboard", produces = "application/json")
+    public ResponseEntity<CustomResponse> findHostFamilyDashboard(@RequestBody FindHostFamilyDashboardDto findHostFamilyDto) {
+        try {
+            return this.hostFamilyProfileService.findHostFamiliesDashboard(findHostFamilyDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.BAD_REQUEST.value(), "Algo sucedio al actualizar el perfil familiar"));
+        }
+    }
 }

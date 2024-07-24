@@ -1,6 +1,7 @@
 package com.aupair.aupaircl.service.aupairprofileservice;
 
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.FindAuPairDTO;
+import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.FindAuPairDashboard;
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.ProfileAuPairDTO;
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.ResponseFindAuPair;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfile;
@@ -98,6 +99,23 @@ public AuPairProfileService(AuPairProfileRepository auPairProfileRepository,
         log.error("Algo sucedio en la busqueda avanzada de au pairs");
         return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio en la busqueda avanzada de au pairs"));
         }
+    }
+    @Transactional(readOnly = true)
+    public ResponseEntity<CustomResponse> findAuPairDashboard (FindAuPairDashboard findAuPairDTO){
+        try {
+            List<AuPairProfile> auPairProfiles = this.auPairProfileRepository.findAuPairDashboard(findAuPairDTO.getFamilyCountry(),findAuPairDTO.getGenderSearch(),findAuPairDTO.getPreferredCountryNames(),
+                    findAuPairDTO.getStartDate(),findAuPairDTO.getEndDate(),findAuPairDTO.getMinDuration(), findAuPairDTO.getMaxDuration(),
+                    findAuPairDTO.getLanguageOurOther(), findAuPairDTO.getLanguageOther(), findAuPairDTO.isSmoker(), findAuPairDTO.isDrivingLicence(), findAuPairDTO.isHouseWork());
+            if (auPairProfiles.isEmpty()) {
+                log.error("No hay registros que hagan mach");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.BAD_REQUEST.value(), "No hay coincidencias"));
+            }
+            List<ResponseFindAuPair> responseFindAuPairs = MapperAuPairProfile.mapAuPairToResponseProfile(auPairProfiles);
 
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Coincidencia de Au Pairs", HttpStatus.OK.value(), false, responseFindAuPairs));
+        }catch (Exception e) {
+            log.error("Algo sucedio en la busqueda avanzada de au pairs");
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio en la busqueda avanzada de au pairs"));
+        }
     }
 }

@@ -25,4 +25,8 @@ public class FindHostFamilyDashboardDto {
     private int maxDuration;
     private int childrenAgeMin;
     private int childrenAgeMax;
-}
+    private boolean aupairHouseWork;
+    private boolean areSingleFamily;
+    private boolean smokesInFamily;
+    private boolean aupairCareChildrenNeed
+            ;}
