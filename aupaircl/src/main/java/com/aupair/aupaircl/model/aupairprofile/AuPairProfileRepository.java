@@ -12,7 +12,7 @@ import java.util.UUID;
 public interface AuPairProfileRepository extends JpaRepository<AuPairProfile, UUID> {
     Optional<AuPairProfile> findByUser_Email(String email);
     AuPairProfile findByUser_EmailAndIsApproved(String email,boolean isApp);
-
+    int countAuPairProfileByIsApproved (boolean isApp);
     @Query("SELECT DISTINCT hfp FROM AuPairProfile hfp " +
             "JOIN hfp.user u " +
             "JOIN hfp.preferredCountries pc " +

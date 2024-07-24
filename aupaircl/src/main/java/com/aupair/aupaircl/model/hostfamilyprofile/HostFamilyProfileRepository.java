@@ -16,7 +16,7 @@ public interface HostFamilyProfileRepository extends JpaRepository<HostFamilyPro
 
     HostFamilyProfile findByUser_EmailAndUser_IsLocked(String email, boolean isLocked);
     HostFamilyProfile findByUser_EmailAndIsApproved(String email, boolean isApproved);
-
+    int countHostFamilyProfileByIsApproved(boolean isApproved);
     @EntityGraph(attributePaths = {"user", "preferredCountries", "user.profile"})
     @Query("SELECT DISTINCT hfp FROM HostFamilyProfile hfp " +
             "JOIN hfp.user u " +
@@ -54,9 +54,8 @@ public interface HostFamilyProfileRepository extends JpaRepository<HostFamilyPro
             "AND hfp.childrenAgesMax >= :childrenAgesMin " +
             "AND hfp.aupairHouseWork = :aupairHouseWork " +
             "AND hfp.areSingleFamily = :areSingleFamily " +
-             "AND hfp.smokesInFamily = :smokesInFamily " +
-            "AND hfp.aupairCareChildrenNeed = :aupairCareChildrenNeed " +
-            ""   )
+            "AND hfp.smokesInFamily = :smokesInFamily " +
+            "AND hfp.aupairCareChildrenNeed = :aupairCareChildrenNeed")
     List<HostFamilyProfile> findHostFamiliesDashboard(
             @Param("auPairCountry") String auPairCountry,
             @Param("gender") String gender,
@@ -66,11 +65,11 @@ public interface HostFamilyProfileRepository extends JpaRepository<HostFamilyPro
             @Param("endDate") Date endDate,
             @Param("minDuration") int minDuration,
             @Param("maxDuration") int maxDuration,
-                @Param("childrenAgesMax") int childrenAgesMin,
-                @Param("childrenAgesMin") int childrenAgesMax,
-                @Param("aupairHouseWork") boolean aupairHouseWork,
-                @Param("areSingleFamily") boolean areSingleFamily,
-                @Param("smokesInFamily") boolean smokesInFamily,
-                @Param("aupairCareChildrenNeed") boolean aupairCareChildrenNeed
+            @Param("childrenAgesMax") int childrenAgesMin,
+            @Param("childrenAgesMin") int childrenAgesMax,
+            @Param("aupairHouseWork") boolean aupairHouseWork,
+            @Param("areSingleFamily") boolean areSingleFamily,
+            @Param("smokesInFamily") boolean smokesInFamily,
+            @Param("aupairCareChildrenNeed") boolean aupairCareChildrenNeed
     )  ;
 }

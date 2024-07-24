@@ -1,13 +1,16 @@
 package com.aupair.aupaircl.service.aupairprofileservice;
 
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.FindAuPairDTO;
-import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.FindAuPairDashboard;
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.ProfileAuPairDTO;
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.ResponseFindAuPair;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfile;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfileRepository;
 import com.aupair.aupaircl.model.gender.Gender;
 import com.aupair.aupaircl.model.gender.GenderRepository;
+import com.aupair.aupaircl.model.hostfamilypreferredcountry.HostFamilyPreferredCountry;
+import com.aupair.aupaircl.model.hostfamilyprofile.HostFamilyProfile;
+import com.aupair.aupaircl.model.hostfamilyprofile.HostFamilyProfileRepository;
+import com.aupair.aupaircl.model.user.UserEmailDto;
 import com.aupair.aupaircl.service.aupairprofileservice.mapperaupairprofile.MapperAuPairProfile;
 import com.aupair.aupaircl.utils.CustomResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,14 +31,15 @@ import java.util.Optional;
 public class AuPairProfileService {
 private final AuPairProfileRepository auPairProfileRepository;
     private final GenderRepository genderRepository;
+    private final HostFamilyProfileRepository hostFamilyProfileRepository;
 
 
     @Autowired
 public AuPairProfileService(AuPairProfileRepository auPairProfileRepository,
-                            GenderRepository genderRepository) {
+                            GenderRepository genderRepository,HostFamilyProfileRepository hostFamilyProfileRepository) {
     this.auPairProfileRepository = auPairProfileRepository;
     this.genderRepository = genderRepository;
-
+    this.hostFamilyProfileRepository = hostFamilyProfileRepository;
     }
     @Transactional(readOnly = true)
     public ResponseEntity<CustomResponse> getAuPairProfile(String email){
@@ -101,14 +106,34 @@ public AuPairProfileService(AuPairProfileRepository auPairProfileRepository,
         }
     }
     @Transactional(readOnly = true)
-    public ResponseEntity<CustomResponse> findAuPairDashboard (FindAuPairDashboard findAuPairDTO){
+    public ResponseEntity<CustomResponse> findAuPairDashboard (UserEmailDto userEmailDto){
         try {
-            List<AuPairProfile> auPairProfiles = this.auPairProfileRepository.findAuPairDashboard(findAuPairDTO.getFamilyCountry(),findAuPairDTO.getGenderSearch(),findAuPairDTO.getPreferredCountryNames(),
-                    findAuPairDTO.getStartDate(),findAuPairDTO.getEndDate(),findAuPairDTO.getMinDuration(), findAuPairDTO.getMaxDuration(),
-                    findAuPairDTO.getLanguageOurOther(), findAuPairDTO.getLanguageOther(), findAuPairDTO.isSmoker(), findAuPairDTO.isDrivingLicence(), findAuPairDTO.isHouseWork());
+            Optional<HostFamilyProfile> hostFamilyProfilePreferences = this.hostFamilyProfileRepository.findByUser_Email(userEmailDto.getEmail());
+            if (hostFamilyProfilePreferences.isEmpty()){
+                log.error("No esta registrada correctamente la familia");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.BAD_REQUEST.value(), "No esta registrado el perfil"));
+            }
+            List<String> preferencesCountries = new ArrayList<>();
+            for (HostFamilyPreferredCountry hostFamilyPreferredCountry : hostFamilyProfilePreferences.get().getPreferredCountries()){
+                preferencesCountries.add(hostFamilyPreferredCountry.getCountry().getCountryName());
+            }
+            List<AuPairProfile> auPairProfiles = this.auPairProfileRepository.findAuPairDashboard(
+                    hostFamilyProfilePreferences.get().getUser().getProfile().getCountry().getCountryName(),
+                    hostFamilyProfilePreferences.get().getGenderPreferred(),
+                    preferencesCountries,
+                    hostFamilyProfilePreferences.get().getSearchFrom(),
+                    hostFamilyProfilePreferences.get().getSearchTo(),
+                    hostFamilyProfilePreferences.get().getUser().getProfile().getMinStayMonths(),
+                    hostFamilyProfilePreferences.get().getUser().getProfile().getMaxStayMonths(),
+                    hostFamilyProfilePreferences.get().getAupairLanguageOurOther(),
+                    hostFamilyProfilePreferences.get().getAupairLanguageOther(),
+                    hostFamilyProfilePreferences.get().isAupairSmoker(),
+                    hostFamilyProfilePreferences.get().isAupairDrivingLicense(),
+                    hostFamilyProfilePreferences.get().isAupairHouseWork());
+
             if (auPairProfiles.isEmpty()) {
                 log.error("No hay registros que hagan mach");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.BAD_REQUEST.value(), "No hay coincidencias"));
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.BAD_REQUEST.value(), "No hay coincidencias de au pairs"));
             }
             List<ResponseFindAuPair> responseFindAuPairs = MapperAuPairProfile.mapAuPairToResponseProfile(auPairProfiles);
 
@@ -116,6 +141,16 @@ public AuPairProfileService(AuPairProfileRepository auPairProfileRepository,
         }catch (Exception e) {
             log.error("Algo sucedio en la busqueda avanzada de au pairs");
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio en la busqueda avanzada de au pairs"));
+        }
+    }
+    @Transactional(readOnly = true)
+    public ResponseEntity<CustomResponse> countAuPairs (){
+        try {
+            int numAuPaisApproved = this.auPairProfileRepository.countAuPairProfileByIsApproved(true);
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Total de au pairs aprovados",HttpStatus.OK.value(),false,numAuPaisApproved));
+        }catch (Exception e){
+            log.error("Algo sucedio en el conteo de au pairs");
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio en el conteo de au pairs"));
         }
     }
 }

@@ -1,10 +1,11 @@
 package com.aupair.aupaircl.controller.profileaupaircontroller;
 
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.FindAuPairDTO;
-import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.FindAuPairDashboard;
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.ProfileAuPairDTO;
+import com.aupair.aupaircl.model.user.UserEmailDto;
 import com.aupair.aupaircl.service.aupairprofileservice.AuPairProfileService;
 import com.aupair.aupaircl.utils.CustomResponse;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,12 +49,21 @@ public class ProfileAuPairController {
         }
     }
     @PostMapping(value = "/findAuPairDashboard", produces = "application/json")
-    public ResponseEntity<CustomResponse> findAuPairDasboard(@RequestBody FindAuPairDashboard findAuPairDTO) {
+    public ResponseEntity<CustomResponse> findAuPairDasboard(@Valid @RequestBody UserEmailDto userEmailDto) {
         try {
-            return this.profileAuPairService.findAuPairDashboard(findAuPairDTO);
+            return this.profileAuPairService.findAuPairDashboard(userEmailDto);
         }catch (Exception e){
             log.error("Algo sucedio al buscar Au Pair");
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal al buscar Au Pair"));
+        }
+    }
+    @GetMapping(value = "/getCountAuPairs",produces = "application/json")
+    public ResponseEntity<CustomResponse> getCountAuPairs() {
+        try {
+            return this.profileAuPairService.countAuPairs();
+        }catch (Exception e){
+            log.error("Algo sucedio al contar Au Pair");
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal al contar Au Pair"));
         }
     }
 }

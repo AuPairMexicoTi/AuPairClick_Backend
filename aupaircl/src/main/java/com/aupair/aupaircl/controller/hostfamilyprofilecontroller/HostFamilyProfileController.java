@@ -1,10 +1,11 @@
 package com.aupair.aupaircl.controller.hostfamilyprofilecontroller;
 
 import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.FamilyProfileUpdateDTO;
-import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.FindHostFamilyDashboardDto;
 import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.FindHostFamilyDto;
+import com.aupair.aupaircl.model.user.UserEmailDto;
 import com.aupair.aupaircl.service.hostfamilyprofileservice.HostFamilyProfileService;
 import com.aupair.aupaircl.utils.CustomResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class HostFamilyProfileController {
         }
     }
 
-    @PostMapping(value = "/updateFamilyProfile", produces = "application/json")
+    @PutMapping(value = "/updateFamilyProfile", produces = "application/json")
     public ResponseEntity<CustomResponse> updateHostFamilyProfile(@RequestBody FamilyProfileUpdateDTO hostFamilyProfileDTO) {
         try {
             return this.hostFamilyProfileService.updateHostFamilyProfile(hostFamilyProfileDTO);
@@ -47,11 +48,19 @@ public class HostFamilyProfileController {
         }
     }
     @PostMapping(value = "/findHostFamilyDashboard", produces = "application/json")
-    public ResponseEntity<CustomResponse> findHostFamilyDashboard(@RequestBody FindHostFamilyDashboardDto findHostFamilyDto) {
+    public ResponseEntity<CustomResponse> findHostFamilyDashboard(@Valid @RequestBody UserEmailDto userEmailDto) {
         try {
-            return this.hostFamilyProfileService.findHostFamiliesDashboard(findHostFamilyDto);
+            return this.hostFamilyProfileService.findHostFamiliesDashboard(userEmailDto);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.BAD_REQUEST.value(), "Algo sucedio al actualizar el perfil familiar"));
+        }
+    }
+    @GetMapping(value = "countHostFamilies",produces = "application/json")
+    public ResponseEntity<CustomResponse> countHostFamilies() {
+        try {
+            return this.hostFamilyProfileService.countHostFamilies();
+        }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al contar familias"));
         }
     }
 }

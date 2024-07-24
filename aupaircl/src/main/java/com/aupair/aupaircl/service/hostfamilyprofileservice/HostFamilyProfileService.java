@@ -1,9 +1,11 @@
 package com.aupair.aupaircl.service.hostfamilyprofileservice;
 
 import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.FamilyProfileUpdateDTO;
-import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.FindHostFamilyDashboardDto;
 import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.FindHostFamilyDto;
 import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.ResponseFindHostFamilyDto;
+import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountry;
+import com.aupair.aupaircl.model.aupairprofile.AuPairProfile;
+import com.aupair.aupaircl.model.aupairprofile.AuPairProfileRepository;
 import com.aupair.aupaircl.model.gender.Gender;
 import com.aupair.aupaircl.model.gender.GenderRepository;
 
@@ -13,6 +15,7 @@ import com.aupair.aupaircl.model.lada.Lada;
 import com.aupair.aupaircl.model.lada.LadaRepository;
 import com.aupair.aupaircl.model.locationtype.LocationTypes;
 import com.aupair.aupaircl.model.locationtype.LocationTypesRepository;
+import com.aupair.aupaircl.model.user.UserEmailDto;
 import com.aupair.aupaircl.service.hostfamilyprofileservice.mapperhostprofile.MapperHostProfile;
 import com.aupair.aupaircl.utils.CustomResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,15 +35,17 @@ import java.util.Optional;
 public class HostFamilyProfileService {
     private final HostFamilyProfileRepository hostFamilyProfileRepository;
     private final LocationTypesRepository locationTypesRepository;
+    private final AuPairProfileRepository auPairProfileRepository;
     private final LadaRepository ladaRepository;
     private final GenderRepository genderRepository;
     public HostFamilyProfileService(HostFamilyProfileRepository hostFamilyProfileRepository,
                                     LocationTypesRepository locationTypesRepository,
-                                    LadaRepository ladaRepository,GenderRepository genderRepository) {
+                                    LadaRepository ladaRepository,GenderRepository genderRepository,AuPairProfileRepository auPairProfileRepository) {
         this.hostFamilyProfileRepository = hostFamilyProfileRepository;
         this.locationTypesRepository = locationTypesRepository;
         this.ladaRepository = ladaRepository;
         this.genderRepository = genderRepository;
+        this.auPairProfileRepository = auPairProfileRepository;
     }
 
     @Transactional(readOnly = true)
@@ -126,16 +132,32 @@ public class HostFamilyProfileService {
         }
     }
     @Transactional(readOnly = true)
-    public ResponseEntity<CustomResponse> findHostFamiliesDashboard(FindHostFamilyDashboardDto familyDto) {
+    public ResponseEntity<CustomResponse> findHostFamiliesDashboard(UserEmailDto userEmailDto) {
         try {
+            Optional<AuPairProfile> auPairPreferences = this.auPairProfileRepository.findByUser_Email(userEmailDto.getEmail());
+            if (auPairPreferences.isEmpty()){
+                log.error("No esta regitrado correctamente el usuario au pair");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.BAD_REQUEST.value(), "Usuario invalido"));
+            }
+            List<String> preferencesList = new ArrayList<>();
+            for (AuPairPreferredCountry auPairProfile : auPairPreferences.get().getPreferredCountries()){
+                preferencesList.add(auPairProfile.getCountry().getCountryName());
+            }
             List<HostFamilyProfile> hostFamilyProfiles = hostFamilyProfileRepository.findHostFamiliesDashboard(
-                    familyDto.getAuPairCountry(), familyDto.getGender(),familyDto.getLocationType(), familyDto.getPreferredCountryIds(),
-                    familyDto.getStartDate(), familyDto.getEndDate(), familyDto.getMinDuration(), familyDto.getMaxDuration(),
-                    familyDto.getChildrenAgeMin(), familyDto.getChildrenAgeMax(), familyDto.isAupairHouseWork(),
-                    familyDto.isAreSingleFamily(), familyDto.isSmokesInFamily(), familyDto.isAupairCareChildrenNeed());
+                    auPairPreferences.get().getUser().getProfile().getCountry().getCountryName(),
+                    auPairPreferences.get().getGender().getGenderName(),
+                    auPairPreferences.get().getUser().getProfile().getLocationType().getLocationTypeName(),
+                    preferencesList,
+                    auPairPreferences.get().getAvailableFrom(),auPairPreferences.get().getAvailableTo(),
+                    auPairPreferences.get().getUser().getProfile().getMinStayMonths(),
+                    auPairPreferences.get().getUser().getProfile().getMaxStayMonths(),
+                    auPairPreferences.get().getChildrenAgeMinSearch(), auPairPreferences.get().getChildrenAgeMaxSearch(),
+                    auPairPreferences.get().isHouseWork(),
+                    auPairPreferences.get().isSingleFamily(),auPairPreferences.get().isFamilySmokes(),
+                    auPairPreferences.get().isWorkSpecialChildren());
             if (hostFamilyProfiles.isEmpty()) {
-                log.error("No host families found");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.BAD_REQUEST.value(), "No se encontraron coincidencias"));
+                log.error("No se encontraron familias que hagan mach para el dashboard");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.BAD_REQUEST.value(), "No se encontraron coincidencias de familias"));
             }
 
             List<ResponseFindHostFamilyDto> responseFindHostFamilyDtos = MapperHostProfile.mapHostToResponseProfile(hostFamilyProfiles);
@@ -143,6 +165,16 @@ public class HostFamilyProfileService {
         } catch (Exception e) {
             log.error("Error in findHostFamilies: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio en la busqueda"));
+        }
+    }
+    @Transactional(readOnly = true)
+    public ResponseEntity<CustomResponse> countHostFamilies(){
+        try {
+            int countHostFamiliesApproved = this.hostFamilyProfileRepository.countHostFamilyProfileByIsApproved(true);
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Total de familias aprobadas" , HttpStatus.OK.value(), false, countHostFamiliesApproved));
+        }catch (Exception e){
+            log.error("Error al contar familias: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal al contar familias"));
         }
     }
 }
