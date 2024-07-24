@@ -33,4 +33,35 @@ public interface AuPairProfileRepository extends JpaRepository<AuPairProfile, UU
             @Param("minDuration") int minDuration,
             @Param("maxDuration") int maxDuration
     );
+
+    @Query("SELECT DISTINCT hfp FROM AuPairProfile hfp " +
+            "JOIN hfp.user u " +
+            "JOIN hfp.preferredCountries pc " +
+            "JOIN u.profile p " +
+            "WHERE :familyCountry IN (SELECT c.country.countryName FROM hfp.preferredCountries c) " +
+            "AND hfp.gender.genderName = :genderSearch " +
+            "AND p.country.countryName IN :preferredCountryNames " +
+            "AND hfp.availableFrom <= :endDate " +
+            "AND hfp.availableTo >= :startDate " +
+            "AND p.minStayMonths <= :maxDuration " +
+            "AND p.maxStayMonths >= :minDuration " +
+            "AND hfp.languageOurOther = :languageOurOther " +
+            "AND hfp.languageOther = :languageOther " +
+            "AND hfp.smoker = :smoker " +
+            "AND hfp.drivingLicence = :drivingLicence " +
+            "AND hfp.houseWork = :houseWork")
+    List<AuPairProfile> findAuPairDashboard(
+            @Param("familyCountry") String familyCountry,
+            @Param("genderSearch") String genderSearch,
+            @Param("preferredCountryNames") List<String> preferredCountryNames,
+            @Param("startDate") Date startDate,
+            @Param("endDate") Date endDate,
+            @Param("minDuration") int minDuration,
+            @Param("maxDuration") int maxDuration,
+            @Param("languageOurOther") String languageOurOther,
+            @Param("languageOther") String languageOther,
+            @Param("smoker") boolean smoker,
+            @Param("drivingLicence") boolean drivingLicence,
+            @Param("houseWork") boolean houseWork
+    );
 }

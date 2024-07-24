@@ -1,6 +1,7 @@
 package com.aupair.aupaircl.controller.profileaupaircontroller;
 
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.FindAuPairDTO;
+import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.FindAuPairDashboard;
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.ProfileAuPairDTO;
 import com.aupair.aupaircl.service.aupairprofileservice.AuPairProfileService;
 import com.aupair.aupaircl.utils.CustomResponse;
@@ -41,6 +42,15 @@ public class ProfileAuPairController {
     public ResponseEntity<CustomResponse> findAuPair(@RequestBody FindAuPairDTO findAuPairDTO) {
         try {
             return this.profileAuPairService.findAuPair(findAuPairDTO);
+        }catch (Exception e){
+            log.error("Algo sucedio al buscar Au Pair");
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal al buscar Au Pair"));
+        }
+    }
+    @PostMapping(value = "/findAuPairDashboard", produces = "application/json")
+    public ResponseEntity<CustomResponse> findAuPairDasboard(@RequestBody FindAuPairDashboard findAuPairDTO) {
+        try {
+            return this.profileAuPairService.findAuPairDashboard(findAuPairDTO);
         }catch (Exception e){
             log.error("Algo sucedio al buscar Au Pair");
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal al buscar Au Pair"));
