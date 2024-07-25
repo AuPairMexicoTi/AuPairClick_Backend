@@ -21,19 +21,20 @@ public class MapperAuPairProfile {
         return orderList.stream()
                 .map(MapperAuPairProfile::mapAuPairProfileToAupairProfileDTO).toList();
     }
-    public static ResponseFindAuPair mapAuPairProfileToAupairProfileDTO(AuPairProfile hostFamilyProfile){
+    public static ResponseFindAuPair mapAuPairProfileToAupairProfileDTO(AuPairProfile auPairProfile){
         ResponseFindAuPair responseFindAuPair = new ResponseFindAuPair();
-        responseFindAuPair.setNameAuPair(hostFamilyProfile.getUser().getProfile().getFirstName());
-        responseFindAuPair.setDescription(hostFamilyProfile.getUser().getProfile().getAboutMe());
-        responseFindAuPair.setLocation(hostFamilyProfile.getUser().getProfile().getCountry().getCountryName());
-        responseFindAuPair.setAvailableFrom(hostFamilyProfile.getAvailableFrom());
-        responseFindAuPair.setAvailableTo(hostFamilyProfile.getAvailableTo());
-        responseFindAuPair.setChildrenAgeMin(hostFamilyProfile.getChildrenAgeMinSearch());
-        responseFindAuPair.setChildrenAgeMax(hostFamilyProfile.getChildrenAgeMaxSearch());
-        List<Image> images = imageRepository.findByProfile_User_EmailAndProfile_IsApproved(hostFamilyProfile.getUser().getEmail(),true);
+        responseFindAuPair.setNameAuPair(auPairProfile.getUser().getProfile().getFirstName());
+        responseFindAuPair.setDescription(auPairProfile.getUser().getProfile().getAboutMe());
+        responseFindAuPair.setLocation(auPairProfile.getUser().getProfile().getCountry().getCountryName());
+        responseFindAuPair.setAvailableFrom(auPairProfile.getAvailableFrom());
+        responseFindAuPair.setAvailableTo(auPairProfile.getAvailableTo());
+        responseFindAuPair.setChildrenAgeMin(auPairProfile.getChildrenAgeMinSearch());
+        responseFindAuPair.setChildrenAgeMax(auPairProfile.getChildrenAgeMaxSearch());
+        List<Image> images = imageRepository.findByProfile_User_EmailAndProfile_IsApproved(auPairProfile.getUser().getEmail(),true);
         responseFindAuPair.setImage(images.get(0).getImageName());
-        responseFindAuPair.setMinStayMonths(hostFamilyProfile.getUser().getProfile().getMinStayMonths());
-        responseFindAuPair.setMaxStayMonths(hostFamilyProfile.getUser().getProfile().getMaxStayMonths());
+        responseFindAuPair.setMinStayMonths(auPairProfile.getUser().getProfile().getMinStayMonths());
+        responseFindAuPair.setMaxStayMonths(auPairProfile.getUser().getProfile().getMaxStayMonths());
+        responseFindAuPair.setNumPerfil(auPairProfile.getUser().getProfile().getNumPerfil());
         return responseFindAuPair;
     }
 }

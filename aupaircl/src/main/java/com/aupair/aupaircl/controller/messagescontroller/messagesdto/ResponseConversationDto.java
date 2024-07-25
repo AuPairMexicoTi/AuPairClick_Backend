@@ -16,4 +16,5 @@ public class ResponseConversationDto {
     private String content;
     private String lastMessage;
     private LocalDateTime lastDate;
+    private String imageAvatar;
 }

@@ -13,6 +13,7 @@ public interface AuPairProfileRepository extends JpaRepository<AuPairProfile, UU
     Optional<AuPairProfile> findByUser_Email(String email);
     AuPairProfile findByUser_EmailAndIsApproved(String email,boolean isApp);
     int countAuPairProfileByIsApproved (boolean isApp);
+    AuPairProfile findByUser_Profile_NumPerfil(String number);
     @Query("SELECT DISTINCT hfp FROM AuPairProfile hfp " +
             "JOIN hfp.user u " +
             "JOIN hfp.preferredCountries pc " +

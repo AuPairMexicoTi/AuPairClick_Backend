@@ -43,14 +43,26 @@ public class MessageService {
     @Transactional(rollbackFor = {SQLException.class})
     public ResponseEntity<CustomResponse> sendMessage(MessageDto messageDto) {
        try {
-            User sender = userRepository.findByEmail(messageDto.getSenderId()).orElseThrow(() -> new RuntimeException("Usuario de origen no encontrado"));
-            User receiver = userRepository.findByEmail(messageDto.getReceiverId()).orElseThrow(() -> new RuntimeException("Usuario de destino no encontrado"));
+            Optional<User> sender = this.userRepository.findByProfile_NumPerfil(messageDto.getSenderId());
+            Optional<User> receiver = this.userRepository.findByProfile_NumPerfil(messageDto.getReceiverId());
+            if (sender.isEmpty() ||receiver.isEmpty()){
+                log.error("No se encontraron los usuarios");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido al enviar mensaje"));
+            }
+            if (sender.get().getRole().equals("family") || receiver.get().getRole().equals("family")){
+                log.error("No se puede enviar un mensaje entre familias");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.FORBIDDEN.value(), "No se puede enviar un mensaje a una familia"));
+            }
+            if (sender.get().getRole().equals("aupair") && receiver.get().getRole().equals("aupair")){
+                log.error("No se puede enviar un mensaje entre aupairs");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.FORBIDDEN.value(), "No se puede enviar un mensaje a un aupair"));
+            }
 
            Conversation conversation = conversationRepository.findByUser1_EmailAndAndUser2_Email(messageDto.getSenderId(), messageDto.getReceiverId())
                    .orElseGet(() -> {
                        Conversation newConversation = new Conversation();
-                       newConversation.setUser1(sender);
-                       newConversation.setUser2(receiver);
+                       newConversation.setUser1(sender.get());
+                       newConversation.setUser2(receiver.get());
                        return conversationRepository.save(newConversation);
                    });
 
@@ -97,6 +109,37 @@ public class MessageService {
         }catch (Exception e) {
             log.error("Fallo obtener la conversacion por usuario");
             return new ResponseEntity<>(new CustomResponse(false, 500, "Error al obtener conversacion por usuario"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @Transactional(rollbackFor = {SQLException.class})
+    public ResponseEntity<CustomResponse> createConversation(MessageDto messageDto){
+        System.out.println(messageDto);
+        try {
+            Optional<User> sender = this.userRepository.findByEmail(messageDto.getSenderId());
+            Optional<User> receiver = this.userRepository.findByProfile_NumPerfil(messageDto.getReceiverId());
+            if (sender.isEmpty() ||receiver.isEmpty()){
+                log.error("No se encontraron los usuarios");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido al enviar mensaje"));
+            }
+            if (sender.get().getRole().equals("family") || receiver.get().getRole().equals("family")){
+                log.error("No se puede enviar un mensaje entre familias");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.FORBIDDEN.value(), "No se puede enviar un mensaje a una familia"));
+            }
+            if (sender.get().getRole().equals("aupair") && receiver.get().getRole().equals("aupair")){
+                log.error("No se puede enviar un mensaje entre aupairs");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.FORBIDDEN.value(), "No se puede enviar un mensaje a un aupair"));
+            }
+            Optional<Conversation> conversation = conversationRepository.findByUser1_EmailAndAndUser2_Email(messageDto.getSenderId(), messageDto.getReceiverId());
+                if (conversation.isEmpty()){
+                    Conversation newConversation = new Conversation();
+                    newConversation.setUser1(sender.get());
+                    newConversation.setUser2(receiver.get());
+                    conversationRepository.save(newConversation);
+                }
+                return new ResponseEntity<>(new CustomResponse(false,HttpStatus.OK.value(),"Conversacion creada"), HttpStatus.OK);
+        }catch (Exception e){
+            log.error("Fallo al crear la conversacion");
+            return new ResponseEntity<>(new CustomResponse(false, 500, "Error al crear la conversacion"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

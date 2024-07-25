@@ -65,11 +65,11 @@ public interface HostFamilyProfileRepository extends JpaRepository<HostFamilyPro
             @Param("endDate") Date endDate,
             @Param("minDuration") int minDuration,
             @Param("maxDuration") int maxDuration,
-            @Param("childrenAgesMax") int childrenAgesMin,
-            @Param("childrenAgesMin") int childrenAgesMax,
+            @Param("childrenAgesMax") int childrenAgesMax,
+            @Param("childrenAgesMin") int childrenAgesMix,
             @Param("aupairHouseWork") boolean aupairHouseWork,
             @Param("areSingleFamily") boolean areSingleFamily,
             @Param("smokesInFamily") boolean smokesInFamily,
             @Param("aupairCareChildrenNeed") boolean aupairCareChildrenNeed
-    )  ;
+    ) ;
 }

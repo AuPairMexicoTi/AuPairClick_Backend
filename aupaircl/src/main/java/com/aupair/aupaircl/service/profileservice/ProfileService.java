@@ -306,8 +306,12 @@ public class ProfileService {
         try {
             Profile userSave = this.profileRepository.findByUser_EmailAndIsApproved(email,true);
             AuPairProfile auPairProfile = this.auPairProfileRepository.findByUser_EmailAndIsApproved(email,true);
+            if (auPairProfile == null){
+                log.error("No esta registrado un perfil con ese correo de au pair");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido al traer perfil de aupair"));
+            }
             if (userSave == null){
-                log.error("Could not find user in get profile");
+                log.error("No esta registrado el perfil con el usuario");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido al traer perfil"));
             }
             if (!userSave.getUser().getRole().getRoleName().equals(AuPairType)){

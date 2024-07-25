@@ -13,7 +13,7 @@ import java.util.Date;
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class ResponseFindAuPair {
     private String nameAuPair;
-    private String image;
+    private String image;   
     private String location;
     private Integer childrenAgeMin;
     private Integer childrenAgeMax;
@@ -24,4 +24,5 @@ public class ResponseFindAuPair {
     private Integer minStayMonths;
     private Integer maxStayMonths;
     private String description;
+    private String numPerfil;
 }

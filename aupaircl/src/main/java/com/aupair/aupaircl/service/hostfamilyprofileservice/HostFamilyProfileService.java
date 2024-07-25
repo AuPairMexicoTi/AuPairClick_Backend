@@ -150,8 +150,9 @@ public class HostFamilyProfileService {
                     preferencesList,
                     auPairPreferences.get().getAvailableFrom(),auPairPreferences.get().getAvailableTo(),
                     auPairPreferences.get().getUser().getProfile().getMinStayMonths(),
-                    auPairPreferences.get().getUser().getProfile().getMaxStayMonths(),
-                    auPairPreferences.get().getChildrenAgeMinSearch(), auPairPreferences.get().getChildrenAgeMaxSearch(),
+                    auPairPreferences.get().getUser().getProfile( ).getMaxStayMonths(),
+                    auPairPreferences.get().getChildrenAgeMaxSearch(),
+                    auPairPreferences.get().getChildrenAgeMinSearch(),
                     auPairPreferences.get().isHouseWork(),
                     auPairPreferences.get().isSingleFamily(),auPairPreferences.get().isFamilySmokes(),
                     auPairPreferences.get().isWorkSpecialChildren());

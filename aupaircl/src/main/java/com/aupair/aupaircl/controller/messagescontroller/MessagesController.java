@@ -39,13 +39,22 @@ public class MessagesController {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal al obtener las preferencias"));
         }
     }
-    @GetMapping(value ="/getConversationsByUserl",produces = "application/json")
-    public ResponseEntity<CustomResponse> getConversationsByUserl(){
+    @GetMapping(value ="/getConversationsByUser",produces = "application/json")
+    public ResponseEntity<CustomResponse> getConversationsByUser(){
         try {
             String email = getAuthenticatedUserEmail();
             return this.messageService.getConversationByUser(email);
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal al obtener las preferencias"));
+        }
+    }
+    @PostMapping(value="/createConversation")
+    public ResponseEntity<CustomResponse> createConversation(@RequestBody MessageDto messageDto){
+        try {
+        return this.messageService.createConversation(messageDto);
+        }catch (Exception e){
+            return new ResponseEntity<>(new CustomResponse(
+                    true, HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo sucedio al crear la conversación"), HttpStatus.OK);
         }
     }
     private String getAuthenticatedUserEmail() {

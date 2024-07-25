@@ -3,6 +3,10 @@ package com.aupair.aupaircl.service.aupairprofileservice;
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.FindAuPairDTO;
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.ProfileAuPairDTO;
 import com.aupair.aupaircl.controller.profileaupaircontroller.profileaupairdto.ResponseFindAuPair;
+import com.aupair.aupaircl.controller.profilecontroller.profiledto.CountryDTO;
+import com.aupair.aupaircl.controller.profilecontroller.profiledto.ResponseProfileAuPairDto;
+import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountry;
+import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountryRepository;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfile;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfileRepository;
 import com.aupair.aupaircl.model.gender.Gender;
@@ -10,8 +14,13 @@ import com.aupair.aupaircl.model.gender.GenderRepository;
 import com.aupair.aupaircl.model.hostfamilypreferredcountry.HostFamilyPreferredCountry;
 import com.aupair.aupaircl.model.hostfamilyprofile.HostFamilyProfile;
 import com.aupair.aupaircl.model.hostfamilyprofile.HostFamilyProfileRepository;
+import com.aupair.aupaircl.model.image.Image;
+import com.aupair.aupaircl.model.image.ImageRepository;
+import com.aupair.aupaircl.model.profile.Profile;
+import com.aupair.aupaircl.model.profile.ProfileRepository;
 import com.aupair.aupaircl.model.user.UserEmailDto;
 import com.aupair.aupaircl.service.aupairprofileservice.mapperaupairprofile.MapperAuPairProfile;
+import com.aupair.aupaircl.service.userservice.mapperuser.MapperUser;
 import com.aupair.aupaircl.utils.CustomResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,14 +41,22 @@ public class AuPairProfileService {
 private final AuPairProfileRepository auPairProfileRepository;
     private final GenderRepository genderRepository;
     private final HostFamilyProfileRepository hostFamilyProfileRepository;
-
-
+    private final MapperAuPairProfile mapperAuPairProfile;
+    private final AuPairPreferredCountryRepository auPairPreferredCountryRepository;
+    private final ImageRepository imageRepository;
+    private final ProfileRepository profileRepository;
     @Autowired
 public AuPairProfileService(AuPairProfileRepository auPairProfileRepository,
-                            GenderRepository genderRepository,HostFamilyProfileRepository hostFamilyProfileRepository) {
+                            GenderRepository genderRepository,HostFamilyProfileRepository hostFamilyProfileRepository,
+    MapperAuPairProfile mapperAuPairProfile, AuPairPreferredCountryRepository auPairPreferredCountryRepository,
+                            ImageRepository imageRepository,ProfileRepository profileRepository) {
     this.auPairProfileRepository = auPairProfileRepository;
     this.genderRepository = genderRepository;
     this.hostFamilyProfileRepository = hostFamilyProfileRepository;
+    this.mapperAuPairProfile = mapperAuPairProfile;
+    this.auPairPreferredCountryRepository = auPairPreferredCountryRepository;
+    this.imageRepository = imageRepository;
+    this.profileRepository = profileRepository;
     }
     @Transactional(readOnly = true)
     public ResponseEntity<CustomResponse> getAuPairProfile(String email){
@@ -151,6 +168,66 @@ public AuPairProfileService(AuPairProfileRepository auPairProfileRepository,
         }catch (Exception e){
             log.error("Algo sucedio en el conteo de au pairs");
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio en el conteo de au pairs"));
+        }
+    }
+    @Transactional(readOnly = true)
+    public ResponseEntity<CustomResponse> getProfileByNumProfile(String numProfile){
+        try {
+            AuPairProfile auPairProfile = this.auPairProfileRepository.findByUser_Profile_NumPerfil(numProfile);
+            if (auPairProfile == null){
+                log.error("No se encontro el au pair por numero de perfil");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.NOT_FOUND.value(), "Au Pair no encontrado"));
+            }
+            Profile userSave = this.profileRepository.findByUser_EmailAndIsApproved(auPairProfile.getUser().getEmail(),true);
+            if (userSave == null){
+                log.error("Could not find user in get profile");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido al traer perfil"));
+            }
+            if (!userSave.getUser().getRole().getRoleName().equals("aupair")){
+                log.error("Solicitud de rol diferente al obtener perfil");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Solicitud incorrecta para el usuario"));
+            }
+            ResponseProfileAuPairDto responseProfileDto = new ResponseProfileAuPairDto();
+            responseProfileDto.setName(userSave.getFirstName());
+            responseProfileDto.setLastname(userSave.getLastName());
+            responseProfileDto.setGender(userSave.getUser().getAuPairProfile().getGender().getGenderName());
+            responseProfileDto.setAge(userSave.getAge());
+            responseProfileDto.setCountry(userSave.getCountry().getCountryName());
+            responseProfileDto.setRegion(userSave.getRegion());
+            responseProfileDto.setNationality(userSave.getCountry().getNationality());
+            responseProfileDto.setLanguageOur(auPairProfile.getLanguageOur());
+            responseProfileDto.setLanguageOurOther(auPairProfile.getLanguageOurOther());
+            responseProfileDto.setLanguageOther(auPairProfile.getLanguageOther());
+            responseProfileDto.setStartDate(userSave.getUser().getAuPairProfile().getAvailableFrom());
+            responseProfileDto.setEndDate(userSave.getUser().getAuPairProfile().getAvailableTo());
+            responseProfileDto.setMaxStayMonths(userSave.getMaxStayMonths());
+            responseProfileDto.setMinStayMonths(userSave.getMinStayMonths());
+            responseProfileDto.setLocationType(userSave.getLocationType().getLocationTypeName());
+            responseProfileDto.setChildrenAgeMax(userSave.getUser().getAuPairProfile().getChildrenAgeMaxSearch());
+            responseProfileDto.setChildrenAgeMin(userSave.getUser().getAuPairProfile().getChildrenAgeMinSearch());
+            List<AuPairPreferredCountry> auPairPreferredCountry = this.auPairPreferredCountryRepository.findByAuPairProfile_User_Email(auPairProfile.getUser().getEmail());
+            List<CountryDTO> countryDTOS = MapperUser.mapAuPairPreferredCountry(auPairPreferredCountry);
+            responseProfileDto.setPreferredCountries(countryDTOS);
+            responseProfileDto.setToFamily(userSave.getAboutMe());
+            responseProfileDto.setLastLogin(userSave.getUser().getLastLogin());
+            responseProfileDto.setNumPerfil(userSave.getNumPerfil());
+
+            responseProfileDto.setChildCareExperience(auPairProfile.isChildCareExp());
+            responseProfileDto.setVegetarian(auPairProfile.isVegetarian());
+            responseProfileDto.setSingleFamily(auPairProfile.isSingleFamily());
+            responseProfileDto.setSmoker(auPairProfile.isSmoker());
+            responseProfileDto.setHouseWork(auPairProfile.isHouseWork());
+            responseProfileDto.setDrivingLicence(auPairProfile.isDrivingLicence());
+            responseProfileDto.setFamilySmokes(auPairProfile.isFamilySmokes());
+            responseProfileDto.setWorkSpecialChildren(auPairProfile.isWorkSpecialChildren());
+
+
+            List<Image> imageList = this.imageRepository.findByProfile_User_EmailAndProfile_IsApproved(auPairProfile.getUser().getEmail(),true);
+            responseProfileDto.setImages(imageList);
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Usuario encontrado", HttpStatus.OK.value(), false, responseProfileDto));
+        }catch (Exception e){
+            log.error("Algo sucedio al buscar el usuario por numero de cuenta");
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al buscar el usuario por numero de cuenta"));
         }
     }
 }

@@ -66,5 +66,14 @@ public class ProfileAuPairController {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal al contar Au Pair"));
         }
     }
+        @GetMapping(value = "/getProfileByNumPerfil/{numPerfil}",produces = "application/json")
+    public ResponseEntity<CustomResponse> getProfileByNumPerfil(@PathVariable String numPerfil) {
+        try {
+            return this.profileAuPairService.getProfileByNumProfile(numPerfil);
+        }catch (Exception e){
+            log.error("Algo sucedio al obtener el profile por numero de perfil");
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal al obtener el profile por numero de perfil"));
+        }
+    }
 }
 
