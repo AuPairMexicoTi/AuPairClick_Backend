@@ -12,5 +12,5 @@ public interface ConversationRepository extends JpaRepository<Conversation, UUID
     Optional<Conversation> findByUser1_EmailAndAndUser2_Email(String email1,String email2);
 
     @Query("SELECT c FROM Conversation c WHERE c.user1.email = :userId OR c.user2.email = :userId")
-    List<Conversation> findByUser(@Param("userId") String userId);
+    List<Conversation> findAllByUser(@Param("userId") String userId);
 }

@@ -34,7 +34,7 @@ public class Messages {
     private Conversation conversation;
 
 
-    @Column(name = "contenct",nullable = false)
+    @Column(name = "content",nullable = false)
     private String content;
     @Column(name = "lastMessage",nullable = false)
     private String lastMessage;

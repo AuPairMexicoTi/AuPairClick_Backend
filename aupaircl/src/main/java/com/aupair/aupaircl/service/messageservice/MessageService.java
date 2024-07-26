@@ -42,9 +42,10 @@ public class MessageService {
 
     @Transactional(rollbackFor = {SQLException.class})
     public ResponseEntity<CustomResponse> sendMessage(MessageDto messageDto) {
+        System.out.println(messageDto);
        try {
-            Optional<User> sender = this.userRepository.findByProfile_NumPerfil(messageDto.getSenderId());
-            Optional<User> receiver = this.userRepository.findByProfile_NumPerfil(messageDto.getReceiverId());
+            Optional<User> sender = this.userRepository.findByEmail(messageDto.getSenderId());
+            Optional<User> receiver = this.userRepository.findByEmail(messageDto.getReceiverId());
             if (sender.isEmpty() ||receiver.isEmpty()){
                 log.error("No se encontraron los usuarios");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido al enviar mensaje"));
@@ -68,9 +69,9 @@ public class MessageService {
 
            Messages message = new Messages();
            message.setConversation(conversation);
-           message.setContent(message.getContent());
+           message.setContent(messageDto.getContent());
            message.setTimestamp(LocalDateTime.now());
-
+            message.setLastMessage(messageDto.getContent());
            messagesRepository.save(message);
            return new ResponseEntity<>(new CustomResponse(false,HttpStatus.OK.value(), "Mensaje enviado"), HttpStatus.OK);
        }catch (Exception e){
@@ -91,29 +92,33 @@ public class MessageService {
         }
     }
     @Transactional(readOnly = true)
-    public ResponseEntity<CustomResponse> getConversationByUser(String email){
+    public ResponseEntity<CustomResponse> getConversationByUser(String email) {
         try {
             Optional<User> user = this.userRepository.findByEmail(email);
-            if (user.isEmpty()){
+            if (user.isEmpty()) {
                 log.error("Usuario no registrado");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.NOT_FOUND.value(), "Usuario no registrado"));
             }
-            List<Conversation> conversations = this.conversationRepository.findByUser(user.get().getEmail());
 
-            List<ResponseConversationDto> dtoList = mapperConversation .mapToDtos(conversations,user.get());
-            if (conversations.isEmpty()){
+            List<Conversation> conversations = this.conversationRepository.findAllByUser(user.get().getEmail());
+
+            if (conversations.isEmpty()) {
                 log.error("No hay conversaciones del usuario");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.NOT_FOUND.value(), "No hay conversaciones"));
             }
-            return new ResponseEntity<>(new CustomResponse("Conversaciones del usuario",HttpStatus.OK.value(), false, dtoList), HttpStatus.OK);
-        }catch (Exception e) {
-            log.error("Fallo obtener la conversacion por usuario");
+
+            List<ResponseConversationDto> dtoList = mapperConversation.mapToDtos(conversations, user.get());
+
+            return new ResponseEntity<>(new CustomResponse("Conversaciones del usuario", HttpStatus.OK.value(), false, dtoList), HttpStatus.OK);
+        } catch (Exception e) {
+            log.error("Fallo obtener la conversacion por usuario: " + e.getMessage());
             return new ResponseEntity<>(new CustomResponse(false, 500, "Error al obtener conversacion por usuario"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
     @Transactional(rollbackFor = {SQLException.class})
     public ResponseEntity<CustomResponse> createConversation(MessageDto messageDto){
-        System.out.println(messageDto);
         try {
             Optional<User> sender = this.userRepository.findByEmail(messageDto.getSenderId());
             Optional<User> receiver = this.userRepository.findByProfile_NumPerfil(messageDto.getReceiverId());
@@ -129,7 +134,7 @@ public class MessageService {
                 log.error("No se puede enviar un mensaje entre aupairs");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.FORBIDDEN.value(), "No se puede enviar un mensaje a un aupair"));
             }
-            Optional<Conversation> conversation = conversationRepository.findByUser1_EmailAndAndUser2_Email(messageDto.getSenderId(), messageDto.getReceiverId());
+            Optional<Conversation> conversation = conversationRepository.findByUser1_EmailAndAndUser2_Email(sender.get().getEmail(),receiver.get().getEmail());
                 if (conversation.isEmpty()){
                     Conversation newConversation = new Conversation();
                     newConversation.setUser1(sender.get());
@@ -138,7 +143,7 @@ public class MessageService {
                 }
                 return new ResponseEntity<>(new CustomResponse(false,HttpStatus.OK.value(),"Conversacion creada"), HttpStatus.OK);
         }catch (Exception e){
-            log.error("Fallo al crear la conversacion");
+            log.error("Fallo al crear la conversacion" +e.getMessage());
             return new ResponseEntity<>(new CustomResponse(false, 500, "Error al crear la conversacion"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

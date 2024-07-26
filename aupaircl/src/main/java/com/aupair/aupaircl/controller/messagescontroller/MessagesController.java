@@ -1,6 +1,7 @@
 package com.aupair.aupaircl.controller.messagescontroller;
 
 import com.aupair.aupaircl.controller.messagescontroller.messagesdto.MessageDto;
+import com.aupair.aupaircl.model.user.UserEmailDto;
 import com.aupair.aupaircl.service.messageservice.MessageService;
 import com.aupair.aupaircl.utils.CustomResponse;
 import jakarta.validation.Valid;
@@ -39,11 +40,10 @@ public class MessagesController {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal al obtener las preferencias"));
         }
     }
-    @GetMapping(value ="/getConversationsByUser",produces = "application/json")
-    public ResponseEntity<CustomResponse> getConversationsByUser(){
+    @PostMapping(value ="/getConversationsByUser",produces = "application/json")
+    public ResponseEntity<CustomResponse> getConversationsByUser(@Valid @RequestBody UserEmailDto  userEmailDto){
         try {
-            String email = getAuthenticatedUserEmail();
-            return this.messageService.getConversationByUser(email);
+            return this.messageService.getConversationByUser(userEmailDto.getEmail());
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal al obtener las preferencias"));
         }

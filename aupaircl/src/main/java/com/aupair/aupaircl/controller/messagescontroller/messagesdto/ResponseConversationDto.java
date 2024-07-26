@@ -1,5 +1,6 @@
 package com.aupair.aupaircl.controller.messagescontroller.messagesdto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,6 +16,8 @@ public class ResponseConversationDto {
     private String receiver;
     private String content;
     private String lastMessage;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastDate;
-    private String imageAvatar;
+    private String imageAvatarSender;
+    private String imageAvatarReceiver;
 }
