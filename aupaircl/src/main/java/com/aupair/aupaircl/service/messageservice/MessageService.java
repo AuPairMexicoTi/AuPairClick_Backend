@@ -1,6 +1,7 @@
 package com.aupair.aupaircl.service.messageservice;
 
 import com.aupair.aupaircl.controller.messagescontroller.messagesdto.MessageDto;
+import com.aupair.aupaircl.controller.messagescontroller.messagesdto.RequestMessagesToConversationDto;
 import com.aupair.aupaircl.controller.messagescontroller.messagesdto.ResponseConversationDto;
 import com.aupair.aupaircl.model.conversation.Conversation;
 import com.aupair.aupaircl.model.conversation.ConversationRepository;
@@ -42,48 +43,66 @@ public class MessageService {
 
     @Transactional(rollbackFor = {SQLException.class})
     public ResponseEntity<CustomResponse> sendMessage(MessageDto messageDto) {
-        System.out.println(messageDto);
-       try {
+        try {
+            System.out.println(messageDto);
+            Optional<Conversation> conversationExist = this.conversationRepository.findBySenderAndReceiver(messageDto.getSenderId(), messageDto.getReceiverId());
+            if (conversationExist.isEmpty()) {
+                log.error("No hay una conversacion");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.NOT_FOUND.value(), "No hay una conversación"));
+            }
+            String userReceiver = conversationExist.get().getSender().getEmail().equals(messageDto.getSenderId())? conversationExist.get().getReceiver().getEmail() : messageDto.getSenderId();
             Optional<User> sender = this.userRepository.findByEmail(messageDto.getSenderId());
-            Optional<User> receiver = this.userRepository.findByEmail(messageDto.getReceiverId());
-            if (sender.isEmpty() ||receiver.isEmpty()){
+            Optional<User> receiver = this.userRepository.findByEmail(userReceiver);
+            if (sender.isEmpty() || receiver.isEmpty()) {
                 log.error("No se encontraron los usuarios");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.BAD_REQUEST.value(), "Usuario invalido al enviar mensaje"));
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.BAD_REQUEST.value(), "Usuario inválido al enviar mensaje"));
             }
-            if (sender.get().getRole().equals("family") || receiver.get().getRole().equals("family")){
+            if (sender.get().getRole().equals("family") || receiver.get().getRole().equals("family")) {
                 log.error("No se puede enviar un mensaje entre familias");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.FORBIDDEN.value(), "No se puede enviar un mensaje a una familia"));
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.FORBIDDEN.value(), "No se puede enviar un mensaje a una familia"));
             }
-            if (sender.get().getRole().equals("aupair") && receiver.get().getRole().equals("aupair")){
+            if (sender.get().getRole().equals("aupair") && receiver.get().getRole().equals("aupair")) {
                 log.error("No se puede enviar un mensaje entre aupairs");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.FORBIDDEN.value(), "No se puede enviar un mensaje a un aupair"));
             }
 
-           Conversation conversation = conversationRepository.findByUser1_EmailAndAndUser2_Email(messageDto.getSenderId(), messageDto.getReceiverId())
-                   .orElseGet(() -> {
-                       Conversation newConversation = new Conversation();
-                       newConversation.setUser1(sender.get());
-                       newConversation.setUser2(receiver.get());
-                       return conversationRepository.save(newConversation);
-                   });
+            Conversation conversation = conversationRepository.findBySenderAndReceiver(messageDto.getSenderId(), messageDto.getReceiverId())
+                    .orElseGet(() -> {
+                        Conversation newConversation = new Conversation();
+                        newConversation.setSender(sender.get());
+                        newConversation.setReceiver(receiver.get());
+                        return conversationRepository.save(newConversation);
+                    });
 
-           Messages message = new Messages();
-           message.setConversation(conversation);
-           message.setContent(messageDto.getContent());
-           message.setTimestamp(LocalDateTime.now());
+            Messages message = new Messages();
+            message.setConversation(conversation);
+            message.setContent(messageDto.getContent());
+            message.setTimestamp(LocalDateTime.now());
             message.setLastMessage(messageDto.getContent());
-           messagesRepository.save(message);
-           return new ResponseEntity<>(new CustomResponse(false,HttpStatus.OK.value(), "Mensaje enviado"), HttpStatus.OK);
-       }catch (Exception e){
+            message.setSentBySender(true);
+
+            messagesRepository.save(message);
+            return new ResponseEntity<>(new CustomResponse(false, HttpStatus.OK.value(), "Mensaje enviado"), HttpStatus.OK);
+        } catch (Exception e) {
             log.error("Fallo enviar mensaje");
             return new ResponseEntity<>(new CustomResponse(false, 500, "Error al enviar mensaje"), HttpStatus.INTERNAL_SERVER_ERROR);
-
-       }
+        }
     }
+
     @Transactional(readOnly = true)
-    public ResponseEntity<CustomResponse> getMessagesForConversation(UUID conversationId) {
+    public ResponseEntity<CustomResponse> getMessagesForConversation(RequestMessagesToConversationDto requestMessagesTo) {
         try {
-            List<Messages> messages = messagesRepository.findByConversation_ConversationId(conversationId);
+            System.out.println(requestMessagesTo.getCurrentUser());
+            List<Messages> messages = messagesRepository.findAllByConversation_ConversationId(requestMessagesTo.getConversationId());
+            messages.forEach(message -> {
+                if (message.getConversation().getSender().getEmail().equals(requestMessagesTo.getCurrentUser())) {
+                    //message.setSentBySender(message.getConversation().getEmail().equals(currentUserEmail));
+                    message.setSentBySender(true);
+                } else {
+                   // message.setSentBySender(message.getSender().getEmail().equals(currentUserEmail));
+                    message.setSentBySender(false);
+                }
+            });
             return new ResponseEntity<>(new CustomResponse("Lista de mensajes",HttpStatus.OK.value(), false,messages),HttpStatus.OK);
 
         }catch (Exception e) {
@@ -99,7 +118,6 @@ public class MessageService {
                 log.error("Usuario no registrado");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.NOT_FOUND.value(), "Usuario no registrado"));
             }
-
             List<Conversation> conversations = this.conversationRepository.findAllByUser(user.get().getEmail());
 
             if (conversations.isEmpty()) {
@@ -134,11 +152,11 @@ public class MessageService {
                 log.error("No se puede enviar un mensaje entre aupairs");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.FORBIDDEN.value(), "No se puede enviar un mensaje a un aupair"));
             }
-            Optional<Conversation> conversation = conversationRepository.findByUser1_EmailAndAndUser2_Email(sender.get().getEmail(),receiver.get().getEmail());
+            Optional<Conversation> conversation = conversationRepository.findBySenderAndReceiver(sender.get().getEmail(),receiver.get().getEmail());
                 if (conversation.isEmpty()){
                     Conversation newConversation = new Conversation();
-                    newConversation.setUser1(sender.get());
-                    newConversation.setUser2(receiver.get());
+                    newConversation.setSender(sender.get());
+                    newConversation.setReceiver(receiver.get());
                     conversationRepository.save(newConversation);
                 }
                 return new ResponseEntity<>(new CustomResponse(false,HttpStatus.OK.value(),"Conversacion creada"), HttpStatus.OK);

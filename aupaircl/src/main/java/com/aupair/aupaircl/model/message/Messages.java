@@ -1,6 +1,7 @@
 package com.aupair.aupaircl.model.message;
 
 import com.aupair.aupaircl.model.conversation.Conversation;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Id;
@@ -28,7 +29,7 @@ public class Messages {
     @Column(name = "id_messages",nullable = false)
     @GeneratedValue(generator = "UUID")
     private UUID messageId;
-
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "fk_conversation", nullable = false)
     private Conversation conversation;
@@ -40,7 +41,8 @@ public class Messages {
     private String lastMessage;
     @Column(name = "sendDate ",nullable = false)
     private LocalDateTime timestamp;
-
+    @Column(name = "send_by_sender",nullable = false)
+    private boolean sentBySender;
     private Date sentAt;
     @PrePersist
     private void generateUUID(){

@@ -9,8 +9,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ConversationRepository extends JpaRepository<Conversation, UUID> {
-    Optional<Conversation> findByUser1_EmailAndAndUser2_Email(String email1,String email2);
 
-    @Query("SELECT c FROM Conversation c WHERE c.user1.email = :userId OR c.user2.email = :userId")
+    Optional<Conversation> findBySender_EmailAndAndReceiver_Email(String email1,String email2);
+
+    @Query("SELECT c FROM Conversation c WHERE (c.sender.email = :senderEmail AND c.receiver.email = :receiverEmail) OR (c.sender.email = :receiverEmail AND c.receiver.email = :senderEmail)")
+    Optional<Conversation> findBySenderAndReceiver(@Param("senderEmail") String senderEmail, @Param("receiverEmail") String receiverEmail);
+
+    @Query("SELECT c FROM Conversation c WHERE c.sender.email = :userId OR c.receiver.email = :userId")
     List<Conversation> findAllByUser(@Param("userId") String userId);
 }

@@ -1,6 +1,7 @@
 package com.aupair.aupaircl.controller.messagescontroller;
 
 import com.aupair.aupaircl.controller.messagescontroller.messagesdto.MessageDto;
+import com.aupair.aupaircl.controller.messagescontroller.messagesdto.RequestMessagesToConversationDto;
 import com.aupair.aupaircl.model.user.UserEmailDto;
 import com.aupair.aupaircl.service.messageservice.MessageService;
 import com.aupair.aupaircl.utils.CustomResponse;
@@ -12,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
 
 
 @RestController
@@ -32,10 +32,10 @@ public class MessagesController {
             return new ResponseEntity<>(new CustomResponse(
                     true, HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo sucedio al enviar mensaje"), HttpStatus.OK);        }
     }
-    @GetMapping(value ="/getMessagesForConversation/{conversation}",produces = "application/json")
-    public ResponseEntity<CustomResponse> getMessagesForConversation(@PathVariable("conversation") UUID conversation){
+    @PostMapping(value ="/getMessagesForConversation",produces = "application/json")
+    public ResponseEntity<CustomResponse> getMessagesForConversation(@RequestBody  RequestMessagesToConversationDto requestMessagesTo){
         try {
-            return this.messageService.getMessagesForConversation(conversation);
+            return this.messageService.getMessagesForConversation(requestMessagesTo);
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal al obtener las preferencias"));
         }

@@ -9,8 +9,6 @@ import com.aupair.aupaircl.model.message.MessagesRepository;
 import com.aupair.aupaircl.model.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,7 +17,6 @@ import java.util.stream.Collectors;
 @Service
 public class MapperConversation {
 
-    private static final Logger log = LoggerFactory.getLogger(MapperConversation.class);
 
     private final MessagesRepository messageRepository;
     private final ImageRepository imageRepository;
@@ -31,27 +28,25 @@ public class MapperConversation {
     }
 
     public ResponseConversationDto mapToDto(Conversation conversation, User user) {
-        Messages lastMessage = messageRepository.findTopByConversationOrderByTimestampDesc(conversation.getConversationId())
-                .orElse(null);
+        List<Messages> messagesList = messageRepository.findTopByConversationOrderByTimestampDesc(conversation.getConversationId());
+        Messages lastMessage = messagesList.isEmpty() ? null : messagesList.get(0);
 
         ResponseConversationDto dto = new ResponseConversationDto();
         dto.setConversationId(conversation.getConversationId().toString());
-        dto.setReceiver(conversation.getUser1().equals(user) ? conversation.getUser2().getUsername() : conversation.getUser1().getUsername());
+        dto.setReceiverEmail(conversation.getSender().equals(user) ? conversation.getReceiver().getEmail() : conversation.getSender().getEmail());
+        dto.setReceiver(conversation.getSender().equals(user) ? conversation.getReceiver().getUsername() : conversation.getSender().getUsername());
         dto.setLastMessage(lastMessage != null ? lastMessage.getContent() : "Sin mensajes aun");
         dto.setLastDate(lastMessage != null ? lastMessage.getTimestamp() : LocalDateTime.now());
 
+        // Imágenes del remitente
         List<Image> imagesSender = imageRepository.findByProfile_User_EmailAndProfile_IsApproved(user.getEmail(), true);
-        if (!imagesSender.isEmpty()) {
-            dto.setImageAvatarSender(imagesSender.get(0).getImageName());
-        } else {
-            dto.setImageAvatarSender("https://cdn2.iconfinder.com/data/icons/data-privacy-and-gdpr/512/GDPR3-18-512.png");
-        }
-        List<Image> imagesReceiver = imageRepository.findByProfile_User_EmailAndProfile_IsApproved(conversation.getUser1().equals(user) ? conversation.getUser2().getEmail() : conversation.getUser1().getEmail(), true);
-        if (!imagesReceiver.isEmpty()) {
-            dto.setImageAvatarReceiver(imagesReceiver.get(0).getImageName());
-        } else {
-            dto.setImageAvatarReceiver("https://cdn2.iconfinder.com/data/icons/data-privacy-and-gdpr/512/GDPR3-18-512.png");
-        }
+        dto.setImageAvatarSender(!imagesSender.isEmpty() ? imagesSender.get(0).getImageName() : "https://cdn2.iconfinder.com/data/icons/data-privacy-and-gdpr/512/GDPR3-18-512.png");
+
+        // Imágenes del receptor
+        String receiverEmail = conversation.getSender().equals(user) ? conversation.getReceiver().getEmail() : conversation.getSender().getEmail();
+        List<Image> imagesReceiver = imageRepository.findByProfile_User_EmailAndProfile_IsApproved(receiverEmail, true);
+        dto.setImageAvatarReceiver(!imagesReceiver.isEmpty() ? imagesReceiver.get(0).getImageName() : "https://cdn2.iconfinder.com/data/icons/data-privacy-and-gdpr/512/GDPR3-18-512.png");
+
         return dto;
     }
 

@@ -20,12 +20,12 @@ public class Conversation {
     private UUID conversationId;
 
     @ManyToOne
-    @JoinColumn(name = "fk_user_1", nullable = false)
-    private User user1;
+    @JoinColumn(name = "fk_sender", nullable = false)
+    private User sender;
 
     @ManyToOne
-    @JoinColumn(name = "fk_user_2", nullable = false)
-    private User user2;
+    @JoinColumn(name = "fk_receiver", nullable = false)
+    private User receiver;
     @PrePersist
     private void generateUUID(){
 

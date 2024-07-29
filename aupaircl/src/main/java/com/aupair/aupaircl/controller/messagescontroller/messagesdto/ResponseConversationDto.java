@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class ResponseConversationDto {
     private String conversationId;
     private String receiver;
+    private String receiverEmail;
     private String content;
     private String lastMessage;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
