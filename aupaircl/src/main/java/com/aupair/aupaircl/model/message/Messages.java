@@ -43,6 +43,8 @@ public class Messages {
     private LocalDateTime timestamp;
     @Column(name = "send_by_sender",nullable = false)
     private boolean sentBySender;
+    @Column(name = "send_by_type",nullable = false)
+    private String sentByType;
     private Date sentAt;
     @PrePersist
     private void generateUUID(){

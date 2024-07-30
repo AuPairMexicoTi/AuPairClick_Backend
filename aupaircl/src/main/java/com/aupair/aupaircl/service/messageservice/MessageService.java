@@ -22,7 +22,6 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -50,9 +49,8 @@ public class MessageService {
                 log.error("No hay una conversacion");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.NOT_FOUND.value(), "No hay una conversación"));
             }
-            String userReceiver = conversationExist.get().getSender().getEmail().equals(messageDto.getSenderId())? conversationExist.get().getReceiver().getEmail() : messageDto.getSenderId();
             Optional<User> sender = this.userRepository.findByEmail(messageDto.getSenderId());
-            Optional<User> receiver = this.userRepository.findByEmail(userReceiver);
+            Optional<User> receiver = this.userRepository.findByEmail(messageDto.getReceiverId());
             if (sender.isEmpty() || receiver.isEmpty()) {
                 log.error("No se encontraron los usuarios");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.BAD_REQUEST.value(), "Usuario inválido al enviar mensaje"));
@@ -65,23 +63,44 @@ public class MessageService {
                 log.error("No se puede enviar un mensaje entre aupairs");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.FORBIDDEN.value(), "No se puede enviar un mensaje a un aupair"));
             }
+            Optional<Conversation> conversation1 = conversationRepository.findBySenderAndReceiver(messageDto.getSenderId(), messageDto.getReceiverId());
+            if (conversation1.isPresent())
+            {
+                Conversation renewConversation = conversation1.get();
+                User renewSender = conversation1.get().getReceiver().getEmail().equals(messageDto.getSenderId())
+                        ?conversation1.get().getReceiver()
+                        :conversation1.get().getSender();
+                User renewReceiver = conversation1.get().getSender().getEmail().equals(messageDto.getReceiverId())
+                        ?conversation1.get().getSender()
+                        : conversation1.get().getReceiver();
+                renewConversation.setReceiver(renewReceiver);
+                renewConversation.setSender(renewSender);
+                this.conversationRepository.saveAndFlush(renewConversation);
 
-            Conversation conversation = conversationRepository.findBySenderAndReceiver(messageDto.getSenderId(), messageDto.getReceiverId())
-                    .orElseGet(() -> {
-                        Conversation newConversation = new Conversation();
-                        newConversation.setSender(sender.get());
-                        newConversation.setReceiver(receiver.get());
-                        return conversationRepository.save(newConversation);
-                    });
+                Messages message = new Messages();
+                message.setConversation(renewConversation);
+                message.setContent(messageDto.getContent());
+                message.setTimestamp(LocalDateTime.now());
+                message.setLastMessage(messageDto.getContent());
+                message.setSentBySender(true);
+                message.setSentByType(renewSender.getRole().getRoleName());
+                messagesRepository.save(message);
+            }else{
+                Conversation newConversation = new Conversation();
+                newConversation.setSender(sender.get());
+                newConversation.setReceiver(receiver.get());
+                this.conversationRepository.save(newConversation);
 
-            Messages message = new Messages();
-            message.setConversation(conversation);
-            message.setContent(messageDto.getContent());
-            message.setTimestamp(LocalDateTime.now());
-            message.setLastMessage(messageDto.getContent());
-            message.setSentBySender(true);
+                Messages message = new Messages();
+                message.setConversation(newConversation);
+                message.setContent(messageDto.getContent());
+                message.setTimestamp(LocalDateTime.now());
+                message.setLastMessage(messageDto.getContent());
+                message.setSentBySender(true);
+                message.setSentByType(sender.get().getRole().getRoleName());
+                messagesRepository.save(message);
+            }
 
-            messagesRepository.save(message);
             return new ResponseEntity<>(new CustomResponse(false, HttpStatus.OK.value(), "Mensaje enviado"), HttpStatus.OK);
         } catch (Exception e) {
             log.error("Fallo enviar mensaje");
@@ -92,16 +111,13 @@ public class MessageService {
     @Transactional(readOnly = true)
     public ResponseEntity<CustomResponse> getMessagesForConversation(RequestMessagesToConversationDto requestMessagesTo) {
         try {
-            System.out.println(requestMessagesTo.getCurrentUser());
+            System.out.println("Usuario actual: "+requestMessagesTo.getCurrentUser());
             List<Messages> messages = messagesRepository.findAllByConversation_ConversationId(requestMessagesTo.getConversationId());
             messages.forEach(message -> {
-                if (message.getConversation().getSender().getEmail().equals(requestMessagesTo.getCurrentUser())) {
-                    //message.setSentBySender(message.getConversation().getEmail().equals(currentUserEmail));
-                    message.setSentBySender(true);
-                } else {
-                   // message.setSentBySender(message.getSender().getEmail().equals(currentUserEmail));
-                    message.setSentBySender(false);
-                }
+                System.out.println("Recibe: "+ message.getConversation().getReceiver().getEmail());
+                //message.setSentBySender(message.getConversation().getEmail().equals(currentUserEmail));
+                // message.setSentBySender(message.getSender().getEmail().equals(currentUserEmail));
+                message.setSentBySender(message.getConversation().getSender().getEmail().equals(requestMessagesTo.getCurrentUser()));
             });
             return new ResponseEntity<>(new CustomResponse("Lista de mensajes",HttpStatus.OK.value(), false,messages),HttpStatus.OK);
 
