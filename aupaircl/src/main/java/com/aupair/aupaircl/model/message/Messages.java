@@ -1,6 +1,7 @@
 package com.aupair.aupaircl.model.message;
 
 import com.aupair.aupaircl.model.conversation.Conversation;
+import com.aupair.aupaircl.model.user.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -34,7 +35,6 @@ public class Messages {
     @JoinColumn(name = "fk_conversation", nullable = false)
     private Conversation conversation;
 
-
     @Column(name = "content",nullable = false)
     private String content;
     @Column(name = "lastMessage",nullable = false)
@@ -45,6 +45,13 @@ public class Messages {
     private boolean sentBySender;
     @Column(name = "send_by_type",nullable = false)
     private String sentByType;
+    @ManyToOne
+    @JoinColumn(name = "fk_sender", nullable = false)
+    private User sender;
+
+    @ManyToOne
+    @JoinColumn(name = "fk_receiver", nullable = false)
+    private User receiver;
     private Date sentAt;
     @PrePersist
     private void generateUUID(){

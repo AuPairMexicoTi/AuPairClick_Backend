@@ -43,89 +43,73 @@ public class MessageService {
     @Transactional(rollbackFor = {SQLException.class})
     public ResponseEntity<CustomResponse> sendMessage(MessageDto messageDto) {
         try {
-            System.out.println(messageDto);
             Optional<Conversation> conversationExist = this.conversationRepository.findBySenderAndReceiver(messageDto.getSenderId(), messageDto.getReceiverId());
             if (conversationExist.isEmpty()) {
                 log.error("No hay una conversacion");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.NOT_FOUND.value(), "No hay una conversación"));
             }
+
             Optional<User> sender = this.userRepository.findByEmail(messageDto.getSenderId());
             Optional<User> receiver = this.userRepository.findByEmail(messageDto.getReceiverId());
             if (sender.isEmpty() || receiver.isEmpty()) {
                 log.error("No se encontraron los usuarios");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.BAD_REQUEST.value(), "Usuario inválido al enviar mensaje"));
             }
+
             if (sender.get().getRole().equals("family") || receiver.get().getRole().equals("family")) {
                 log.error("No se puede enviar un mensaje entre familias");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.FORBIDDEN.value(), "No se puede enviar un mensaje a una familia"));
             }
+
             if (sender.get().getRole().equals("aupair") && receiver.get().getRole().equals("aupair")) {
                 log.error("No se puede enviar un mensaje entre aupairs");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.FORBIDDEN.value(), "No se puede enviar un mensaje a un aupair"));
             }
-            Optional<Conversation> conversation1 = conversationRepository.findBySenderAndReceiver(messageDto.getSenderId(), messageDto.getReceiverId());
-            if (conversation1.isPresent())
-            {
-                Conversation renewConversation = conversation1.get();
-                User renewSender = conversation1.get().getReceiver().getEmail().equals(messageDto.getSenderId())
-                        ?conversation1.get().getReceiver()
-                        :conversation1.get().getSender();
-                User renewReceiver = conversation1.get().getSender().getEmail().equals(messageDto.getReceiverId())
-                        ?conversation1.get().getSender()
-                        : conversation1.get().getReceiver();
-                renewConversation.setReceiver(renewReceiver);
-                renewConversation.setSender(renewSender);
-                this.conversationRepository.saveAndFlush(renewConversation);
 
-                Messages message = new Messages();
-                message.setConversation(renewConversation);
-                message.setContent(messageDto.getContent());
-                message.setTimestamp(LocalDateTime.now());
-                message.setLastMessage(messageDto.getContent());
-                message.setSentBySender(true);
-                message.setSentByType(renewSender.getRole().getRoleName());
-                messagesRepository.save(message);
-            }else{
-                Conversation newConversation = new Conversation();
-                newConversation.setSender(sender.get());
-                newConversation.setReceiver(receiver.get());
-                this.conversationRepository.save(newConversation);
+            Conversation conversation = conversationExist.get();
 
-                Messages message = new Messages();
-                message.setConversation(newConversation);
-                message.setContent(messageDto.getContent());
-                message.setTimestamp(LocalDateTime.now());
-                message.setLastMessage(messageDto.getContent());
-                message.setSentBySender(true);
-                message.setSentByType(sender.get().getRole().getRoleName());
-                messagesRepository.save(message);
-            }
+            User actualSender = conversation.getSender().getEmail().equals(messageDto.getSenderId()) ? conversation.getSender() : conversation.getReceiver();
+            User actualReceiver = conversation.getSender().getEmail().equals(messageDto.getReceiverId()) ? conversation.getSender() : conversation.getReceiver();
+
+            Messages message = new Messages();
+            message.setConversation(conversation);
+            message.setContent(messageDto.getContent());
+            message.setTimestamp(LocalDateTime.now());
+            message.setLastMessage(messageDto.getContent());
+            message.setSender(actualSender);
+            message.setReceiver(actualReceiver);
+            message.setSentBySender(actualSender.getEmail().equals(messageDto.getSenderId()));
+            message.setSentByType(actualSender.getRole().getRoleName());
+            messagesRepository.save(message);
 
             return new ResponseEntity<>(new CustomResponse(false, HttpStatus.OK.value(), "Mensaje enviado"), HttpStatus.OK);
         } catch (Exception e) {
-            log.error("Fallo enviar mensaje");
+            log.error("Fallo enviar mensaje", e);
             return new ResponseEntity<>(new CustomResponse(false, 500, "Error al enviar mensaje"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+
     @Transactional(readOnly = true)
     public ResponseEntity<CustomResponse> getMessagesForConversation(RequestMessagesToConversationDto requestMessagesTo) {
         try {
-            System.out.println("Usuario actual: "+requestMessagesTo.getCurrentUser());
-            List<Messages> messages = messagesRepository.findAllByConversation_ConversationId(requestMessagesTo.getConversationId());
-            messages.forEach(message -> {
-                System.out.println("Recibe: "+ message.getConversation().getReceiver().getEmail());
-                //message.setSentBySender(message.getConversation().getEmail().equals(currentUserEmail));
-                // message.setSentBySender(message.getSender().getEmail().equals(currentUserEmail));
-                message.setSentBySender(message.getConversation().getSender().getEmail().equals(requestMessagesTo.getCurrentUser()));
-            });
-            return new ResponseEntity<>(new CustomResponse("Lista de mensajes",HttpStatus.OK.value(), false,messages),HttpStatus.OK);
+            List<Messages> messages = messagesRepository.findAllByConversation_ConversationIdOrderByTimestampAsc(requestMessagesTo.getConversationId());
 
-        }catch (Exception e) {
-            log.error("Fallo obtener los mensajes de la conversacion");
+            String currentUserEmail = requestMessagesTo.getCurrentUser();
+
+            messages.forEach(message -> {
+                boolean isSentBySender = message.getSender().getEmail().equals(currentUserEmail);
+                message.setSentBySender(isSentBySender);
+            });
+
+            return new ResponseEntity<>(new CustomResponse("Lista de mensajes", HttpStatus.OK.value(), false, messages), HttpStatus.OK);
+
+        } catch (Exception e) {
+            log.error("Fallo obtener los mensajes de la conversacion", e);
             return new ResponseEntity<>(new CustomResponse(false, 500, "Error al obtener mensajes de conversacion"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @Transactional(readOnly = true)
     public ResponseEntity<CustomResponse> getConversationByUser(String email) {
         try {

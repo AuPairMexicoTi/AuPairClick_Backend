@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface HostFamilyProfileRepository extends JpaRepository<HostFamilyProfile, UUID> {
 
     Optional<HostFamilyProfile> findByUser_Email(String email);
-
+    HostFamilyProfile findByUser_Profile_NumPerfil(String numProfile);
     HostFamilyProfile findByUser_EmailAndUser_IsLocked(String email, boolean isLocked);
     HostFamilyProfile findByUser_EmailAndIsApproved(String email, boolean isApproved);
     int countHostFamilyProfileByIsApproved(boolean isApproved);

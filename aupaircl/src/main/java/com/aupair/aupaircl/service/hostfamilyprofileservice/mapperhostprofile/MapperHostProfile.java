@@ -31,6 +31,7 @@ public class MapperHostProfile {
         responseFindHostFamilyDto.setSearchTo(hostFamilyProfile.getSearchTo());
         responseFindHostFamilyDto.setChildrenAgeMin(hostFamilyProfile.getChildrenAgesMin());
         responseFindHostFamilyDto.setChildrenAgeMax(hostFamilyProfile.getChildrenAgesMax());
+        responseFindHostFamilyDto.setNumPerfilFamily(hostFamilyProfile.getUser().getProfile().getNumPerfil());
         List<Image> images = imageRepository.findByProfile_User_EmailAndProfile_IsApproved(hostFamilyProfile.getUser().getEmail(),true);
         if (!images.isEmpty()) {
             responseFindHostFamilyDto.setImage(images.get(0).getImageName());

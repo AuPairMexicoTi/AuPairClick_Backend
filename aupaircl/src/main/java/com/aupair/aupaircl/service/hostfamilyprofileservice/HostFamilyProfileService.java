@@ -3,20 +3,29 @@ package com.aupair.aupaircl.service.hostfamilyprofileservice;
 import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.FamilyProfileUpdateDTO;
 import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.FindHostFamilyDto;
 import com.aupair.aupaircl.controller.hostfamilyprofilecontroller.hostfamilyprofileupdatedto.ResponseFindHostFamilyDto;
+import com.aupair.aupaircl.controller.profilecontroller.profiledto.CountryDTO;
+import com.aupair.aupaircl.controller.profilecontroller.profiledto.ResponseProfileFamilyDto;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountry;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfile;
 import com.aupair.aupaircl.model.aupairprofile.AuPairProfileRepository;
 import com.aupair.aupaircl.model.gender.Gender;
 import com.aupair.aupaircl.model.gender.GenderRepository;
 
+import com.aupair.aupaircl.model.hostfamilypreferredcountry.HostFamilyPreferredCountry;
+import com.aupair.aupaircl.model.hostfamilypreferredcountry.HostFamilyPreferredCountryRepository;
 import com.aupair.aupaircl.model.hostfamilyprofile.HostFamilyProfile;
 import com.aupair.aupaircl.model.hostfamilyprofile.HostFamilyProfileRepository;
+import com.aupair.aupaircl.model.image.Image;
+import com.aupair.aupaircl.model.image.ImageRepository;
 import com.aupair.aupaircl.model.lada.Lada;
 import com.aupair.aupaircl.model.lada.LadaRepository;
 import com.aupair.aupaircl.model.locationtype.LocationTypes;
 import com.aupair.aupaircl.model.locationtype.LocationTypesRepository;
+import com.aupair.aupaircl.model.profile.Profile;
+import com.aupair.aupaircl.model.profile.ProfileRepository;
 import com.aupair.aupaircl.model.user.UserEmailDto;
 import com.aupair.aupaircl.service.hostfamilyprofileservice.mapperhostprofile.MapperHostProfile;
+import com.aupair.aupaircl.service.userservice.mapperuser.MapperUser;
 import com.aupair.aupaircl.utils.CustomResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -36,16 +45,24 @@ public class HostFamilyProfileService {
     private final HostFamilyProfileRepository hostFamilyProfileRepository;
     private final LocationTypesRepository locationTypesRepository;
     private final AuPairProfileRepository auPairProfileRepository;
+    private final ProfileRepository profileRepository;
     private final LadaRepository ladaRepository;
     private final GenderRepository genderRepository;
+    private final ImageRepository imageRepository;
+    private final HostFamilyPreferredCountryRepository hostFamilyPreferredCountryRepository;
     public HostFamilyProfileService(HostFamilyProfileRepository hostFamilyProfileRepository,
                                     LocationTypesRepository locationTypesRepository,
-                                    LadaRepository ladaRepository,GenderRepository genderRepository,AuPairProfileRepository auPairProfileRepository) {
+                                    LadaRepository ladaRepository,GenderRepository genderRepository,
+                                    AuPairProfileRepository auPairProfileRepository, ImageRepository imageRepository,
+                                    ProfileRepository profileRepository,HostFamilyPreferredCountryRepository hostFamilyPreferredCountryRepository) {
         this.hostFamilyProfileRepository = hostFamilyProfileRepository;
         this.locationTypesRepository = locationTypesRepository;
         this.ladaRepository = ladaRepository;
         this.genderRepository = genderRepository;
         this.auPairProfileRepository = auPairProfileRepository;
+        this.imageRepository = imageRepository;
+        this.profileRepository = profileRepository;
+        this.hostFamilyPreferredCountryRepository = hostFamilyPreferredCountryRepository;
     }
 
     @Transactional(readOnly = true)
@@ -176,6 +193,65 @@ public class HostFamilyProfileService {
         }catch (Exception e){
             log.error("Error al contar familias: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal al contar familias"));
+        }
+    }
+    @Transactional(readOnly = true)
+    public ResponseEntity<CustomResponse> getHostProfileByNumPerfil(String numPerfil) {
+        try {
+            HostFamilyProfile hostFamilyProfile = this.hostFamilyProfileRepository.findByUser_Profile_NumPerfil(numPerfil);
+            if (hostFamilyProfile == null) {
+                log.error("No tiene perfil el usuario familia");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.BAD_REQUEST.value(), "Usuario invalido al traer perfil"));
+            }
+            Profile userSave = this.profileRepository.findByUser_EmailAndIsApproved(hostFamilyProfile.getUser().getEmail(), true);
+            if (userSave == null) {
+                log.error("No se puede encontrar el perfil");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.BAD_REQUEST.value(), "Usuario invalido al traer perfil"));
+            }
+            if (!userSave.getUser().getRole().getRoleName().equals("family")) {
+                log.error("El rol no corresponse a la solicitud");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.BAD_REQUEST.value(), "Solicitud incorrecta para el usuario"));
+            }
+            ResponseProfileFamilyDto responseProfileFamilyDto = new ResponseProfileFamilyDto();
+            responseProfileFamilyDto.setName(userSave.getFirstName());
+            responseProfileFamilyDto.setLastname(userSave.getLastName());
+            responseProfileFamilyDto.setSurname(userSave.getSurname());
+            responseProfileFamilyDto.setCountry(userSave.getCountry().getCountryName());
+            responseProfileFamilyDto.setNationality(userSave.getCountry().getNationality());
+            responseProfileFamilyDto.setGenderPreferred(hostFamilyProfile.getGenderPreferred());
+            responseProfileFamilyDto.setMinStayMonths(userSave.getMinStayMonths());
+            responseProfileFamilyDto.setMaxStayMonths(userSave.getMaxStayMonths());
+            responseProfileFamilyDto.setSearchFrom(hostFamilyProfile.getSearchFrom());
+            responseProfileFamilyDto.setSearchTo(hostFamilyProfile.getSearchTo());
+            responseProfileFamilyDto.setNumOfChildren(hostFamilyProfile.getNumberOfChildren());
+            responseProfileFamilyDto.setChildrenAgeMin(hostFamilyProfile.getChildrenAgesMin());
+            responseProfileFamilyDto.setChildrenAgeMax(hostFamilyProfile.getChildrenAgesMax());
+            responseProfileFamilyDto.setLocationType(userSave.getLocationType().getLocationTypeName());
+            responseProfileFamilyDto.setLastLogin(userSave.getUser().getLastLogin());
+            responseProfileFamilyDto.setNumPerfil(userSave.getNumPerfil());
+            responseProfileFamilyDto.setAboutMe(userSave.getAboutMe());
+            responseProfileFamilyDto.setAupairExp(hostFamilyProfile.isAupairExp());
+            responseProfileFamilyDto.setAreSingleFamily(hostFamilyProfile.isAreSingleFamily());
+            responseProfileFamilyDto.setAupairCareChildrenNeed(hostFamilyProfile.isAupairCareChildrenNeed());
+            responseProfileFamilyDto.setSmokesInFamily(hostFamilyProfile.isSmokesInFamily());
+            responseProfileFamilyDto.setHavePets(hostFamilyProfile.isHavePets());
+            responseProfileFamilyDto.setAupairSmoker(hostFamilyProfile.isAupairSmoker());
+            responseProfileFamilyDto.setAupairDrivingLicense(hostFamilyProfile.isAupairDrivingLicense());
+            responseProfileFamilyDto.setAupairHouseWork(hostFamilyProfile.isAupairHouseWork());
+            responseProfileFamilyDto.setAupairLanguageOther(hostFamilyProfile.getAupairLanguageOther());
+            responseProfileFamilyDto.setAupairLanguageOurOther(hostFamilyProfile.getAupairLanguageOurOther());
+            responseProfileFamilyDto.setAupairAgeMin(hostFamilyProfile.getAupairAgeMin());
+            responseProfileFamilyDto.setAupairAgeMax(hostFamilyProfile.getAupairAgeMax());
+            List<Image> imageList = this.imageRepository.findByProfile_User_EmailAndProfile_IsApproved(hostFamilyProfile.getUser().getEmail(), true);
+            responseProfileFamilyDto.setImages(imageList);
+            List<HostFamilyPreferredCountry> auPairPreferredCountry = this.hostFamilyPreferredCountryRepository.findByHostFamilyProfile_UserEmail(hostFamilyProfile.getUser().getEmail());
+            List<CountryDTO> countryDTOS = MapperUser.mapHostPreferredCountry(auPairPreferredCountry);
+            responseProfileFamilyDto.setPreferredCountries(countryDTOS);
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Perfil familia: ", HttpStatus.OK.value(), false, responseProfileFamilyDto));
+
+        } catch (Exception e) {
+            log.error("Error al obtener el perfil de familia: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal al obtener el número"));
         }
     }
 }

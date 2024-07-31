@@ -44,7 +44,7 @@ public class HostFamilyProfileController {
         try {
             return this.hostFamilyProfileService.findHostFamilies(findHostFamilyDto);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.BAD_REQUEST.value(), "Algo sucedio al actualizar el perfil familiar"));
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.BAD_REQUEST.value(), "Algo sucedio al buscar el perfil familiar"));
         }
     }
     @PostMapping(value = "/findHostFamilyDashboard", produces = "application/json")
@@ -52,7 +52,7 @@ public class HostFamilyProfileController {
         try {
             return this.hostFamilyProfileService.findHostFamiliesDashboard(userEmailDto);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.BAD_REQUEST.value(), "Algo sucedio al actualizar el perfil familiar"));
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.BAD_REQUEST.value(), "Algo sucedio al encontrar el perfil familiar"));
         }
     }
     @GetMapping(value = "countHostFamilies",produces = "application/json")
@@ -61,6 +61,14 @@ public class HostFamilyProfileController {
             return this.hostFamilyProfileService.countHostFamilies();
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al contar familias"));
+        }
+    }
+    @GetMapping(value = "getHostProfileByNumPerfil/{numPerfil}", produces = "application/json")
+    public ResponseEntity<CustomResponse> getHostProfileByNumPerfil(@PathVariable String numPerfil) {
+        try {
+            return this.hostFamilyProfileService.getHostProfileByNumPerfil(numPerfil);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al obtener el perfil familiar"));
         }
     }
 }

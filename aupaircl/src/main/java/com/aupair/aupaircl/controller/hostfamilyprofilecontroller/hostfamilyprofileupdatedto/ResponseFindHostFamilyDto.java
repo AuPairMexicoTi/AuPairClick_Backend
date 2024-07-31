@@ -20,9 +20,10 @@ public class ResponseFindHostFamilyDto {
     private Integer childrenAgeMax;
     @JsonFormat(pattern="yyyy-MM")
     private Date searchFrom;
-    @JsonFormat(pattern="yyyy-MM")
-    private Date searchTo;
+        @JsonFormat(pattern="yyyy-MM")
+        private Date searchTo;
     private Integer minStayMonths;
     private Integer maxStayMonths;
     private String description;
+    private String numPerfilFamily;
 }
