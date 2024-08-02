@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -80,7 +80,7 @@ public class AuthService {
                         new CustomResponse(true, 600, RESPONSE_INVALID_CREDENTIALS));
             }
             userAccount.get().setResetToken(token);
-            userAccount.get().setLastLogin(new Date());
+            userAccount.get().setLastLogin(LocalDateTime.now());
             userAccountRepository.saveAndFlush(userAccount.get());
             if(!this.profileRepository.findByUser_Email(userAccount.get().getEmail()).isPresent()){
                 log.error("Usuario sin perfil registrado");

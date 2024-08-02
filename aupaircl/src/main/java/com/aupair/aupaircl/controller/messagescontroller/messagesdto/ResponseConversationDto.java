@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -20,7 +19,7 @@ public class ResponseConversationDto {
     private String receiverAge;
     private String receiverNationality;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private Date receiverLastSeen;
+    private LocalDateTime receiverLastSeen;
     private String content;
     private String lastMessage;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")

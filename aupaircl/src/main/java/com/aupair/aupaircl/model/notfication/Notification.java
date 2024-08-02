@@ -35,7 +35,7 @@ public class Notification {
     @Column(name = "message",nullable = false)
     private String message;
     @Column(name = "read_status",nullable = false)
-    private Boolean readStatus = false;
+    private boolean readStatus = false;
 
     @Column(name = "created_at",nullable = false)
     private Date createdAt;

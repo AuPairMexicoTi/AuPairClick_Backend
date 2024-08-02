@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class ResponseProfileAuPairDto {
     private Integer childrenAgeMin;
     private Integer childrenAgeMax;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private Date lastLogin;
+    private LocalDateTime lastLogin;
     private String numPerfil;
     private List<Image> images;
     private boolean childCareExperience;

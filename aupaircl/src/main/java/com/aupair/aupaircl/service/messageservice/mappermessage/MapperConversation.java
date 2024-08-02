@@ -13,19 +13,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Service
 public class MapperConversation {
-
 
     private final MessagesRepository messageRepository;
     private final ImageRepository imageRepository;
     private final ProfileRepository profileRepository;
 
     @Autowired
-    public MapperConversation(MessagesRepository messageRepository, ImageRepository imageRepository,ProfileRepository profileRepository) {
+    public MapperConversation(MessagesRepository messageRepository, ImageRepository imageRepository, ProfileRepository profileRepository) {
         this.messageRepository = messageRepository;
         this.imageRepository = imageRepository;
         this.profileRepository = profileRepository;
@@ -37,21 +36,37 @@ public class MapperConversation {
 
         ResponseConversationDto dto = new ResponseConversationDto();
         dto.setConversationId(conversation.getConversationId().toString());
-        dto.setReceiverEmail(conversation.getSender().equals(user) ? conversation.getReceiver().getEmail() : conversation.getSender().getEmail());
-        dto.setReceiver(conversation.getSender().equals(user) ? conversation.getReceiver().getUsername() : conversation.getSender().getUsername());
+
+        User receiver = conversation.getSender().equals(user) ? conversation.getReceiver() : conversation.getSender();
+        User sender = conversation.getSender().equals(user) ? conversation.getSender() : conversation.getReceiver();
+
+        dto.setReceiverEmail(receiver.getEmail());
+        dto.setReceiver(receiver.getUsername());
         dto.setLastMessage(lastMessage != null ? lastMessage.getContent() : "Sin mensajes aun");
         dto.setLastDate(lastMessage != null ? lastMessage.getTimestamp() : LocalDateTime.now());
-        Profile profileSaved = this.profileRepository.findByUser_EmailAndIsApproved(conversation.getSender().equals(user)?conversation.getReceiver().getEmail():conversation.getReceiver().getEmail(),true );
-        dto.setReceiverGender(conversation.getSender().equals(user) ? profileSaved.getUser().getAuPairProfile().getGender().getGenderName(): "Familia");
-        dto.setReceiverNationality(conversation.getSender().equals(user) ? conversation.getReceiver().getProfile().getCountry().getNationality() : conversation.getSender().getProfile().getCountry().getNationality());
-        dto.setReceiverLastSeen(conversation.getSender().equals(user) ? conversation.getReceiver().getLastLogin() : conversation.getSender().getLastLogin());
-        // Obtener las imágenes del remitente y del receptorImágenes del remitente
-        List<Image> imagesSender = imageRepository.findByProfile_User_EmailAndProfile_IsApproved(user.getEmail(), true);
+
+        // Obtener el perfil del receptor si está aprobado
+        Profile profileSaved = profileRepository.findByUser_EmailAndIsApproved(receiver.getEmail(), true);
+
+        if (profileSaved != null && profileSaved.getUser().getAuPairProfile() != null) {
+            dto.setReceiverGender(profileSaved.getUser().getAuPairProfile().getGender().getGenderName());
+        } else {
+            dto.setReceiverGender("Familia");
+        }
+
+        dto.setReceiverNationality(receiver.getProfile() != null && receiver.getProfile().getCountry() != null
+                ? receiver.getProfile().getCountry().getNationality()
+                : "N/A");
+
+        dto.setReceiverLastSeen(receiver.getLastLogin() != null
+                ? receiver.getLastLogin()
+                :LocalDateTime.now());
+
+        // Obtener las imágenes del remitente y del receptor
+        List<Image> imagesSender = imageRepository.findByProfile_User_EmailAndProfile_IsApproved(sender.getEmail(), true);
         dto.setImageAvatarSender(!imagesSender.isEmpty() ? imagesSender.get(0).getImageName() : "https://cdn2.iconfinder.com/data/icons/data-privacy-and-gdpr/512/GDPR3-18-512.png");
 
-        // Imágenes del receptor
-        String receiverEmail = conversation.getSender().equals(user) ? conversation.getReceiver().getEmail() : conversation.getSender().getEmail();
-        List<Image> imagesReceiver = imageRepository.findByProfile_User_EmailAndProfile_IsApproved(receiverEmail, true);
+        List<Image> imagesReceiver = imageRepository.findByProfile_User_EmailAndProfile_IsApproved(receiver.getEmail(), true);
         dto.setImageAvatarReceiver(!imagesReceiver.isEmpty() ? imagesReceiver.get(0).getImageName() : "https://cdn2.iconfinder.com/data/icons/data-privacy-and-gdpr/512/GDPR3-18-512.png");
 
         return dto;

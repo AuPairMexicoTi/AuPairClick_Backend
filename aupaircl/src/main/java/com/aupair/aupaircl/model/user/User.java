@@ -10,6 +10,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -42,9 +44,8 @@ public class User {
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @Column(name = "created_at",nullable = false)
     private Date createdAt;
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @Column(name = "last_login")
-    private Date lastLogin;
+    private LocalDateTime lastLogin;
     @Column(name="failed_attempts")
     private Integer failedAttempts = 0;
     @Column(name="is_locked")
@@ -64,7 +65,7 @@ public class User {
     private HostFamilyProfile hostFamilyProfile;
     @PrePersist
     private void generateUUID(){
-        this.lastLogin=new Date();
+        this.lastLogin= LocalDateTime.now();
         if(this.createdAt==null){
             this.createdAt = new Date();
         }
