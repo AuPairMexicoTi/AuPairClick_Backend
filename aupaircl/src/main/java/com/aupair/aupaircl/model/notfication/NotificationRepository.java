@@ -6,5 +6,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface NotificationRepository extends JpaRepository<Notification, UUID> {
-    List<Notification> findAllByUser_EmailAndUser_IsLocked(String email, boolean locked);
+    List<Notification> findAllByUser_EmailAndUser_IsLockedAndReadStatus(String email, boolean locked,boolean readStatus);
 }

@@ -1,25 +1,40 @@
 package com.aupair.aupaircl.service.notificationservice;
 
+import com.aupair.aupaircl.model.notfication.Notification;
+import com.aupair.aupaircl.model.notfication.NotificationRepository;
+import com.aupair.aupaircl.model.user.UserEmailDto;
+import com.aupair.aupaircl.utils.CustomResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+@Transactional
 @Service
+@Slf4j
 public class NotificationService {
 
+    private final NotificationRepository notificationRepository;
     @Autowired
-    private JavaMailSender mailSender;
+    public NotificationService(NotificationRepository notificationRepository) {
+        this.notificationRepository = notificationRepository;
+    }
 
-    public void sendApprovalNotification(String email, String sectionName, boolean isApproved) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(email);
-        message.setSubject("Actualización de la Aprobación del Perfil");
-        if (isApproved) {
-            message.setText(sectionName);
-        } else {
-            message.setText(sectionName);
+    @Transactional(readOnly = true)
+    public ResponseEntity<CustomResponse> getNotificationUnRead(UserEmailDto userEmailDto){
+        try {
+            List<Notification> notificationList = this.notificationRepository.findAllByUser_EmailAndUser_IsLockedAndReadStatus(userEmailDto.getEmail(),false,false);
+            if(notificationList.isEmpty()){
+                log.error("No hay notificaciones del usuario");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,400,"No hay notificaciones del usuario"));
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Notificaciones del usuario",HttpStatus.OK.value(),false,notificationList));
+        }catch (Exception e){
+            log.error("Algo ocurrio al obtener las notificaciones: "+e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new CustomResponse(true,500,"Algo sucedio al obtener las notificaciones"));
         }
-        mailSender.send(message);
     }
 }

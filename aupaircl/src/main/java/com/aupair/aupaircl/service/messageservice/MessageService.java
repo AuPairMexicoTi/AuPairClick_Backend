@@ -9,6 +9,7 @@ import com.aupair.aupaircl.model.message.Messages;
 import com.aupair.aupaircl.model.message.MessagesRepository;
 import com.aupair.aupaircl.model.user.User;
 import com.aupair.aupaircl.model.user.UserRepository;
+import com.aupair.aupaircl.service.mailservice.MailService;
 import com.aupair.aupaircl.service.messageservice.mappermessage.MapperConversation;
 import com.aupair.aupaircl.utils.CustomResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -30,14 +31,16 @@ public class MessageService {
     private final UserRepository userRepository;
     private final ConversationRepository conversationRepository;
     private final MapperConversation mapperConversation;
+    private MailService mailService;
     @Autowired
     public MessageService(MessagesRepository messagesRepository, UserRepository userRepository, ConversationRepository conversationRepository,
-    MapperConversation mapperConversation
+    MapperConversation mapperConversation,MailService mailService
     ) {
         this.messagesRepository = messagesRepository;
         this.userRepository = userRepository;
         this.conversationRepository = conversationRepository;
         this.mapperConversation = mapperConversation;
+        this.mailService = mailService;
     }
 
     @Transactional(rollbackFor = {SQLException.class})
@@ -81,6 +84,7 @@ public class MessageService {
             message.setSentBySender(actualSender.getEmail().equals(messageDto.getSenderId()));
             message.setSentByType(actualSender.getRole().getRoleName());
             messagesRepository.save(message);
+            this.mailService.sendNotification(actualReceiver, messageDto.getContent());
 
             return new ResponseEntity<>(new CustomResponse(false, HttpStatus.OK.value(), "Mensaje enviado"), HttpStatus.OK);
         } catch (Exception e) {

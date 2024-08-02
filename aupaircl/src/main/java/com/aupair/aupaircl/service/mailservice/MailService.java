@@ -3,6 +3,8 @@ package com.aupair.aupaircl.service.mailservice;
 import com.aupair.aupaircl.controller.mailcontroller.maildto.MailDTO;
 import com.aupair.aupaircl.model.emailverification.EmailVerification;
 import com.aupair.aupaircl.model.emailverification.EmailVerificationRepository;
+import com.aupair.aupaircl.model.notfication.Notification;
+import com.aupair.aupaircl.model.notfication.NotificationRepository;
 import com.aupair.aupaircl.model.recoverpassword.RecoverPassword;
 import com.aupair.aupaircl.model.recoverpassword.RecoverPasswordRepository;
 import com.aupair.aupaircl.model.user.User;
@@ -31,6 +33,7 @@ public class MailService {
     private final UserRepository userRepository;
     private final RecoverPasswordRepository recoverPasswordRepository;
     private final EmailVerificationRepository emailVerificationRepository;
+    private final NotificationRepository notificationRepository;
     private Map<String, String> recoveryCodes = new ConcurrentHashMap<>();
     private String errorMessage = "Usuario invalido";
     private final JavaMailSender javaMailSender;
@@ -38,9 +41,10 @@ public class MailService {
     SecureRandom random = new SecureRandom();
     @Autowired
     public MailService(UserRepository userRepository,Environment env,EmailVerificationRepository emailVerificationRepository,
-                       JavaMailSender javaMailSender, RecoverPasswordRepository recoverPasswordRepository) {
+                       JavaMailSender javaMailSender, RecoverPasswordRepository recoverPasswordRepository,NotificationRepository notificationRepository) {
         this.userRepository = userRepository;
         this.javaMailSender = javaMailSender;
+        this.notificationRepository = notificationRepository;
         this.emailVerificationRepository = emailVerificationRepository;
         this.env = env;
         this.recoverPasswordRepository = recoverPasswordRepository;
@@ -297,7 +301,102 @@ public class MailService {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al recuperar la contraseña"));
         }
     }
+    @Transactional
+    public ResponseEntity<CustomResponse> sendNotification(User email,String content){
+        try {
+            if(email!=null && content!=null){
+                Notification notification = new Notification();
+                notification.setUser(email);
+                notification.setMessage(content);
+                notification.setReadStatus(false);
+                this.notificationRepository.saveAndFlush(notification);
+                String html = """
+                        <html>
+                        <head>
+                            <style>
+                                body {
+                                    background-color: #F5F5F7;
+                                    padding: 20px;
+                                    line-height: 1.6;
+                                    font-family: Arial, sans-serif;
+                                }
+                                .text {
+                                    font-size: 24px;
+                                    text-align: justify;
+                                    color: black;
+                                }
+                                .header {
+                                    font-size: 16px;
+                                    text-align: justify;
+                                    color: #8d8c8c;
+                                }
+                                .container-fluid {
+                                    margin: 0 auto;
+                                    max-width: 600px;
+                                    background-color: white;
+                                    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+                                    border-radius: 26px;
+                                }
+                                .row {
+                                    padding: 30px;
+                                    padding-block: 60px;
+                                }
+                                .color-font {
+                                    width: 100%%;
+                                    height: auto;
+                                }
+                                h1 {
+                                    color: #ED8003;
+                                }
+                                .size {
+                                    width: 150px;
+                                    height: auto;
+                                }
+                                a {
+                                    margin-left: 10px;
+                                    margin-right: 10px;
+                                    border: 1px solid black;
+                                    padding: 15px;
+                                    border-radius: 16px;
+                                    letter-spacing: 50px;
+                                    padding-left: 50px;
+                                }
+                                .container-code {
+                                    text-align: center;
+                                    padding: 50px;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="container-fluid">
+                                <div class="row" style="text-align:center;">
+                                    <img class="size" src="https://fhweovj.stripocdn.email/content/guids/CABINET_1b64288a36c96ad48cda203d3abb3b684f230cc2a18e4f2ba8ee4884477de08c/images/marca_au_pair_click.png" alt="Logo.png">
+                                    <div style="text-align:center;">
+                                        <h1  style="color:#6600FF;">Hola, %s</h1>
+                                        <h2 class="text">Tienes un nuevo mensaje </h2>
+                                        <p>Revisa tu bandeja de entrada</p<
+                                    </div>
+                                </div>
+                            </div>
+                        </body>
+                        </html>
+                        """;
 
+                String messageFormat = String.format(
+                        html,
+                        email.getUsername()
+                );
+
+                return sendEmail(email.getEmail(),"Tienes un mensaje nuevo!!",messageFormat);
+            }else{
+                log.info("Los datos no son válidos");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.BAD_REQUEST.value(), "Los datos no son válidos"));
+            }
+        }catch (Exception e){
+            log.error("Algo sucedio al enviar la notificación");
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al enviar la notificación"));
+        }
+    }
     @Transactional
     public ResponseEntity<CustomResponse> verifyAccount(String email){
         String code = genereteRandomCode();
