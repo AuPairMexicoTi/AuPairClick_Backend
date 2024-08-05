@@ -24,17 +24,23 @@ public class NotificationService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseEntity<CustomResponse> getNotificationUnRead(UserEmailDto userEmailDto){
+    public ResponseEntity<CustomResponse> getNotificationUnRead(UserEmailDto userEmailDto) {
         try {
-            List<Notification> notificationList = this.notificationRepository.findAllByUser_EmailAndUser_IsLockedAndReadStatus(userEmailDto.getEmail(),false,false);
-            if(notificationList.isEmpty()){
+            List<Notification> notificationList = this.notificationRepository.findAllByUser_EmailAndUser_IsLockedAndReadStatus(userEmailDto.getEmail(), false, false);
+
+            if(notificationList.isEmpty()) {
                 log.error("No hay notificaciones del usuario");
-                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true,400,"No hay notificaciones del usuario"));
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, 400, "No hay notificaciones del usuario"));
             }
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Notificaciones del usuario",HttpStatus.OK.value(),false,notificationList));
-        }catch (Exception e){
-            log.error("Algo ocurrio al obtener las notificaciones: "+e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new CustomResponse(true,500,"Algo sucedio al obtener las notificaciones"));
+
+            int listSize = notificationList.size();
+            List<Notification> lastFourNotifications = notificationList.subList(Math.max(0, listSize - 4), listSize);
+
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Notificaciones del usuario", HttpStatus.OK.value(), false, lastFourNotifications));
+        } catch (Exception e) {
+            log.error("Algo ocurrio al obtener las notificaciones: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new CustomResponse(true, 500, "Algo sucedio al obtener las notificaciones"));
         }
     }
+
 }

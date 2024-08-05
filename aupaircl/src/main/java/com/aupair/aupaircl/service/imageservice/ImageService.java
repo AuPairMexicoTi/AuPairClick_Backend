@@ -20,8 +20,8 @@ import java.util.List;
 @Service
 @Slf4j
 public class ImageService {
-private static ImageRepository imageRepository;
-private static ProfileRepository profileRepository;
+private final ImageRepository imageRepository;
+private final ProfileRepository profileRepository;
     private final MapperImage mapperImage;
 
     @Autowired
@@ -78,5 +78,18 @@ this.profileRepository = profileRepository;
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo salio mal"));
         }
     }
-
+    @Transactional(readOnly = true)
+    public ResponseEntity<CustomResponse> findImagesByProfile(String email) {
+        try {
+            List<Image> imageList = this.imageRepository.findByProfile_User_EmailAndProfile_IsApproved(email,true);
+            if (imageList.isEmpty()){
+                log.error("No hay imagenes de perfil");
+                return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("No hay imagenes para este perfil",HttpStatus.OK.value(), false, "https://media.istockphoto.com/id/1171169127/es/foto/disparo-de-cabeza-de-hombre-guapo-alegre-con-corte-de-pelo-de-moda-y-gafas-aisladas-en-el.jpg?s=612x612&w=0&k=20&c=5l5tRTmRQHFFHAZZjgpIiOUY-6HHbzwuV74mcW4z_Mw="));
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Imagenes encontradas", HttpStatus.OK.value(), false, imageList.get(0).getImageName()));
+        }catch (Exception e){
+            log.error("Error al obtener imagenes: "+e.getMessage());
+            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo salio mal al obtener las imagenes"));
+        }
+    }
 }

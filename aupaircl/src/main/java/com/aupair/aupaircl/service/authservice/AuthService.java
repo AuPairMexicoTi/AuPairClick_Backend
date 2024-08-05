@@ -64,7 +64,6 @@ public class AuthService {
                         new CustomResponse(true, 601, "Cuenta bloqueada"));
             }
 
-
             String token = authentication(authRequest);
             if (token == null) {
                 if(userAccount.get().getRole().getRoleName().equals("family") || userAccount.get().getRole().getRoleName().equals("aupair") && userAccount.get().getFailedAttempts() >= 3){
@@ -82,7 +81,7 @@ public class AuthService {
             userAccount.get().setResetToken(token);
             userAccount.get().setLastLogin(LocalDateTime.now());
             userAccountRepository.saveAndFlush(userAccount.get());
-            if(!this.profileRepository.findByUser_Email(userAccount.get().getEmail()).isPresent()){
+            if(!this.profileRepository.findByUser_Email(userAccount.get().getEmail()).isPresent() && !(userAccount.get().getRole().getRoleName().equals("admin"))){
                 log.error("Usuario sin perfil registrado");
                 return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse("Primero debes completar tu perfil",606,true, token));
             }
