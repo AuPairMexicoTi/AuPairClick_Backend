@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +24,7 @@ public class SubscriptionService {
     public SubscriptionService(SubscriptionRepository subscriptionRepository) {
         this.subscriptionRepository = subscriptionRepository;
     }
+
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> registerSubscription(SubscriptionDTO subscriptiondto){
         try {
@@ -42,6 +42,7 @@ public class SubscriptionService {
             subscription.setTransactionStatus("activo");
             subscription.setTransactionCurrency(subscriptiondto.getTransactionCurrency());
             subscription.setTransactionDescription(subscriptiondto.getTransactionDescription());
+            subscription.setCredits(subscriptiondto.getCredits());
             subscriptionRepository.save(subscription);
             return new ResponseEntity<>(new CustomResponse(false, 200, "Suscripcion registrada correctamente"), HttpStatus.OK);
         }catch (Exception e) {
@@ -49,6 +50,7 @@ public class SubscriptionService {
                     true, 500, "Algo ha ocurrido al registrar la suscripcion"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @Transactional(readOnly = true)
     public ResponseEntity<CustomResponse> getAllSubscriptions(){
         try {
@@ -59,6 +61,7 @@ public class SubscriptionService {
                     true, 500, "Algo ha ocurrido al obtener las suscripciones"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> updateStatusSubscription(UpdateStatus updateStatus){
         try {
@@ -79,6 +82,7 @@ public class SubscriptionService {
                     true, 500, "Algo ha ocurrido al cancelar la suscripcion"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @Transactional(rollbackFor={SQLException.class})
     public ResponseEntity<CustomResponse> updateSubscription(SubscriptionDTO subscriptionDTO) {
         try {

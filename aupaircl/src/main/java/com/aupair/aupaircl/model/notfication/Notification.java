@@ -2,6 +2,7 @@ package com.aupair.aupaircl.model.notfication;
 
 
 import com.aupair.aupaircl.model.user.User;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -29,6 +30,7 @@ public class Notification {
     @GeneratedValue(generator = "UUID")
     private UUID notificationId;
     @ManyToOne
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinColumn(name = "fk_user", nullable = false)
     private User user;
 
@@ -36,7 +38,7 @@ public class Notification {
     private String message;
     @Column(name = "read_status",nullable = false)
     private boolean readStatus = false;
-
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "created_at",nullable = false)
     private Date createdAt;
 

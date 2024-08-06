@@ -2,7 +2,6 @@ package com.aupair.aupaircl.service.userservice;
 
 import com.aupair.aupaircl.controller.mailcontroller.maildto.MailDTO;
 import com.aupair.aupaircl.controller.profilecontroller.profiledto.CountryDTO;
-import com.aupair.aupaircl.controller.usercontroller.userdto.FindHostDTO;
 import com.aupair.aupaircl.controller.usercontroller.userdto.UserDTO;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountry;
 import com.aupair.aupaircl.model.aupairpreferredcountry.AuPairPreferredCountryRepository;
@@ -166,14 +165,4 @@ public UserService(UserRepository userRepository,
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false, HttpStatus.BAD_REQUEST.value(), "El usuario no tiene verificaciones"));
         }
     }
-    @Transactional(readOnly = true)
-    public ResponseEntity<CustomResponse> findHostFamilies(FindHostDTO findHostDTO){
-        try {
-            return null;
-        }catch (Exception e){
-            log.error("Error al filtrar: "+e.getMessage());
-            return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(false,HttpStatus.INTERNAL_SERVER_ERROR.value(),"Algo ocurrio al filtrar"));
-        }
-    }
-
 }

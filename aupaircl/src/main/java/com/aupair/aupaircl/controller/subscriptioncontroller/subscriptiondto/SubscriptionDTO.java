@@ -17,4 +17,5 @@ public class SubscriptionDTO {
     private Double transactionAmount;
     private String transactionCurrency;
     private String features;
+    private Integer credits;
 }

@@ -18,6 +18,7 @@ public class SubscriptionController {
     public SubscriptionController(SubscriptionService subscriptionService) {
         this.subscriptionService = subscriptionService;
     }
+
     @PostMapping(value = "/register", produces = "application/json")
     public ResponseEntity<CustomResponse> registerSubscription(@RequestBody SubscriptionDTO subscriptionDTO) {
         try {
@@ -26,6 +27,7 @@ public class SubscriptionController {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al registrar subscription"));
         }
     }
+
     @GetMapping(value = "/getAllSubscriptions",produces = "application/json")
     public ResponseEntity<CustomResponse> getAllSubscriptions (){
         try {
@@ -34,6 +36,7 @@ public class SubscriptionController {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al obtener subscripciones"));
         }
     }
+
     @PostMapping(value = "/updateStatusSubscription",produces = "application/json")
     public ResponseEntity<CustomResponse> updateStatusSubscription(@RequestBody UpdateStatus updateStatus) {
         try {
@@ -41,8 +44,8 @@ public class SubscriptionController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al actualizar la suscripcion"));
         }
-
     }
+
     @PostMapping(value = "/updateSubscription", produces = "application/json")
     public ResponseEntity<CustomResponse> updateSubscription(@RequestBody SubscriptionDTO subscriptionDTO) {
         try {
@@ -51,4 +54,4 @@ public class SubscriptionController {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al registrar subscription"));
         }
     }
-    }
+}

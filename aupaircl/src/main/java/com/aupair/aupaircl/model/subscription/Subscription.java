@@ -1,6 +1,5 @@
 package com.aupair.aupaircl.model.subscription;
 
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Id;
 import jakarta.persistence.Entity;
@@ -45,6 +44,8 @@ public class Subscription {
     private String transactionCurrency;
     @Column(name = "subscription_features")
     private String subscriptionFeatures;
+    @Column(name = "credits")
+    private int credits;
     @PrePersist
     private void generateUUID() {
         if (this.idSubscription == null) {
