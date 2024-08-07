@@ -9,6 +9,8 @@ import com.aupair.aupaircl.model.message.Messages;
 import com.aupair.aupaircl.model.message.MessagesRepository;
 import com.aupair.aupaircl.model.user.User;
 import com.aupair.aupaircl.model.user.UserRepository;
+import com.aupair.aupaircl.model.user_has_credits.UserHasCreditsRepository;
+import com.aupair.aupaircl.model.user_has_subscription.UserHasSubscriptionRepository;
 import com.aupair.aupaircl.service.mailservice.MailService;
 import com.aupair.aupaircl.service.messageservice.mappermessage.MapperConversation;
 import com.aupair.aupaircl.utils.CustomResponse;
@@ -32,15 +34,21 @@ public class MessageService {
     private final ConversationRepository conversationRepository;
     private final MapperConversation mapperConversation;
     private MailService mailService;
+    private final UserHasSubscriptionRepository userHasSubscriptionRepository;
+    private final UserHasCreditsRepository userHasCreditsRepository;
+
     @Autowired
     public MessageService(MessagesRepository messagesRepository, UserRepository userRepository, ConversationRepository conversationRepository,
-    MapperConversation mapperConversation,MailService mailService
+    MapperConversation mapperConversation,MailService mailService,UserHasSubscriptionRepository userHasSubscriptionRepository,
+                          UserHasCreditsRepository userHasCreditsRepository
     ) {
         this.messagesRepository = messagesRepository;
         this.userRepository = userRepository;
         this.conversationRepository = conversationRepository;
         this.mapperConversation = mapperConversation;
         this.mailService = mailService;
+        this.userHasSubscriptionRepository = userHasSubscriptionRepository;
+        this.userHasCreditsRepository = userHasCreditsRepository;
     }
 
     @Transactional(rollbackFor = {SQLException.class})

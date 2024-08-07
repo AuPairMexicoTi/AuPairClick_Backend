@@ -28,9 +28,6 @@ public class UserHasSubscription {
     @Column(name = "id_user_has_subscription")
     private UUID id_user_has_subscription;
 
-    @Column(name = "credits_currently")
-    private Integer creditsCurrently;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

@@ -39,7 +39,7 @@ public class Subscription {
     @Column(name = "subscription_amount")
     private Double transactionAmount;
     @Column(name = "subscription_status")
-    private String transactionStatus;
+    private String subscriptionStatus;
     @Column(name = "subscription_currency")
     private String transactionCurrency;
     @Column(name = "subscription_features")

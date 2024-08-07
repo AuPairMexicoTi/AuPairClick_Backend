@@ -4,6 +4,7 @@ import com.aupair.aupaircl.model.aupairprofile.AuPairProfile;
 import com.aupair.aupaircl.model.hostfamilyprofile.HostFamilyProfile;
 import com.aupair.aupaircl.model.profile.Profile;
 import com.aupair.aupaircl.model.rol.Rol;
+import com.aupair.aupaircl.model.user_has_credits.UserHasCredits;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -63,6 +64,9 @@ public class User {
     @JsonIgnore
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL, fetch =FetchType.LAZY,targetEntity = HostFamilyProfile.class)
     private HostFamilyProfile hostFamilyProfile;
+    @JsonIgnore
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL, fetch =FetchType.LAZY,targetEntity = UserHasCredits.class)
+    private UserHasCredits userHasCredits;
     @PrePersist
     private void generateUUID(){
         this.lastLogin= LocalDateTime.now();

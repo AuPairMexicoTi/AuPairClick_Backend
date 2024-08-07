@@ -7,5 +7,6 @@ import java.util.UUID;
 
 public interface SubscriptionRepository extends JpaRepository<Subscription, UUID> {
     Optional<Subscription> findByIdProduct(String idProduct);
-    int countByTransactionStatus(String status);
+    Optional<Subscription> findByIdProductAndSubscriptionStatus(String idProduct,String status);
+    int countBySubscriptionStatus(String status);
 }

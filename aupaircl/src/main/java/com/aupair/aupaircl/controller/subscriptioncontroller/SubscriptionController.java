@@ -1,5 +1,6 @@
 package com.aupair.aupaircl.controller.subscriptioncontroller;
 
+import com.aupair.aupaircl.controller.subscriptioncontroller.subscriptiondto.PurchaseSubscriptionDto;
 import com.aupair.aupaircl.controller.subscriptioncontroller.subscriptiondto.SubscriptionDTO;
 import com.aupair.aupaircl.model.updatestatus.UpdateStatus;
 import com.aupair.aupaircl.service.subscriptionservice.SubscriptionService;
@@ -53,5 +54,13 @@ public class SubscriptionController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al registrar subscription"));
         }
+    }
+    @PostMapping(value = "/purchaseSubscription",produces = "application/json")
+    public ResponseEntity<CustomResponse> purchaseSubscription(@RequestBody PurchaseSubscriptionDto purchaseSubscriptionDto) {
+      try {
+          return this.subscriptionService.userPurchaseSubscription(purchaseSubscriptionDto);
+      }catch (Exception e) {
+          return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al realizar la compra de la suscripcion"));
+      }
     }
 }
