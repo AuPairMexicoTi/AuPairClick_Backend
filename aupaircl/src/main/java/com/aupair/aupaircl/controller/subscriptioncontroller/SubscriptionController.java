@@ -57,10 +57,18 @@ public class SubscriptionController {
     }
     @PostMapping(value = "/purchaseSubscription",produces = "application/json")
     public ResponseEntity<CustomResponse> purchaseSubscription(@RequestBody PurchaseSubscriptionDto purchaseSubscriptionDto) {
-      try {
-          return this.subscriptionService.userPurchaseSubscription(purchaseSubscriptionDto);
-      }catch (Exception e) {
-          return ResponseEntity.status(HttpStatus.OK).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedio al realizar la compra de la suscripcion"));
-      }
+        try {
+            // Validar la sesión de Stripe antes de procesar la compra
+            System.out.println(purchaseSubscriptionDto);
+            boolean isValid = this.subscriptionService.validateStripeSession(purchaseSubscriptionDto.getSessionId());
+            System.out.println(isValid);
+            if (isValid) {
+                return this.subscriptionService.userPurchaseSubscription(purchaseSubscriptionDto);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CustomResponse(true, HttpStatus.BAD_REQUEST.value(), "La sesión de Stripe no es válida"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new CustomResponse(true, HttpStatus.INTERNAL_SERVER_ERROR.value(), "Algo sucedió al realizar la compra de la suscripción"));
+        }
     }
 }

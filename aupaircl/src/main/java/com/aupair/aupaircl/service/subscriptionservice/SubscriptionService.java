@@ -12,11 +12,14 @@ import com.aupair.aupaircl.model.user_has_credits.UserHasCreditsRepository;
 import com.aupair.aupaircl.model.user_has_subscription.UserHasSubscription;
 import com.aupair.aupaircl.model.user_has_subscription.UserHasSubscriptionRepository;
 import com.aupair.aupaircl.utils.CustomResponse;
+import com.stripe.Stripe;
+import com.stripe.model.checkout.Session;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.sql.SQLException;
 import java.util.List;
@@ -128,7 +131,7 @@ public class SubscriptionService {
                 log.error("No esta activa la subscription");
                 return new ResponseEntity<>(new CustomResponse(false, 101, "No esta activa la suscripcion"), HttpStatus.OK);
             }
-            Optional<User> userExist = this.userRepository.findByEmailAndIsLocked((purchaseSubscriptionDto.getEmailUser()),false);
+            Optional<User> userExist = this.userRepository.findByEmailAndIsLocked((purchaseSubscriptionDto.getEmail()),false);
             if(userExist.isEmpty()){
                 log.error("El usuario no existe o esta bloqueado");
                 return new ResponseEntity<>(new CustomResponse(false, 102, "El usuario no existe o esta bloqueado"), HttpStatus.OK);
@@ -159,6 +162,20 @@ public class SubscriptionService {
             log.error("Algo sucedio  al comprar subscripcion");
             return new ResponseEntity<>(new CustomResponse(
                     true, 500, "Algo ha ocurrido al realizar la compra de la suscripcion"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @Value("${stripe.apiKey}")
+    private String stripeApiKey;
+
+    public boolean validateStripeSession(String sessionId) {
+        try {
+            Stripe.apiKey = stripeApiKey;
+            Session session = Session.retrieve(sessionId);
+            System.out.println(session);
+            return "paid".equals(session.getPaymentStatus());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

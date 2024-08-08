@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class PurchaseSubscriptionDto {
     private String idProduct;
-    private String emailUser;
+    private String email;
+    private String sessionId;
 }
